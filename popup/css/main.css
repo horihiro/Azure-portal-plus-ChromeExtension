@@ -39,6 +39,22 @@ input:checked+.slider {
   background-color: #2196F3;
 }
 
+input~* {
+  color: gray;
+}
+
+input~* img {
+  filter: brightness(50%)
+}
+
+input:checked~* {
+  color: white;
+}
+
+input:checked~* img {
+  filter: brightness(100%)
+}
+
 input:checked+.slider::before {
   transform: translateX(20px);
 }
