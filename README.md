@@ -2,7 +2,7 @@
 This extension can add features to [Azure portal](https://portal.azure.com).
 
 # Features
-## Replace favicon to one of the resource displayed
+## 1. Replace favicon to one of the resource displayed
 
 Default state:  
 <img src="./popup/img/favicon-before.png">
@@ -25,12 +25,12 @@ The icon of the service is used as the favicon of the tab, when your browser's t
 #### Rule3
 The icon in top of the blade list (i.e. `Overview` ) is used as the favicon of the tab, when your browser's tab is opening your Azure resource.
 
-## Blink favicon during configuration
+## 2. Blink favicon during configuration
 <img src="./popup/img/blink-favicon.png">
 
 When starting a process taking long time (deploying new resouces, changing configuration of your resources or deleting your resources), the favicon of the tab is blinked until the process finishes.
 
-## Notify when finishing configuration
+## 3. Notify when finishing configuration
 <img src="./popup/img/notify2desktop.png">
 
 When finishing a process taking long time, a notification is displayed on your desktop, and the tab can be activated by clicking the notification.
