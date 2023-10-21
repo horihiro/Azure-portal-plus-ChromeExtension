@@ -23,8 +23,4 @@ document.addEventListener('DOMContentLoaded', async (e) => {
       'desktopNotification': e.target.checked
     });
   });
-
-  setInterval(() => {
-    document.querySelector('#blinkFaviconToggle img').src = `./img/blink-favicon.png?${new Date().getTime()}`
-  }, 2000)
 });
