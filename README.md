@@ -4,10 +4,10 @@ This extension can add features to [Azure portal](https://portal.azure.com).
 # Features
 ## Replace favicon to one of the resource displayed
 
-Default state:
+Default state:  
 <img src="./popup/img/favicon-before.png">
 
-This feature enabled:
+This feature enabled:  
 <img src="./popup/img/favicon-after.png">
 
 ### Favicon replacement rules
