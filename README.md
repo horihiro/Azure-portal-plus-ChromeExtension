@@ -10,7 +10,8 @@ Default state:
 This feature enabled:  
 <img src="./popup/img/favicon-after.png">
 
-### Favicon replacement rules
+<details>
+<summary>Favicon replacement rules</summary>
 The favicon is replaced by the following rules.
 
 #### Rule1
@@ -24,6 +25,8 @@ The icon of the service is used as the favicon of the tab, when your browser's t
 
 #### Rule3
 The icon in top of the blade list (i.e. `Overview` ) is used as the favicon of the tab, when your browser's tab is opening your Azure resource.
+
+</details>
 
 ## 2. Blink favicon during configuration
 <img src="./popup/img/blink-favicon.png">
