@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Azure Portal plus",
+  "version": "0.0.1",
+  "version_name": "0.0.1-anago",
+  "description": "Add features to Azure Portal",
+  "permissions": [
+    "notifications",
+    "tabs",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "action": {
+    "default_icon": "img/icon128.png",
+    "default_popup": "popup/main.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://portal.azure.com/*"
+      ],
+      "js": [
+        "content/js/main.js"
+      ]
+    }
+  ]
+}
