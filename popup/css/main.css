@@ -43,15 +43,23 @@ input~* {
   color: gray;
 }
 
-input~* img {
-  filter: brightness(50%)
-}
-
 input:checked~* {
   color: white;
 }
 
-input:checked~* img {
+label:has(input)~* {
+  color: gray;
+}
+
+label:has(input)~* img {
+  filter: brightness(50%)
+}
+
+label:has(input:checked)~* {
+  color: white;
+}
+
+label:has(input:checked)~* img {
   filter: brightness(100%)
 }
 

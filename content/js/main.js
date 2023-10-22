@@ -38,8 +38,8 @@ class FaviconUpdater extends Watcher {
 
     this.observer = new MutationObserver(async (mutations) => {
       if (mutations.filter((mutation/* , i, array */) => mutation.addedNodes.length > 0
-      && [...mutation.addedNodes].filter((addedNode/* , i, array */) => addedNode.nodeName.toLowerCase() === 'link'
-      && addedNode.getAttribute('rel') === 'icon').length > 0).length > 0) return;
+        && [...mutation.addedNodes].filter((addedNode/* , i, array */) => addedNode.nodeName.toLowerCase() === 'link'
+          && addedNode.getAttribute('rel') === 'icon').length > 0).length > 0) return;
       this.updateFavicon();
     })
   }
@@ -78,7 +78,8 @@ class FaviconUpdater extends Watcher {
     this.updateFaviconCore(this.faviconAzureResource);
   }
 
-  startWatching() {
+  startWatching(options) {
+    this.options = options;
     this.updateFavicon();
     this.observer.observe(document, { childList: true, subtree: true });
   }
@@ -209,7 +210,8 @@ class FaviconBlinker extends Watcher {
     this.head.removeChild(document.querySelectorAll('link[rel="icon"]')[0]);
     this.head.appendChild(this.faviconOrig);
   }
-  startWatching() {
+  startWatching(options) {
+    this.options = options;
     const observeStart = () => {
       setTimeout(() => {
         if (this.notificationsPane) this.observer.observe(this.notificationsPane, { attributes: true });
@@ -248,7 +250,7 @@ class DesktopNotifier extends Watcher {
     const msg = {
       type: 'notification',
       notificationOptions: {
-        iconUrl:this.faviconOrig.href,
+        iconUrl: this.faviconOrig.href,
         contextMessage: 'contextMessage',
         isClickable: true,
         message: options.message,
@@ -268,7 +270,8 @@ class DesktopNotifier extends Watcher {
       this.port.onMessage.addListener(this.onMessage.bind(this));
     }
   }
-  startWatching() {
+  startWatching(options) {
+    this.options = options;
     const toastContainer = document.querySelector(this.TARGET_CLASS_TOAST);
     if (toastContainer) {
       this.observer.observe(document.querySelector(this.TARGET_CLASS_TOAST), { childList: true, subtree: true });
@@ -302,24 +305,26 @@ class DesktopNotifier extends Watcher {
 
 (async () => {
   try {
-    const faviConUpdater = new FaviconUpdater();
-    const desktopNotifier = new DesktopNotifier();
-    const faviconBlinker = new FaviconBlinker();
-    const init = async () => {
-      const { replaceFavicon, blinkFavicon, desktopNotification } = (await chrome.storage.local.get(['replaceFavicon', 'blinkFavicon', 'desktopNotification']));
-      if (replaceFavicon) faviConUpdater.startWatching();
-      else faviConUpdater.stopWatching();
+    const _watchers = {};
+    _watchers['replaceFavicon'] = new FaviconUpdater();
+    _watchers['blinkFavicon'] = new FaviconBlinker();
+    _watchers['desktopNotification'] = new DesktopNotifier();
 
-      if (desktopNotification) desktopNotifier.startWatching();
-      else desktopNotifier.stopWatching();
+    const init = async (changes) => {
+      const watcherStatus = await (async (changes, watchers) => {
+        if (!changes) return await chrome.storage.local.get(Object.keys(watchers));
+        return Object.fromEntries(Object.entries(changes).map(c => [c[0], c[1].newValue]))
+      })(changes, _watchers);
 
-      if (blinkFavicon) faviconBlinker.startWatching();
-      else faviconBlinker.stopWatching();
+      Object.keys(watcherStatus).forEach(w => {
+        if (watcherStatus[w].status) _watchers[w].startWatching(watcherStatus[w].options);
+        else _watchers[w].stopWatching();
+      });
     }
 
-    chrome.storage.onChanged.addListener(async (_, area) => {
+    chrome.storage.onChanged.addListener(async (changes, area) => {
       if (area !== 'local') return;
-      init();
+      init(changes);
     });
     init();
   } catch (e) {

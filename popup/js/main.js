@@ -5,22 +5,28 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   const enableBlinkFaviconCheckbox = document.querySelector('#enableBlinkFaviconCheckbox');
   const enableDesktopNotificationCheckbox = document.querySelector('#enableDesktopNotificationCheckbox');
 
-  enableReplaceFaviconCheckbox.checked = replaceFavicon;
-  enableBlinkFaviconCheckbox.checked = blinkFavicon;
-  enableDesktopNotificationCheckbox.checked = desktopNotification;
+  enableReplaceFaviconCheckbox.checked = replaceFavicon && replaceFavicon.status;
+  enableBlinkFaviconCheckbox.checked = blinkFavicon && blinkFavicon.status;
+  enableDesktopNotificationCheckbox.checked = desktopNotification && desktopNotification.status;
   enableReplaceFaviconCheckbox.addEventListener('change', async (e) => {
     await chrome.storage.local.set({
-      'replaceFavicon': e.target.checked
+      'replaceFavicon': {
+        status: e.target.checked
+      }
     });
   });
   enableBlinkFaviconCheckbox.addEventListener('change', async (e) => {
     await chrome.storage.local.set({
-      'blinkFavicon': e.target.checked
+      'blinkFavicon': {
+        status: e.target.checked
+      }
     });
   });
   enableDesktopNotificationCheckbox.addEventListener('change', async (e) => {
     await chrome.storage.local.set({
-      'desktopNotification': e.target.checked
+      'desktopNotification': {
+        status: e.target.checked
+      }
     });
   });
 });
