@@ -11,13 +11,21 @@
 
 <body>
   <h3>Azure Portal Plus</h3>
+  <div id="linkContainer">
+    <div id="linkWrapper">
+      <a href="https://github.com/horihiro/Azure-portal-plus-Chrome-Extension/issues/new" target="_blank"
+        rel="noopener noreferrer">Report an issue<img src="./img/arrow.svg" style="height: 20px" /></a><br>
+      <a href="https://portal.azure.com" target="_blank" rel="noopener noreferrer">Azure portal<img
+          src="./img/arrow.svg" style="height: 20px" /> </a><br>
+    </div>
+  </div>
   <div id="replaceFaviconToggle" class="toggleButton">
     <label class="switch">
       <input type="checkbox" id="enableReplaceFaviconCheckbox">
       <span class="slider"></span>
       <span>Replace favicon to Azure resource's icon</span>
     </label>
-    <div style="margin-left: 50px;">
+    <div>
       <div>From:<br>
         <img src="./img/favicon-before.png">
       </div>
@@ -25,7 +33,7 @@
         <img src="./img/favicon-after.png">
       </div>
     </div>
-</div>
+  </div>
 
   <div id="blinkFaviconToggle" class="toggleButton">
     <label class="switch">
@@ -33,12 +41,12 @@
       <span class="slider"></span>
       <span>Blink favicon during configuration</span>
     </label>
-    <div style="margin-left: 50px;"><br>
+    <div>
       <div>
         <img style="width: 100%;" src="./img/blink-favicon.png">
       </div>
     </div>
-</div>
+  </div>
 
   <div id="notifyToggle" class="toggleButton">
     <label class="switch">
@@ -46,21 +54,16 @@
       <span class="slider"></span>
       <span>Notify to desktop when finishing configuration</span>
     </label>
-    <div style="margin-left: 50px;"><br>
+    <div>
+      NOTE: This feature requests <span class="note"
+        title="'Read your browsing history' and 'Display notifications'">additional permissions</span>.
+      <br>
       <div>
         <img style="width: 60%;" src="./img/notify2desktop.png">
       </div>
     </div>
-</div>
-
-  <div id="linkContainer">
-    <div id="linkWrapper">
-      <a href="https://portal.azure.com" target="_blank" rel="noopener noreferrer">Azure portal<img
-          src="./img/arrow.svg" style="height: 20px" /> </a><br>
-      <a href="https://github.com/horihiro/Azure-portal-plus-Chrome-Extension/issues/new" target="_blank"
-        rel="noopener noreferrer">Report an issue<img src="./img/arrow.svg" style="height: 20px" /></a>
-    </div>
   </div>
+
 </body>
 
 </html>
