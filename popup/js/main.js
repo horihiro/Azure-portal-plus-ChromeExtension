@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     });
   });
   enableDesktopNotificationCheckbox.addEventListener('change', async (e) => {
+    if (!(await chrome.permissions.request({permissions:['tabs', 'notifications']}))) {
+      e.target.checked = false;
+      return;
+    }
     await chrome.storage.local.set({
       'desktopNotification': {
         status: e.target.checked

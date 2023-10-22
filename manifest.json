@@ -5,9 +5,11 @@
   "version_name": "0.0.1-anago",
   "description": "Add features to Azure Portal",
   "permissions": [
-    "notifications",
-    "tabs",
     "storage"
+  ],
+  "optional_permissions": [
+    "notifications",
+    "tabs"
   ],
   "background": {
     "service_worker": "background/service-worker.js"
