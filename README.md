@@ -1,6 +1,11 @@
 # Chrome Extension for Azure portal
-This extension can add features to [Azure portal](https://portal.azure.com).
-![out](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/assets/4566555/7d997b7d-256b-4203-9f14-7a076a5679a0)
+This extension can add features to [Azure portal](https://portal.azure.com).  
+
+
+
+https://github.com/horihiro/Azure-portal-plus-ChromeExtension/assets/4566555/89a272f3-52fc-418c-9aa2-723cfca77f53
+
+
 
 # Features
 ![image](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/assets/4566555/c57cc9ae-8fbb-4cb1-aa06-850af9fabeb6)
