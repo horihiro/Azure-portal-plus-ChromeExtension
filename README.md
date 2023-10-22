@@ -2,6 +2,8 @@
 This extension can add features to [Azure portal](https://portal.azure.com).
 
 # Features
+![image](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/assets/4566555/c57cc9ae-8fbb-4cb1-aa06-850af9fabeb6)
+
 ## 1. Replace favicon to one of the resource displayed
 
 Default state:  
