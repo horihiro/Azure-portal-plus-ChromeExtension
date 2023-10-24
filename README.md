@@ -69,14 +69,14 @@ If you can try a development version, the following steps are needed.
 
 # Change logs
 
-## [0.0.2](https://github.com/horihiro/TextBlurrer-ChromeExtension/releases/tag/0.0.2)
+## [0.0.2](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.2)
 
   - New features
     - Add the following origins ([#1](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/1))
       - `ms.portal.azure.com`
       - `preview.portal.azure.com`
 
-## [0.0.1](https://github.com/horihiro/TextBlurrer-ChromeExtension/releases/tag/0.0.1)
+## [0.0.1](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.1)
 The First release
 
   - Basic features
