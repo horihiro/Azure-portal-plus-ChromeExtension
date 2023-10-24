@@ -68,12 +68,18 @@ If you can try a development version, the following steps are needed.
 1. select the directory created by cloning at step 1.
 
 # Change logs
-(T.B.D)
-<!-- 
+
+## [0.0.2](https://github.com/horihiro/TextBlurrer-ChromeExtension/releases/tag/0.0.2)
+
+  - New features
+    - Add the following origins ([#1](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/1))
+      - `ms.portal.azure.com`
+      - `preview.portal.azure.com`
+
 ## [0.0.1](https://github.com/horihiro/TextBlurrer-ChromeExtension/releases/tag/0.0.1)
-The First release on GitHub
+The First release
 
   - Basic features
     - Replace favicon to one of the resource displayed
     - Blink favicon during configuration
-    - Notify when finishing configuration -->
+    - Notify when finishing configuration 
