@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Azure Portal plus",
-  "version": "0.0.1",
-  "version_name": "0.0.1-anago",
+  "version": "0.0.2",
+  "version_name": "0.0.2-bora",
   "description": "Add features to Azure Portal",
   "permissions": [
     "storage"
@@ -21,6 +21,8 @@
   "content_scripts": [
     {
       "matches": [
+        "https://preview.portal.azure.com/*",
+        "https://ms.portal.azure.com/*",
         "https://portal.azure.com/*"
       ],
       "js": [
