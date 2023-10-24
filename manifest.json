@@ -21,6 +21,8 @@
   "content_scripts": [
     {
       "matches": [
+        "https://preview.portal.azure.com/*",
+        "https://ms.portal.azure.com/*",
         "https://portal.azure.com/*"
       ],
       "js": [
