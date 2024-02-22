@@ -44,7 +44,8 @@ class FaviconUpdater extends Watcher {
     })
   }
   updateFavicon() {
-    const mainIconContainers = document.querySelectorAll('section:last-of-type div[role="group"]:first-child li[role="listitem"]:first-of-type');
+    const mainIconContainers = [...document.querySelectorAll('section:last-of-type div[role="group"]:first-child li[role="listitem"]:first-of-type')]
+      .concat(...document.querySelectorAll('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type'));
     const listIconSvgs = [...document.querySelectorAll('section:last-of-type .ext-hubs-artbrowse-grid div.fxc-gc-row-content>div:nth-child(2) svg')];
     const listResTypes = [...document.querySelectorAll('section:last-of-type .ext-hubs-artbrowse-grid div.fxc-gc-row-content>div:nth-child(2) a')].map((a) => {
       return a.href.replace(/^.*\/providers\//, '').split('/').filter((_, i/* , array */) => i == 0 || i % 2 == 1).join('/');
