@@ -166,6 +166,12 @@ class FaviconBlinker extends Watcher {
       this.head.removeChild(icon);
     });
 
+    this.onBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = "Are you sure you want to leave?";
+      return event.returnValue;
+    };
+
     const observer = new MutationObserver((/* mutations */) => {
       this.notificationsPane = document.querySelector(notificationsPaneSelector);
       if (!this.notificationsPane) return;
@@ -204,12 +210,14 @@ class FaviconBlinker extends Watcher {
     this.blinkFavicon({
       interval: 500
     });
+    (window.parent === window) && window.addEventListener('beforeunload', this.onBeforeUnload);
   }
   stopBlinking() {
     clearTimeout(this.timeout);
     this.timeout = null;
     this.head.removeChild(document.querySelectorAll('link[rel="icon"]')[0]);
     this.head.appendChild(this.faviconOrig);
+    (window.parent === window) && window.removeEventListener('beforeunload', this.onBeforeUnload);
   }
   startWatching(options) {
     this.options = options;
