@@ -118,3 +118,21 @@ span.note {
   cursor: pointer;
   font-style: italic;
 }
+
+summary {
+  margin-bottom: 10px;
+}
+
+details>div {
+  transition: height 0.3s ease;
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0; 
+    transform: translateY(-50px); 
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
