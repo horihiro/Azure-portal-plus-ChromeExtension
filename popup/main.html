@@ -19,51 +19,67 @@
           src="./img/arrow.svg"/> </a><br>
     </div>
   </div>
-  <div id="replaceFaviconToggle" class="toggleButton">
-    <label class="switch">
-      <input type="checkbox" id="enableReplaceFaviconCheckbox">
-      <span class="slider"></span>
-      <span>Replace favicon to Azure resource's icon</span>
-    </label>
-    <div>
-      <div>From:<br>
-        <img src="./img/favicon-before.png">
-      </div>
-      <div>To:<br>
-        <img src="./img/favicon-after.png">
-      </div>
-    </div>
-  </div>
-
-  <div id="blinkFaviconToggle" class="toggleButton">
-    <label class="switch">
-      <input type="checkbox" id="enableBlinkFaviconCheckbox">
-      <span class="slider"></span>
-      <span>Blink favicon during configuration</span>
-    </label>
-    <div>
+  <details open>
+    <summary>Basic Features</summary>
+    <div id="replaceFaviconToggle" class="toggleButton">
+      <label class="switch">
+        <input type="checkbox" id="enableReplaceFaviconCheckbox">
+        <span class="slider"></span>
+        <span>Replace favicon to Azure resource's icon</span>
+      </label>
       <div>
-        <img style="width: 100%;" src="./img/blink-favicon.png">
+        <div>From:<br>
+          <img src="./img/favicon-before.png">
+        </div>
+        <div>To:<br>
+          <img src="./img/favicon-after.png">
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="notifyToggle" class="toggleButton">
-    <label class="switch">
-      <input type="checkbox" id="enableDesktopNotificationCheckbox">
-      <span class="slider"></span>
-      <span>Notify to desktop when finishing configuration</span>
-    </label>
-    <div>
-      NOTE: This feature requests <span class="note"
-        title="'Read your browsing history' and 'Display notifications'">additional permissions</span>.
-      <br>
+    <div id="blinkFaviconToggle" class="toggleButton">
+      <label class="switch">
+        <input type="checkbox" id="enableBlinkFaviconCheckbox">
+        <span class="slider"></span>
+        <span>Blink favicon during configuration</span>
+      </label>
       <div>
-        <img style="width: 60%;" src="./img/notify2desktop.png">
+        <div>
+          <img style="width: 100%;" src="./img/blink-favicon.png">
+        </div>
       </div>
     </div>
-  </div>
 
+    <div id="notifyToggle" class="toggleButton">
+      <label class="switch">
+        <input type="checkbox" id="enableDesktopNotificationCheckbox">
+        <span class="slider"></span>
+        <span>Notify to desktop when finishing configuration</span>
+      </label>
+      <div>
+        NOTE: This feature requests <span class="note"
+          title="'Read your browsing history' and 'Display notifications'">additional permissions</span>.
+        <br>
+        <div>
+          <img style="width: 60%;" src="./img/notify2desktop.png">
+        </div>
+      </div>
+    </div>
+  </details>
+  <details>
+    <summary>Experimental features</summary>
+    <div id="activateToggle" class="toggleButton">
+      <label class="switch">
+        <input type="checkbox" id="enableActivateTabCheckbox">
+        <span class="slider"></span>
+        <span>Bring the window top when finishing configuration</span>
+      </label>
+      <div>
+        NOTE: This feature is <span class="note">experimental</span>.
+        <br>
+      </div>
+    </div>
+  </details>
 </body>
 
 </html>

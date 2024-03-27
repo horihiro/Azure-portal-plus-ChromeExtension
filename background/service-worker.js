@@ -35,15 +35,19 @@ const notify2desktop = async (options) => {
 
 chrome.runtime.onConnect.addListener((port) => {
   console.debug(`onConnect: port ${JSON.stringify(port)}`);
-  if (port.name !== 'desktop-notification') return;
+  if (!['desktop-notification', 'tab-activation'].includes(port.name)) return;
 
-  port.onMessage.addListener((message/* , sender, sendResponse */) => {
+  port.onMessage.addListener(async (message/* , sender, sendResponse */) => {
     switch (message.type)  {
       case 'ping':
         port.postMessage({type: 'pong'});
         break;
+      case 'tab-activation':
+        await chrome.tabs.update(message.tab.id, {active: true, highlighted:true});
+        await chrome.windows.update(message.tab.windowId, {focused: true});
+        break;
       case 'notification':
-        notify2desktop(message);
+        await notify2desktop(message);
     }
   });
   port.onDisconnect.addListener((port) => {
