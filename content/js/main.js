@@ -166,6 +166,12 @@ class FaviconBlinker extends Watcher {
       this.head.removeChild(icon);
     });
 
+    this.onBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = "Are you sure you want to leave?";
+      return event.returnValue;
+    };
+
     const observer = new MutationObserver((/* mutations */) => {
       this.notificationsPane = document.querySelector(notificationsPaneSelector);
       if (!this.notificationsPane) return;
@@ -204,12 +210,14 @@ class FaviconBlinker extends Watcher {
     this.blinkFavicon({
       interval: 500
     });
+    (window.parent === window) && window.addEventListener('beforeunload', this.onBeforeUnload);
   }
   stopBlinking() {
     clearTimeout(this.timeout);
     this.timeout = null;
     this.head.removeChild(document.querySelectorAll('link[rel="icon"]')[0]);
     this.head.appendChild(this.faviconOrig);
+    (window.parent === window) && window.removeEventListener('beforeunload', this.onBeforeUnload);
   }
   startWatching(options) {
     this.options = options;
@@ -228,49 +236,28 @@ class FaviconBlinker extends Watcher {
   }
 }
 
-class DesktopNotifier extends Watcher {
+class ToastWatcher extends Watcher {
   constructor() {
     super();
     this.TARGET_CLASS_TOAST = '.fxs-toast';
-    this.faviconOrig = document.querySelectorAll('link[rel="icon"][type="image/x-icon"]')[0];
     this.messageQueue = [];
 
-    this.observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation/* , i, array */) => {
-        Array.prototype.forEach.call(mutation.addedNodes, (addedNode/* , i, array */) => {
-          if (!addedNode.innerHTML || !/<use [^>]+><\/use>/.test(addedNode.innerHTML) || addedNode.parentNode.className !== 'fxs-toast-icon') return;
-          const title = document.querySelectorAll('.fxs-toast-title')[0].innerText;
-          const message = document.querySelectorAll('.fxs-toast-description')[0].innerText;
-          this.notify2desktop({ title, message });
-        });
+    this.observer = new MutationObserver(this.mainObserverCallback.bind(this));
+  }
+
+  mainObserverCallback(mutations) {
+    mutations.forEach((mutation/* , i, array */) => {
+      Array.prototype.forEach.call(mutation.addedNodes, (addedNode/* , i, array */) => {
+        if (!addedNode.innerHTML || !/<use [^>]+><\/use>/.test(addedNode.innerHTML) || addedNode.parentNode.className !== 'fxs-toast-icon') return;
+        this.send2serviceWorker();
       });
     });
   }
-
-  async notify2desktop(options) {
-    const msg = {
-      type: 'notification',
-      notificationOptions: {
-        iconUrl: this.faviconOrig.href,
-        contextMessage: 'contextMessage',
-        isClickable: true,
-        message: options.message,
-        priority: 0,
-        requireInteraction: true,
-        silent: false,
-        title: options.title,
-        type: 'basic'
-      },
-      tab: this.tab
-    };
-    try {
-      await this.port.postMessage(msg);
-    } catch {
-      this.messageQueue.push(options);
-      this.port = chrome.runtime.connect({ name: 'desktop-notification' });
-      this.port.onMessage.addListener(this.onMessage.bind(this));
-    }
+  send2serviceWorker() {
+    throw new Error('You have to implement the method send2serviceWorker!');
   }
+
+
   startWatching(options) {
     this.options = options;
     const toastContainer = document.querySelector(this.TARGET_CLASS_TOAST);
@@ -291,16 +278,67 @@ class DesktopNotifier extends Watcher {
     switch (message.type) {
       case 'connected':
         this.tab = message.tab;
-        if (this.messageQueue.length > 0) await this.notify2desktop(this.messageQueue.shift());
+        if (this.messageQueue.length > 0) await this.send2serviceWorker();
         break;
       case 'pong':
         console.debug(message.type);
         break;
     }
   }
+}
 
-  stopWatching() {
-    super.stopWatching();
+class TabActivator extends ToastWatcher {
+  constructor() {
+    super();
+  }
+
+  async send2serviceWorker() {
+    const msg = this.messageQueue.shift() || {
+      type: 'tab-activation',
+      tab: this.tab
+    };
+    try {
+      await this.port.postMessage(msg);
+    } catch {
+      this.messageQueue.push(msg);
+      this.port = chrome.runtime.connect({ name: 'tab-activation' });
+      this.port.onMessage.addListener(this.onMessage.bind(this));
+    }
+  }
+
+}
+
+class DesktopNotifier extends ToastWatcher {
+  constructor() {
+    super();
+    this.faviconOrig = document.querySelectorAll('link[rel="icon"][type="image/x-icon"]')[0];
+  }
+
+  async send2serviceWorker() {
+    const title = document.querySelectorAll('.fxs-toast-title')[0].innerText;
+    const message = document.querySelectorAll('.fxs-toast-description')[0].innerText;
+    const msg = this.messageQueue.shift() || {
+      type: 'notification',
+      notificationOptions: {
+        iconUrl: this.faviconOrig.href,
+        contextMessage: 'contextMessage',
+        isClickable: true,
+        message,
+        priority: 0,
+        requireInteraction: true,
+        silent: false,
+        title,
+        type: 'basic'
+      },
+      tab: this.tab
+    };
+    try {
+      await this.port.postMessage(msg);
+    } catch {
+      this.messageQueue.push(msg);
+      this.port = chrome.runtime.connect({ name: 'desktop-notification' });
+      this.port.onMessage.addListener(this.onMessage.bind(this));
+    }
   }
 }
 
@@ -310,6 +348,7 @@ class DesktopNotifier extends Watcher {
     _watchers['replaceFavicon'] = new FaviconUpdater();
     _watchers['blinkFavicon'] = new FaviconBlinker();
     _watchers['desktopNotification'] = new DesktopNotifier();
+    _watchers['activateTab'] = new TabActivator();
 
     const init = async (changes) => {
       const watcherStatus = await (async (changes, watchers) => {

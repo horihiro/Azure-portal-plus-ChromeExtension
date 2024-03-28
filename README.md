@@ -46,6 +46,10 @@ When starting a process taking long time (deploying new resouces, changing confi
 
 When finishing a process taking long time, a notification is displayed on your desktop, and the tab can be activated by clicking the notification.
 
+## 4. Activate the portal tab when finishing configuration (Experimental)
+
+When finishing a process taking long time, the tab opening Azure portal is activated (i.e. to be brought to the top) automatically.
+
 
 # Try this
 
@@ -68,6 +72,18 @@ If you can try a development version, the following steps are needed.
 1. select the directory created by cloning at step 1.
 
 # Change logs
+
+## [0.0.4](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.4)
+
+  - Improve features
+    - Add beforeunload event listener to prevent accidental page leave during blinking favicon ([#8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/8))
+  - New feature
+    - Actvate the tab opening Azure portal (i.e. bring it to the top) automatically when finishing a process taking long time ([#9](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/9))
+
+## [0.0.3](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.3)
+
+  - Bug fix
+    - Refactor main.js to update favicon containers ([#6](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/6))
 
 ## [0.0.2](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.2)
 
