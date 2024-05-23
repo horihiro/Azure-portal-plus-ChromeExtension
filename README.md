@@ -50,7 +50,8 @@ When finishing a process taking long time, a notification is displayed on your d
 
 When finishing a process taking long time, the tab opening Azure portal is activated (i.e. to be brought to the top) automatically.
 
-## 5. Copy resouce information
+## 5. Copy resouce information (v0.0.5 or later)  
+
 Add the following copy menu to the resource page's header and disable built-in `Copy title to clipbord` in `More content actions` menu.  
 
 <img src="./popup/img/advanced-copy-menu.png">
@@ -84,6 +85,9 @@ Add the following copy menu to the resource page's header and disable built-in `
     ```
   - Resource and group name as Azure CLI option
   - Resource and group name as Azure PowerShell option
+
+> [!NOTE]
+> This feature is available only for each resouce page. On subscriptions, resource groups and Entra ID pages, the copy button is not shown. 
 
 # Try this
 
