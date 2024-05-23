@@ -50,6 +50,44 @@ When finishing a process taking long time, a notification is displayed on your d
 
 When finishing a process taking long time, the tab opening Azure portal is activated (i.e. to be brought to the top) automatically.
 
+## 5. Copy resouce information (v0.0.5 or later)  
+
+Add the following copy menu to the resource page's header and disable built-in `Copy title to clipbord` in `More content actions` menu.  
+
+<img src="./popup/img/advanced-copy-menu.png">
+
+  - `Resource name`
+  - `Resource Id`  
+    format:  
+    ```
+    /subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/{resource_provider_name}/{resource_type}/{resource_name}
+    ```
+  - `Resource name and group as Azure CLI option`  
+    format:  
+    ```bash
+    --name {resource_name} --resource-group {resource_group_name}
+    ```
+  - `Resource name and group as Azure PowerShell option`  
+    format:  
+    ```pwsh
+    -Name {resource_name} -ResourceGroup {resource_group_name}
+    ```
+  - `Resource Template (JSON)`  
+    format:  
+    ```json
+    {
+      "name": "{resource_name}",
+      "id": "/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/{resource_provider_name}/{resource_type}/{resource_name}",
+      "type": "{resource_provider_name}",
+
+        :
+    }
+    ```
+  - Resource and group name as Azure CLI option
+  - Resource and group name as Azure PowerShell option
+
+> [!NOTE]
+> This feature is available only for each resouce page. On subscriptions, resource groups and Entra ID pages, the copy button is not shown. 
 
 # Try this
 
@@ -73,12 +111,17 @@ If you can try a development version, the following steps are needed.
 
 # Change logs
 
+## [0.0.5](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.5)
+
+  - New feature
+    - Add a feature to copy resource infomation in various formats.
+
 ## [0.0.4](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.4)
 
   - Improve features
     - Add beforeunload event listener to prevent accidental page leave during blinking favicon ([#8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/8))
   - New feature
-    - Actvate the tab opening Azure portal (i.e. bring it to the top) automatically when finishing a process taking long time ([#9](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/9))
+    - Activate the tab opening Azure portal (i.e. bring it to the top) automatically when finishing a process taking long time ([#9](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/9))
 
 ## [0.0.3](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.3)
 

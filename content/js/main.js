@@ -12,6 +12,196 @@ class Watcher {
   }
 }
 
+class AdvancedCopy extends Watcher {
+  constructor() {
+    super();
+    this.messageQueue = [];
+    this.re = /(\/subscriptions\/[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}\/resourceGroups\/([^/]+)\/providers\/[^/]+\/[^/]+\/([^/]+))/i
+
+    this.observer = new MutationObserver(this.addCopyMenu.bind(this));
+
+  }
+  async storeSecret() {
+    const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
+    const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
+    const secret = JSON.parse(
+      sessionStorage.getItem(
+        `${(JSON.parse(
+          sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
+        ).accessToken || []).find(entry => SCOPES.some((scope) => entry.includes(scope))) || ''
+        }`
+      ) || '{}'
+    ).secret;
+    if (!secret) return;
+    await chrome.storage.local.set({ secret });
+  };
+  addCopyMenu() {
+    const overviewMenuItem = document.querySelector('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type');
+    if (!overviewMenuItem) return;
+    if (!this.re.test(overviewMenuItem.querySelector('a').href)) return;
+    const origDropdownMenu = overviewMenuItem.closest('section')?.querySelector('*:not(.fxs-blade-actiondropmenu)+.fxs-blade-actiondropmenu[id]');
+    if (!origDropdownMenu) return;
+
+    const parent = origDropdownMenu.parentNode;
+    if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return;
+    const copyDropdownMenu = document.createElement('div');
+    copyDropdownMenu.classList.add('fxs-blade-actiondropmenu');
+    copyDropdownMenu.classList.add('app-dropdown-menu');
+    copyDropdownMenu.innerHTML = origDropdownMenu.innerHTML.replace(/id="[^"]+"/g, '');
+
+    const rootButton = copyDropdownMenu.querySelector('button');
+    const copyIcon = rootButton.querySelector('svg>use');
+    if (!copyIcon) return;
+    parent.insertBefore(copyDropdownMenu, origDropdownMenu);
+    copyIcon.href.baseVal = origDropdownMenu.querySelector('button.fxs-blade-copyname svg>use').href.baseVal;
+    rootButton.setAttribute('aria-label', 'More copy actions');
+    rootButton.setAttribute('title', 'More copy actions');
+    rootButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      const menu = event.currentTarget.parentNode.querySelector('.fxs-dropmenu-hidden, .fxs-dropmenu-is-open');
+      if (menu.classList.contains('fxs-dropmenu-is-open')) {
+        menu.classList.remove('fxs-dropmenu-is-open');
+        menu.classList.add('fxs-dropmenu-hidden');
+      } else {
+        menu.classList.remove('fxs-dropmenu-hidden');
+        menu.classList.add('fxs-dropmenu-is-open');
+      }
+    });
+
+    const fxsDropmenuContent = copyDropdownMenu.querySelector('div.fxs-dropmenu-content');
+    fxsDropmenuContent.removeChild(copyDropdownMenu.querySelector('div.fxs-blade-dropmenucontent'));
+    const fxsBladeDropmenucontent = document.createElement('div');
+    fxsBladeDropmenucontent.classList.add('fxs-blade-dropmenucontent');
+    fxsBladeDropmenucontent.setAttribute('role', 'presentation');
+    fxsBladeDropmenucontent.style.width = '350px';
+    [{
+      title: 'Resource name',
+      handler: (event) => {
+        const resource = location.hash.match(this.re);
+        resource && navigator.clipboard.writeText(resource[3]);
+
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
+        if (menu) {
+          menu.classList.remove('fxs-dropmenu-is-open');
+          menu.classList.add('fxs-dropmenu-hidden');
+        }
+      }
+    }, {
+      title: 'Resource Id',
+      handler: (event) => {
+        const resource = location.hash.match(this.re);
+        resource && navigator.clipboard.writeText(resource[1]);
+
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
+        if (menu) {
+          menu.classList.remove('fxs-dropmenu-is-open');
+          menu.classList.add('fxs-dropmenu-hidden');
+        }
+      }
+    }, {
+      title: 'Resource name and group as Azure CLI option',
+      handler: (event) => {
+        const resource = location.hash.match(this.re);
+        resource && navigator.clipboard.writeText(`--name ${resource[3]} --resource-group ${resource[2]}`);
+
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
+        if (menu) {
+          menu.classList.remove('fxs-dropmenu-is-open');
+          menu.classList.add('fxs-dropmenu-hidden');
+        }
+      }
+    }, {
+      title: 'Resource name and group as Azure PowerShell option',
+      handler: (event) => {
+        const resource = location.hash.match(this.re);
+        resource && navigator.clipboard.writeText(`-Name ${resource[3]} -ResourceGroupName ${resource[2]}`);
+
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
+        if (menu) {
+          menu.classList.remove('fxs-dropmenu-is-open');
+          menu.classList.add('fxs-dropmenu-hidden');
+        }
+      }
+    }, {
+      title: 'ARM template (JSON)',
+      handler: async (event) => {
+        const resource = location.hash.match(this.re);
+        await this.storeSecret();
+        this.send2serviceWorker(resource[1]);
+
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
+        if (menu) {
+          menu.classList.remove('fxs-dropmenu-is-open');
+          menu.classList.add('fxs-dropmenu-hidden');
+        }
+      }
+    }].forEach((entry) => {
+      const button = document.createElement('button');
+      button.setAttribute('role', 'menuitem');
+      button.setAttribute('type', 'button');
+      button.classList.add('fxs-blade-dropmenubutton');
+      button.classList.add('fxs-portal-hover');
+      const span = document.createElement('span');
+      span.classList.add('fxs-blade-dropmenubuttontxt');
+      span.classList.add('msportalfx-text-ellipsis');
+      span.innerText = entry.title;
+      span.style.paddingLeft = '10px';
+      button.appendChild(span);
+      button.addEventListener('click', entry.handler);
+
+      fxsBladeDropmenucontent.appendChild(button);
+    });
+
+    fxsDropmenuContent.appendChild(fxsBladeDropmenucontent);
+    origDropdownMenu.querySelector('button.fxs-blade-copyname').style.display = 'none';
+  }
+  startWatching(options) {
+    this.options = options;
+    this.addCopyMenu();
+    this.observer.observe(document, { childList: true, subtree: true });
+  }
+
+  stopWatching() {
+    super.stopWatching();
+    document.querySelectorAll('.app-dropdown-menu').forEach((menu) => {
+      menu.parentNode.removeChild(menu);
+    });
+    document.querySelectorAll('section button.fxs-blade-copyname').forEach(b => {
+      b.style.display = '';
+    });
+
+  }
+
+  async send2serviceWorker(resourceId) {
+    const msg = this.messageQueue.shift() || {
+      type: 'get-arm-template',
+      resourceId
+    };
+    try {
+      await this.port.postMessage(msg);
+    } catch {
+      this.messageQueue.push(msg);
+      this.port = chrome.runtime.connect({ name: 'get-arm-template' });
+      this.port.onMessage.addListener(this.onMessage.bind(this));
+    }
+  }
+
+  async onMessage(message/* , sender, sendResponse */) {
+    switch (message.type) {
+      case 'connected':
+        this.tab = message.tab;
+        if (this.messageQueue.length > 0) await this.send2serviceWorker();
+        break;
+      case 'arm-template':
+        navigator.clipboard.writeText(JSON.stringify(message.body, null, 2));
+        break;
+      case 'pong':
+        console.debug(message.type);
+        break;
+    }
+  }
+}
+
 class FaviconUpdater extends Watcher {
   constructor() {
     super();
@@ -349,6 +539,7 @@ class DesktopNotifier extends ToastWatcher {
     _watchers['blinkFavicon'] = new FaviconBlinker();
     _watchers['desktopNotification'] = new DesktopNotifier();
     _watchers['activateTab'] = new TabActivator();
+    _watchers['advancedCopy'] = new AdvancedCopy();
 
     const init = async (changes) => {
       const watcherStatus = await (async (changes, watchers) => {
@@ -357,6 +548,7 @@ class DesktopNotifier extends ToastWatcher {
       })(changes, _watchers);
 
       Object.keys(watcherStatus).forEach(w => {
+        if (!watcherStatus[w] || !_watchers[w]) return;
         if (watcherStatus[w].status) _watchers[w].startWatching(watcherStatus[w].options);
         else _watchers[w].stopWatching();
       });
@@ -365,6 +557,9 @@ class DesktopNotifier extends ToastWatcher {
     chrome.storage.onChanged.addListener(async (changes, area) => {
       if (area !== 'local') return;
       init(changes);
+    });
+    window.addEventListener('storage', () => {
+      storeSecret();
     });
     init();
   } catch (e) {

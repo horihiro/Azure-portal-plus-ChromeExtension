@@ -1,15 +1,17 @@
 document.addEventListener('DOMContentLoaded', async (e) => {
-  const { replaceFavicon, blinkFavicon, desktopNotification, activateTab } = (await chrome.storage.local.get(['replaceFavicon', 'blinkFavicon', 'desktopNotification', 'activateTab']));
+  const { replaceFavicon, blinkFavicon, desktopNotification, activateTab, advancedCopy } = (await chrome.storage.local.get(['replaceFavicon', 'blinkFavicon', 'desktopNotification', 'activateTab', 'advancedCopy']));
 
   const enableReplaceFaviconCheckbox = document.querySelector('#enableReplaceFaviconCheckbox');
   const enableBlinkFaviconCheckbox = document.querySelector('#enableBlinkFaviconCheckbox');
   const enableDesktopNotificationCheckbox = document.querySelector('#enableDesktopNotificationCheckbox');
   const enableActivateTabCheckbox = document.querySelector('#enableActivateTabCheckbox');
+  const enableAdvancedCopyCheckbox = document.querySelector('#enableAdvancedCopyCheckbox');
 
   enableReplaceFaviconCheckbox.checked = replaceFavicon && replaceFavicon.status;
   enableBlinkFaviconCheckbox.checked = blinkFavicon && blinkFavicon.status;
   enableDesktopNotificationCheckbox.checked = desktopNotification && desktopNotification.status;
   enableActivateTabCheckbox.checked = activateTab && activateTab.status;
+  enableAdvancedCopyCheckbox.checked = advancedCopy && advancedCopy.status;
 
   enableReplaceFaviconCheckbox.addEventListener('change', async (e) => {
     await chrome.storage.local.set({
@@ -39,6 +41,13 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   enableActivateTabCheckbox.addEventListener('change', async (e) => {
     await chrome.storage.local.set({
       'activateTab': {
+        status: e.target.checked
+      }
+    });
+  });
+  enableAdvancedCopyCheckbox.addEventListener('change', async (e) => {
+    await chrome.storage.local.set({
+      'advancedCopy': {
         status: e.target.checked
       }
     });
