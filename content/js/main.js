@@ -21,6 +21,20 @@ class AdvancedCopy extends Watcher {
     this.observer = new MutationObserver(this.addCopyMenu.bind(this));
 
   }
+  async storeSecret() {
+    const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
+    const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
+    const secret = JSON.parse(
+      sessionStorage.getItem(
+        `${(JSON.parse(
+          sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
+        ).accessToken || []).find(entry => SCOPES.some((scope) => entry.includes(scope))) || ''
+        }`
+      ) || '{}'
+    ).secret;
+    if (!secret) return;
+    await chrome.storage.local.set({ secret });
+  };
   addCopyMenu() {
     const overviewMenuItem = document.querySelector('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type');
     if (!overviewMenuItem) return;
@@ -61,36 +75,24 @@ class AdvancedCopy extends Watcher {
     fxsBladeDropmenucontent.setAttribute('role', 'presentation');
     fxsBladeDropmenucontent.style.width = '350px';
     [{
-      title: 'Resource Id',
-      handler: (event) => {
-        const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(resource[1]);
-
-        const menu = event.currentTarget.closest('.fxs-dropmenu-is-open');
-        if (menu) {
-          menu.classList.remove('fxs-dropmenu-is-open');
-          menu.classList.add('fxs-dropmenu-hidden');
-        }
-      }
-    }, {
       title: 'Resource name',
       handler: (event) => {
         const resource = location.hash.match(this.re);
         resource && navigator.clipboard.writeText(resource[3]);
 
-        const menu = event.currentTarget.closest('.fxs-dropmenu-is-open');
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
         if (menu) {
           menu.classList.remove('fxs-dropmenu-is-open');
           menu.classList.add('fxs-dropmenu-hidden');
         }
       }
     }, {
-      title: 'Resource ARM template',
+      title: 'Resource Id',
       handler: (event) => {
         const resource = location.hash.match(this.re);
-        this.send2serviceWorker(resource[1]);
+        resource && navigator.clipboard.writeText(resource[1]);
 
-        const menu = event.currentTarget.closest('.fxs-dropmenu-is-open');
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
         if (menu) {
           menu.classList.remove('fxs-dropmenu-is-open');
           menu.classList.add('fxs-dropmenu-hidden');
@@ -102,7 +104,7 @@ class AdvancedCopy extends Watcher {
         const resource = location.hash.match(this.re);
         resource && navigator.clipboard.writeText(`--name ${resource[3]} --resource-group ${resource[2]}`);
 
-        const menu = event.currentTarget.closest('.fxs-dropmenu-is-open');
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
         if (menu) {
           menu.classList.remove('fxs-dropmenu-is-open');
           menu.classList.add('fxs-dropmenu-hidden');
@@ -114,7 +116,20 @@ class AdvancedCopy extends Watcher {
         const resource = location.hash.match(this.re);
         resource && navigator.clipboard.writeText(`-Name ${resource[3]} -ResourceGroupName ${resource[2]}`);
 
-        const menu = event.currentTarget.closest('.fxs-dropmenu-is-open');
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
+        if (menu) {
+          menu.classList.remove('fxs-dropmenu-is-open');
+          menu.classList.add('fxs-dropmenu-hidden');
+        }
+      }
+    }, {
+      title: 'ARM template (JSON)',
+      handler: async (event) => {
+        const resource = location.hash.match(this.re);
+        await this.storeSecret();
+        this.send2serviceWorker(resource[1]);
+
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
         if (menu) {
           menu.classList.remove('fxs-dropmenu-is-open');
           menu.classList.add('fxs-dropmenu-hidden');
@@ -526,20 +541,6 @@ class DesktopNotifier extends ToastWatcher {
     _watchers['activateTab'] = new TabActivator();
     _watchers['advancedCopy'] = new AdvancedCopy();
 
-    const storeSecret = async () => {
-      const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
-      const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
-      const secret = JSON.parse(
-        sessionStorage.getItem(
-          `${(JSON.parse(
-            sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
-          ).accessToken || []).find(entry => SCOPES.some((scope) => entry.includes(scope))) || ''
-          }`
-        ) || '{}'
-      ).secret;
-      if (!secret) return;
-      await chrome.storage.local.set({ secret });
-    };
     const init = async (changes) => {
       const watcherStatus = await (async (changes, watchers) => {
         if (!changes) return await chrome.storage.local.get(Object.keys(watchers));
@@ -561,7 +562,6 @@ class DesktopNotifier extends ToastWatcher {
       storeSecret();
     });
     init();
-    storeSecret();
   } catch (e) {
     console.error(e)
   }
