@@ -16,15 +16,16 @@ class AdvancedCopy extends Watcher {
   constructor() {
     super();
     this.messageQueue = [];
+    this.resourceMap = new Map();
     this.re = /(\/subscriptions\/[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}\/resourceGroups\/([^/]+)\/providers\/[^/]+\/[^/]+\/([^/]+))/i
 
     this.observer = new MutationObserver(this.addCopyMenu.bind(this));
 
   }
-  async storeSecret() {
+  getAccessToken() {
     const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
     const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
-    const secret = JSON.parse(
+    return JSON.parse(
       sessionStorage.getItem(
         `${(JSON.parse(
           sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
@@ -32,8 +33,6 @@ class AdvancedCopy extends Watcher {
         }`
       ) || '{}'
     ).secret;
-    if (!secret) return;
-    await chrome.storage.local.set({ secret });
   };
   addCopyMenu() {
     const overviewMenuItem = document.querySelector('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type');
@@ -42,6 +41,7 @@ class AdvancedCopy extends Watcher {
     const origDropdownMenu = overviewMenuItem.closest('section')?.querySelector('*:not(.fxs-blade-actiondropmenu)+.fxs-blade-actiondropmenu[id]');
     if (!origDropdownMenu) return;
 
+    this.send2serviceWorker({resourceId: overviewMenuItem.querySelector('a').href.match(this.re)[1], accessToken: this.getAccessToken()});
     const parent = origDropdownMenu.parentNode;
     if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return;
     const copyDropdownMenu = document.createElement('div');
@@ -126,8 +126,7 @@ class AdvancedCopy extends Watcher {
       title: 'ARM template (JSON)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        await this.storeSecret();
-        this.send2serviceWorker(resource[1]);
+        resource && navigator.clipboard.writeText(JSON.stringify(this.resourceMap.get(resource[1]), null, 2));
 
         const menu = event.target.closest('.fxs-dropmenu-is-open');
         if (menu) {
@@ -172,11 +171,8 @@ class AdvancedCopy extends Watcher {
 
   }
 
-  async send2serviceWorker(resourceId) {
-    const msg = this.messageQueue.shift() || {
-      type: 'get-arm-template',
-      resourceId
-    };
+  async send2serviceWorker(message) {
+    const msg = this.messageQueue.shift() || Object.assign({type: 'get-arm-template'}, message);
     try {
       await this.port.postMessage(msg);
     } catch {
@@ -193,7 +189,7 @@ class AdvancedCopy extends Watcher {
         if (this.messageQueue.length > 0) await this.send2serviceWorker();
         break;
       case 'arm-template':
-        navigator.clipboard.writeText(JSON.stringify(message.body, null, 2));
+        this.resourceMap.set(message.body.id, message.body);
         break;
       case 'pong':
         console.debug(message.type);

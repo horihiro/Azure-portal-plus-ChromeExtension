@@ -1,6 +1,7 @@
 console.debug('Start service-worker.js');
 
 const notificationQueue = [];
+const apiVersionMap = new Map();
 
 const notificationCore = async (options) => {
   console.debug(JSON.stringify(options, null, 2));
@@ -50,17 +51,28 @@ chrome.runtime.onConnect.addListener((port) => {
       case 'get-arm-template':
         try {
           const m = message.resourceId.match(/(\/providers\/[^\/]+)\/([^\/]+)/);
-          if (!m) return;
+          if (!m) {
+            port.postMessage({ type: 'arm-template', errorMessage: `Invalid resourceId: ${message.resourceId}`});
+            return;
+          }
           const provider = m[1];
-          const providerInfoResponse = await fetch(
-            `https://management.azure.com${provider}?api-version=2019-08-01`,
-            { headers: { 'Authorization': `Bearer ${await getSecret()}` } }
-          );
-          const providerInfo = await providerInfoResponse.json();
-          const apiVersion = providerInfo.resourceTypes.find((type) => type.resourceType.toLowerCase() === m[2].toLowerCase() ).apiVersions[0];
+          const resourceType = m[2];
+          const apiVersion = apiVersionMap.get(`${provider}/${resourceType}`) || await (async (params) => {
+            const providerInfoResponse = await fetch(
+              `https://management.azure.com${params.provider}?api-version=2019-08-01`,
+              { headers: { 'Authorization': `Bearer ${params.accessToken}` } }
+            );
+            const providerInfo = await providerInfoResponse.json();
+            apiVersionMap.set(`${params.provider}/${params.resourceType}`, providerInfo.resourceTypes.find((type) => type.resourceType.toLowerCase() === params.resourceType.toLowerCase()).apiVersions[0]);
+            return apiVersionMap.get(`${params.provider}/${params.resourceType}`);
+          })({provider, resourceType, accessToken: message.accessToken});
+          if (!apiVersion) {
+            port.postMessage({ type: 'arm-template', errorMessage: `API version not found: ${resourceId}`});
+            return;
+          }
           const response = await fetch(
             `https://management.azure.com${message.resourceId}?api-version=${apiVersion}`,
-            { headers: { 'Authorization': `Bearer ${await getSecret()}` } }
+            { headers: { 'Authorization': `Bearer ${message.accessToken}` } }
           );
           const body = await response.json();
           port.postMessage({ type: 'arm-template', body });
@@ -105,7 +117,3 @@ chrome.storage.onChanged.addListener(async (_, area) => {
   // } else {
   // }
 });
-
-const getSecret = async () => {
-  return (await chrome.storage.local.get(['secret'])).secret;
-}
