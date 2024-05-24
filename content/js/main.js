@@ -554,9 +554,6 @@ class DesktopNotifier extends ToastWatcher {
       if (area !== 'local') return;
       init(changes);
     });
-    window.addEventListener('storage', () => {
-      storeSecret();
-    });
     init();
   } catch (e) {
     console.error(e)
