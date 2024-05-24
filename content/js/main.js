@@ -126,7 +126,7 @@ class AdvancedCopy extends Watcher {
       title: 'ARM template (JSON)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(JSON.stringify(this.resourceMap.get(resource[1]), null, 2));
+        resource && navigator.clipboard.writeText(JSON.stringify(this.resourceMap.get(resource[1].toLowerCase()), null, 2));
 
         const menu = event.target.closest('.fxs-dropmenu-is-open');
         if (menu) {
@@ -146,7 +146,7 @@ class AdvancedCopy extends Watcher {
       span.innerText = entry.title;
       span.style.paddingLeft = '10px';
       button.appendChild(span);
-      button.addEventListener('click', entry.handler);
+      button.addEventListener('click', entry.handler.bind(this));
 
       fxsBladeDropmenucontent.appendChild(button);
     });
@@ -189,7 +189,7 @@ class AdvancedCopy extends Watcher {
         if (this.messageQueue.length > 0) await this.send2serviceWorker();
         break;
       case 'arm-template':
-        this.resourceMap.set(message.body.id, message.body);
+        this.resourceMap.set(message.body.id.toLowerCase(), message.body);
         break;
       case 'pong':
         console.debug(message.type);
