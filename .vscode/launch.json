@@ -3,17 +3,16 @@
   "configurations": [
     {
       "type": "chrome",
-      "request": "attach",
-      "name": "Debug on Chrome",
-      "port": 9222,
-      "preLaunchTask": "Launch Chrome"
-    },
-    {
-      "type": "msedge",
-      "request": "attach",
-      "name": "Debug on Edge",
-      "port": 9222,
-      "preLaunchTask": "Launch Edge"
+      "request": "launch",
+      "name": "Launch Chrome",
+      "url": "https://portal.azure.com",
+      "runtimeArgs": [
+        "--remote-debugging-port=9222",
+        "--load-extension=${workspaceFolder}" // this is the path to the extension folder
+      ],
+      "env": {
+        "CHROME_DEVELOPER_TOOLS": true
+      }
     }
   ]
 }

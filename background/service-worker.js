@@ -33,8 +33,6 @@ const notify2desktop = async (options) => {
   notificationQueue.push(options);
 }
 
-
-
 chrome.runtime.onConnect.addListener((port) => {
   console.debug(`onConnect: port ${JSON.stringify(port)}`);
   if (!['desktop-notification', 'tab-activation', 'get-arm-template'].includes(port.name)) return;
@@ -52,7 +50,7 @@ chrome.runtime.onConnect.addListener((port) => {
         try {
           const m = message.resourceId.match(/(\/providers\/[^\/]+)\/([^\/]+)/);
           if (!m) {
-            port.postMessage({ type: 'arm-template', errorMessage: `Invalid resourceId: ${message.resourceId}`});
+            port.postMessage({ type: 'arm-template', errorMessage: `Invalid resourceId: ${message.resourceId}` });
             return;
           }
           const provider = m[1];
@@ -65,9 +63,9 @@ chrome.runtime.onConnect.addListener((port) => {
             const providerInfo = await providerInfoResponse.json();
             apiVersionMap.set(`${params.provider}/${params.resourceType}`, providerInfo.resourceTypes.find((type) => type.resourceType.toLowerCase() === params.resourceType.toLowerCase()).apiVersions[0]);
             return apiVersionMap.get(`${params.provider}/${params.resourceType}`);
-          })({provider, resourceType, accessToken: message.accessToken});
+          })({ provider, resourceType, accessToken: message.accessToken });
           if (!apiVersion) {
-            port.postMessage({ type: 'arm-template', errorMessage: `API version not found: ${resourceId}`});
+            port.postMessage({ type: 'arm-template', errorMessage: `API version not found: ${resourceId}` });
             return;
           }
           const response = await fetch(

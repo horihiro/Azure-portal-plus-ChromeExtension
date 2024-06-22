@@ -16,7 +16,6 @@ class AdvancedCopy extends Watcher {
   constructor() {
     super();
     this.messageQueue = [];
-    this.resourceMap = new Map();
     this.re = /(\/subscriptions\/[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}\/resourceGroups\/([^/]+)\/providers\/[^/]+\/[^/]+\/([^/]+))/i
 
     this.observer = new MutationObserver(this.addCopyMenu.bind(this));
@@ -41,7 +40,6 @@ class AdvancedCopy extends Watcher {
     const origDropdownMenu = overviewMenuItem.closest('section')?.querySelector('*:not(.fxs-blade-actiondropmenu)+.fxs-blade-actiondropmenu[id]');
     if (!origDropdownMenu) return;
 
-    this.send2serviceWorker({resourceId: overviewMenuItem.querySelector('a').href.match(this.re)[1], accessToken: this.getAccessToken()});
     const parent = origDropdownMenu.parentNode;
     if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return;
     const copyDropdownMenu = document.createElement('div');
@@ -126,7 +124,13 @@ class AdvancedCopy extends Watcher {
       title: 'ARM template (JSON)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(JSON.stringify(this.resourceMap.get(resource[1].toLowerCase()), null, 2));
+        if (resource) {
+          this.getResourceHandler = (armJson) => {
+            navigator.clipboard.writeText(JSON.stringify(armJson, null, 2));
+            this.getResourceHandler = null;
+          };
+          this.send2serviceWorker({ resourceId: resource[1], accessToken: this.getAccessToken() });
+        }
 
         const menu = event.target.closest('.fxs-dropmenu-is-open');
         if (menu) {
@@ -172,7 +176,7 @@ class AdvancedCopy extends Watcher {
   }
 
   async send2serviceWorker(message) {
-    const msg = this.messageQueue.shift() || Object.assign({type: 'get-arm-template'}, message);
+    const msg = this.messageQueue.shift() || Object.assign({ type: 'get-arm-template' }, message);
     try {
       await this.port.postMessage(msg);
     } catch {
@@ -189,7 +193,7 @@ class AdvancedCopy extends Watcher {
         if (this.messageQueue.length > 0) await this.send2serviceWorker();
         break;
       case 'arm-template':
-        this.resourceMap.set(message.body.id.toLowerCase(), message.body);
+        this.getResourceHandler && this.getResourceHandler(message.body);
         break;
       case 'pong':
         console.debug(message.type);
@@ -229,9 +233,9 @@ class FaviconUpdater extends Watcher {
       if (mutations.filter((mutation) => (mutation.type === 'attributes')
         ? mutation.target.nodeName.toLowerCase() === 'div' && mutation.attributeName === 'class' && mutation.target.classList.contains('fxs-sidebar')
         : [...mutation.addedNodes].filter((addedNode) => {
-            return addedNode.nodeName.toLowerCase() !== 'link' || addedNode.getAttribute('rel') !== 'icon';
-          }).length > 0
-      ).length === 0) return; 
+          return addedNode.nodeName.toLowerCase() !== 'link' || addedNode.getAttribute('rel') !== 'icon';
+        }).length > 0
+      ).length === 0) return;
       this.updateFavicon();
     })
   }
@@ -240,10 +244,10 @@ class FaviconUpdater extends Watcher {
       ...document.querySelectorAll('section:last-of-type div[role="group"]:first-child li[role="listitem"]:first-of-type'),
       ...document.querySelectorAll('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type'),
       ...(
-        document.querySelectorAll('.fxs-sidebar-menu-activated .fxs-sidebar-menu-container').length > 0 && 
-        getComputedStyle(document.querySelectorAll('div.fxs-sidebar-menu-container')[0]).display !== 'none'
-        ? document.querySelectorAll('div.fxs-sidebar-menu-container div[role="listitem"]:first-child li[role="listitem"]:first-of-type')
-        : []
+        document.querySelectorAll('.fxs-sidebar-menu-activated .fxs-sidebar-menu-container').length > 0 &&
+          getComputedStyle(document.querySelectorAll('div.fxs-sidebar-menu-container')[0]).display !== 'none'
+          ? document.querySelectorAll('div.fxs-sidebar-menu-container div[role="listitem"]:first-child li[role="listitem"]:first-of-type')
+          : []
       ),
     ];
     const listIconSvgs = [...document.querySelectorAll('section:last-of-type .ext-hubs-artbrowse-grid div.fxc-gc-row-content>div:nth-child(2) svg')];
@@ -282,7 +286,7 @@ class FaviconUpdater extends Watcher {
   startWatching(options) {
     this.options = options;
     this.updateFavicon();
-    this.observer.observe(document, { childList: true, subtree: true, attributes: true});
+    this.observer.observe(document, { childList: true, subtree: true, attributes: true });
   }
 
   stopWatching() {
