@@ -205,6 +205,9 @@ class FaviconUpdater extends Watcher {
     this.exceptionTables = [{
       hash: '#view/HubsExtension/BrowseResource/resourceType/Microsoft.Web%2Fsites',
       type: 72
+    }, {
+      hash: '#browse/Microsoft.Web%2Fsites',
+      type: 72
     }];
     this.faviconOrig = document.querySelectorAll('link[rel="icon"][type="image/x-icon"]')[0];
 
@@ -223,15 +226,26 @@ class FaviconUpdater extends Watcher {
     });
 
     this.observer = new MutationObserver(async (mutations) => {
-      if (mutations.filter((mutation/* , i, array */) => mutation.addedNodes.length > 0
-        && [...mutation.addedNodes].filter((addedNode/* , i, array */) => addedNode.nodeName.toLowerCase() === 'link'
-          && addedNode.getAttribute('rel') === 'icon').length > 0).length > 0) return;
+      if (mutations.filter((mutation) => (mutation.type === 'attributes')
+        ? mutation.target.nodeName.toLowerCase() === 'div' && mutation.attributeName === 'class' && mutation.target.classList.contains('fxs-sidebar')
+        : [...mutation.addedNodes].filter((addedNode) => {
+            return addedNode.nodeName.toLowerCase() !== 'link' || addedNode.getAttribute('rel') !== 'icon';
+          }).length > 0
+      ).length === 0) return; 
       this.updateFavicon();
     })
   }
   updateFavicon() {
-    const mainIconContainers = [...document.querySelectorAll('section:last-of-type div[role="group"]:first-child li[role="listitem"]:first-of-type')]
-      .concat(...document.querySelectorAll('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type'));
+    const mainIconContainers = [
+      ...document.querySelectorAll('section:last-of-type div[role="group"]:first-child li[role="listitem"]:first-of-type'),
+      ...document.querySelectorAll('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type'),
+      ...(
+        document.querySelectorAll('.fxs-sidebar-menu-activated .fxs-sidebar-menu-container').length > 0 && 
+        getComputedStyle(document.querySelectorAll('div.fxs-sidebar-menu-container')[0]).display !== 'none'
+        ? document.querySelectorAll('div.fxs-sidebar-menu-container div[role="listitem"]:first-child li[role="listitem"]:first-of-type')
+        : []
+      ),
+    ];
     const listIconSvgs = [...document.querySelectorAll('section:last-of-type .ext-hubs-artbrowse-grid div.fxc-gc-row-content>div:nth-child(2) svg')];
     const listResTypes = [...document.querySelectorAll('section:last-of-type .ext-hubs-artbrowse-grid div.fxc-gc-row-content>div:nth-child(2) a')].map((a) => {
       return a.href.replace(/^.*\/providers\//, '').split('/').filter((_, i/* , array */) => i == 0 || i % 2 == 1).join('/');
@@ -268,7 +282,7 @@ class FaviconUpdater extends Watcher {
   startWatching(options) {
     this.options = options;
     this.updateFavicon();
-    this.observer.observe(document, { childList: true, subtree: true });
+    this.observer.observe(document, { childList: true, subtree: true, attributes: true});
   }
 
   stopWatching() {
