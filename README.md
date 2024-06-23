@@ -111,6 +111,13 @@ If you can try a development version, the following steps are needed.
 
 # Change logs
 
+## [0.0.6](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.6)
+
+  - Bug fix
+    - Cannot keep a resource icon as the favicon when hiding the sidebar ([#15](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/15))  
+  - Improve features
+    - Copy ARM template(JSON)
+
 ## [0.0.5](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.5)
 
   - New feature
