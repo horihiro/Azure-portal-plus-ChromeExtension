@@ -13,6 +13,19 @@
       "env": {
         "CHROME_DEVELOPER_TOOLS": true
       }
+    },
+    {
+      "type": "msedge",
+      "request": "launch",
+      "name": "Launch Edge",
+      "url": "https://portal.azure.com",
+      "runtimeArgs": [
+        "--remote-debugging-port=9222",
+        "--load-extension=${workspaceFolder}" // this is the path to the extension folder
+      ],
+      "env": {
+        "CHROME_DEVELOPER_TOOLS": true
+      }
     }
   ]
 }
