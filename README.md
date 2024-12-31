@@ -89,6 +89,10 @@ Add the following copy menu to the resource page's header and disable built-in `
 > [!NOTE]
 > This feature is available only for each resouce page. On subscriptions, resource groups and Entra ID pages, the copy button is not shown. 
 
+## 6. Restore filter string on each list view (v0.0.6 or later)  (Experimental)
+
+By storing filter string on inputting/updating on each list view, this can restore the filter string on the list view when opening the list view again.
+
 # Try this
 
 ### From Chrome Web Store
@@ -110,6 +114,11 @@ If you can try a development version, the following steps are needed.
 1. select the directory created by cloning at step 1.
 
 # Change logs
+
+## [0.0.7](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.7)
+
+  - New feature
+    - Add a feature to restore fitler string on each list view.
 
 ## [0.0.6](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.6)
 
