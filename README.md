@@ -1,4 +1,9 @@
 # Chrome Extension for Azure portal
+![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/jkcphnjnffinkpflgnpcjagggmjmakdg)
+![Chrome Web Store Last Updated](https://img.shields.io/chrome-web-store/last-updated/jkcphnjnffinkpflgnpcjagggmjmakdg)
+![Chrome Web Store Stars](https://img.shields.io/chrome-web-store/stars/jkcphnjnffinkpflgnpcjagggmjmakdg)
+![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/jkcphnjnffinkpflgnpcjagggmjmakdg)
+
 This extension can add features to [Azure portal](https://portal.azure.com).  
 
 
