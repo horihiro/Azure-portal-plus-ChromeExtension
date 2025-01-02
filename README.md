@@ -96,7 +96,7 @@ By storing filter string on inputting/updating on each list view, this can resto
 # Try this
 
 ### From Chrome Web Store
-This extension is not published yet.
+This extension can be installed from [Chrome Web Store](https://chromewebstore.google.com/detail/azure-portal-plus/jkcphnjnffinkpflgnpcjagggmjmakdg).
 
 ### From this repository
 If you can try a development version, the following steps are needed.
