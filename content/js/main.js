@@ -12,6 +12,42 @@ class Watcher {
   }
 }
 
+class FilterRestorer extends Watcher {
+  constructor() {
+    super();
+    this.observer = new MutationObserver(this.detectFilterInput.bind(this));
+    this.SELECTOR_BLADE_TITLE = 'section:last-of-type .fxs-blade-title-titleText';
+    this.inputMap = {};
+  }
+  async updateFileterString(inputEvent) {
+    const bladeTitle = document.querySelector(this.SELECTOR_BLADE_TITLE)?.innerText || '';
+    if (!bladeTitle) return;
+    this.options.filterString[bladeTitle] = inputEvent.target.value;
+    await chrome.storage.local.set({"filterRestorer": {
+      status: true,
+      options: this.options
+    }});
+  }
+  detectFilterInput() {
+    const filterInputs = [...document.querySelectorAll('section:last-of-type .ext-hubs-artbrowse-filter-container input[type="text"]')];
+    const bladeTitle = document.querySelector(this.SELECTOR_BLADE_TITLE)?.innerText || '';
+    if (filterInputs.length === 0 || !bladeTitle || this.inputMap[bladeTitle] == filterInputs[0]) return;
+    this.inputMap[bladeTitle] = filterInputs[0];
+    this.inputMap[bladeTitle].value = this.options.filterString[bladeTitle] || '';
+    if (this.inputMap[bladeTitle].value) this.inputMap[bladeTitle].dispatchEvent(new Event('input', { bubbles: true }));
+    this.inputMap[bladeTitle].addEventListener('input', this.updateFileterString.bind(this));
+  }
+  startWatching(options) {
+    this.options = options || {filterString: {}};
+    this.detectFilterInput();
+    this.observer.observe(document, { childList: true, subtree: true });
+  }
+
+  stopWatching() {
+    super.stopWatching();
+  }
+}
+
 class AdvancedCopy extends Watcher {
   constructor() {
     super();
@@ -554,6 +590,7 @@ class DesktopNotifier extends ToastWatcher {
     _watchers['desktopNotification'] = new DesktopNotifier();
     _watchers['activateTab'] = new TabActivator();
     _watchers['advancedCopy'] = new AdvancedCopy();
+    _watchers['filterRestorer'] = new FilterRestorer();
 
     const init = async (changes) => {
       const watcherStatus = await (async (changes, watchers) => {
