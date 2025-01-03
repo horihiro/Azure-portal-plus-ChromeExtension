@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async (e) => {
       {
         'filterRestorer': {
           status: e.target.checked,
-          options: current.filterRestorer.options
+          options: current.filterRestorer?.options
         }
       }
     );
