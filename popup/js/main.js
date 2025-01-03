@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     });
   });
   enableDesktopNotificationCheckbox.addEventListener('change', async (e) => {
-    if (!(await chrome.permissions.request({ permissions: ['tabs', 'notifications'] }))) {
+    if (!(await chrome.permissions.request({ permissions: ['notifications'] }))) {
       e.target.checked = false;
       return;
     }

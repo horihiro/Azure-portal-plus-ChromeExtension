@@ -8,8 +8,7 @@
     "storage"
   ],
   "optional_permissions": [
-    "notifications",
-    "tabs"
+    "notifications"
   ],
   "background": {
     "service_worker": "background/service-worker.js"
