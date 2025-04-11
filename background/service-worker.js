@@ -2,6 +2,12 @@ console.debug('Start service-worker.js');
 
 const notificationQueue = [];
 const apiVersionMap = new Map();
+const contextMenuProps = [
+  {
+    id: 'open-in-preview-portal',
+    title: 'Open in preview portal'
+  }
+];
 
 const notificationCore = async (options) => {
   console.debug(JSON.stringify(options, null, 2));
@@ -114,4 +120,20 @@ chrome.storage.onChanged.addListener(async (_, area) => {
   // if (advancedCopy) {
   // } else {
   // }
+});
+
+chrome.runtime.onInstalled.addListener(async () => {
+  console.debug('onInstalled');
+  chrome.contextMenus.create(contextMenuProps);
+});
+
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  console.debug('onClicked', info, tab);
+  if (info.menuItemId === contextMenuProps[0].id && info.frameUrl) {
+    console.debug(`clicked in ${info.frameUrl}`);
+    await chrome.tabs.create({
+      url: info.frameUrl.replace('portal.azure.com', 'preview.portal.azure.com'),
+      active: true
+    });
+  }
 });
