@@ -98,6 +98,10 @@ Add the following copy menu to the resource page's header and disable built-in `
 
 By storing filter string on inputting/updating on each list view, this can restore the filter string on the list view when opening the list view again.
 
+## 7. Open in the preview portal (v0.0.8 or later)  (Experimental)
+
+When your resource is opened in `portal.azure.com`, you can open it in `preview.portal.azure.com` from the context menu, and vice versa.
+
 # Try this
 
 ### From Chrome Web Store
