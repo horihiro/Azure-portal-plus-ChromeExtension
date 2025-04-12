@@ -102,6 +102,9 @@ By storing filter string on inputting/updating on each list view, this can resto
 
 When your resource is opened in `portal.azure.com`, you can open it in `preview.portal.azure.com` from the context menu, and vice versa.
 
+> [!NOTE]
+> To open the context menu on Azure portal, you need to use right-click with <kbd>ctrl</kbd> key.
+
 # Try this
 
 ### From Chrome Web Store
