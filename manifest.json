@@ -5,7 +5,9 @@
   "version_name": "0.0.8-hokke",
   "description": "Add features to Azure Portal",
   "permissions": [
-    "storage"
+    "storage",
+    "tabs",
+    "contextMenus"
   ],
   "optional_permissions": [
     "notifications"
@@ -16,6 +18,9 @@
   "action": {
     "default_icon": "img/icon128.png",
     "default_popup": "popup/main.html"
+  },
+  "icons": {
+    "128": "img/icon128.png"
   },
   "content_scripts": [
     {
