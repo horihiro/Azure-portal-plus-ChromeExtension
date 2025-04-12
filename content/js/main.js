@@ -23,10 +23,12 @@ class FilterRestorer extends Watcher {
     const bladeTitle = document.querySelector(this.SELECTOR_BLADE_TITLE)?.innerText || '';
     if (!bladeTitle) return;
     this.options.filterString[bladeTitle] = inputEvent.target.value;
-    await chrome.storage.local.set({"filterRestorer": {
-      status: true,
-      options: this.options
-    }});
+    await chrome.storage.local.set({
+      "filterRestorer": {
+        status: true,
+        options: this.options
+      }
+    });
   }
   detectFilterInput() {
     const filterInputs = [...document.querySelectorAll('section:last-of-type .ext-hubs-artbrowse-filter-container input[type="text"]')];
@@ -38,7 +40,7 @@ class FilterRestorer extends Watcher {
     this.inputMap[bladeTitle].addEventListener('input', this.updateFileterString.bind(this));
   }
   startWatching(options) {
-    this.options = options || {filterString: {}};
+    this.options = options || { filterString: {} };
     this.detectFilterInput();
     this.observer.observe(document, { childList: true, subtree: true });
   }
@@ -55,6 +57,49 @@ class AdvancedCopy extends Watcher {
     this.re = /(\/subscriptions\/[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}\/resourceGroups\/([^/]+)\/providers\/[^/]+\/[^/]+\/([^/]+))/i
 
     this.observer = new MutationObserver(this.addCopyMenu.bind(this));
+
+    this.toastLayer = document.createElement('div');
+    this.toastLayer.style.position = 'fixed';
+    this.toastLayer.style.top = '0';
+    this.toastLayer.style.left = '0';
+    this.toastLayer.style.width = '100%';
+    this.toastLayer.style.height = '100%';
+    this.toastLayer.style.alignContent = 'center';
+    this.toastLayer.style.pointerEvents = 'none';
+    this.toastLayer.style.animationDuration = '2s';
+    this.toastLayer.style.animationFillMode = 'both';
+    this.toastLayer.addEventListener("animationend", () => {
+      this.toastLayer.parentNode.removeChild(this.toastLayer);
+      this.toastLayer.classList.remove('fadeOut');
+    });
+
+    this.toastLayer.appendChild(document.createElement('div'));
+    this.toastLayer.childNodes[0].style.width = '100px';
+    this.toastLayer.childNodes[0].style.height = '100px';
+    this.toastLayer.childNodes[0].style.margin = '0 auto';
+    this.toastLayer.childNodes[0].style.pointerEvents = 'all';
+    this.icons = {
+      loading: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect fill="#0078D4" stroke="#0078D4" stroke-width="8" width="30" height="30" x="25" y="85"><animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.4"></animate></rect><rect fill="#0078D4" stroke="#0078D4" stroke-width="8" width="30" height="30" x="85" y="85"><animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.2"></animate></rect><rect fill="#0078D4" stroke="#0078D4" stroke-width="8" width="30" height="30" x="145" y="85"><animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="0"></animate></rect></svg>',
+      done: '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 512 512"><path fill="#32BEA6" d="M504.1,256C504.1,119,393,7.9,256,7.9C119,7.9,7.9,119,7.9,256C7.9,393,119,504.1,256,504.1C393,504.1,504.1,393,504.1,256z"></path><path fill="#FFF" d="M392.6,172.9c-5.8-15.1-17.7-12.7-30.6-10.1c-7.7,1.6-42,11.6-96.1,68.8c-22.5,23.7-37.3,42.6-47.1,57c-6-7.3-12.8-15.2-20-22.3C176.7,244.2,152,229,151,228.4c-10.3-6.3-23.8-3.1-30.2,7.3c-6.3,10.3-3.1,23.8,7.2,30.2c0.2,0.1,21.4,13.2,39.6,31.5c18.6,18.6,35.5,43.8,35.7,44.1c4.1,6.2,11,9.8,18.3,9.8c1.2,0,2.5-0.1,3.8-0.3c8.6-1.5,15.4-7.9,17.5-16.3c0.1-0.2,8.8-24.3,54.7-72.7c37-39.1,61.7-51.5,70.3-54.9c0.1,0,0.1,0,0.3,0c0,0,0.3-0.1,0.8-0.4c1.5-0.6,2.3-0.8,2.3-0.8c-0.4,0.1-0.6,0.1-0.6,0.1l0-0.1c4-1.7,11.4-4.9,11.5-5C393.3,196.1,397,184.1,392.6,172.9z"></path></svg>',
+      failed: '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 40 40"><path fill="#f78f8f" d="M20,38.5C9.799,38.5,1.5,30.201,1.5,20S9.799,1.5,20,1.5S38.5,9.799,38.5,20S30.201,38.5,20,38.5z"></path><path fill="#c74343" d="M20,2c9.925,0,18,8.075,18,18s-8.075,18-18,18S2,29.925,2,20S10.075,2,20,2 M20,1 C9.507,1,1,9.507,1,20s8.507,19,19,19s19-8.507,19-19S30.493,1,20,1L20,1z"></path><path fill="#fff" d="M18.5 10H21.5V30H18.5z" transform="rotate(-134.999 20 20)"></path><path fill="#fff" d="M18.5 10H21.5V30H18.5z" transform="rotate(-45.001 20 20)"></path></svg>'
+    };
+    this.toastLayer.appendChild(document.createElement('style'));
+    this.toastLayer.childNodes[1].innerHTML = `
+.fadeOut {
+  animation-name: fadeOut;
+}
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+`;
 
   }
   getAccessToken() {
@@ -164,12 +209,16 @@ class AdvancedCopy extends Watcher {
           this.getResourceHandler = (message) => {
             const { result, format, body } = message;
             if (result !== 'succeeded' || format !== 'json') {
-              /* TODO: handle error */
-              return;
+              this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+            } else {
+              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+              navigator.clipboard.writeText(JSON.stringify(body, null, 2));
             }
-            navigator.clipboard.writeText(JSON.stringify(body, null, 2));
             this.getResourceHandler = null;
+            this.toastLayer.classList.add('fadeOut');
           };
+          document.body.appendChild(this.toastLayer);
+          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
           this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: this.getAccessToken() });
         }
 
@@ -187,12 +236,16 @@ class AdvancedCopy extends Watcher {
           this.getResourceHandler = (message) => {
             const { result, format, body } = message;
             if (result !== 'succeeded' || format !== 'bicep') {
-              /* TODO: handle error */
-              return;
+              this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+            } else {
+              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+              navigator.clipboard.writeText(body);
             }
-            navigator.clipboard.writeText(body);
             this.getResourceHandler = null;
+            this.toastLayer.classList.add('fadeOut');
           };
+          document.body.appendChild(this.toastLayer);
+          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
           this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: this.getAccessToken() });
         }
 
