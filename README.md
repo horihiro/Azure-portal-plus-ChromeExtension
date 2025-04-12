@@ -88,8 +88,17 @@ Add the following copy menu to the resource page's header and disable built-in `
         :
     }
     ```
-  - Resource and group name as Azure CLI option
-  - Resource and group name as Azure PowerShell option
+  - `Resource Template (Bicep)` (v0.0.8 or later)  
+    format:  
+    ```yaml
+    param storageAccounts_stabc123_name string = 'stabc123'
+
+    resource storageAccounts_stabc123_name_resource 'Microsoft.Storage/storageAccounts@2024-01-01' = {
+      name: storageAccounts_stabc123_name
+
+        :
+    }
+    ```
 
 > [!NOTE]
 > This feature is available only for each resouce page. On subscriptions, resource groups and Entra ID pages, the copy button is not shown. 
