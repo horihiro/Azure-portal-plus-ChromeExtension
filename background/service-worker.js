@@ -58,39 +58,86 @@ chrome.runtime.onConnect.addListener((port) => {
         break;
       case 'get-arm-template':
         try {
-          const m = message.resourceId.match(/(\/providers\/[^\/]+)\/([^\/]+)/);
-          if (!m) {
-            port.postMessage({ type: 'arm-template', errorMessage: `Invalid resourceId: ${message.resourceId}` });
-            return;
-          }
-          const provider = m[1];
-          const resourceType = m[2];
-          const apiVersion = apiVersionMap.get(`${provider}/${resourceType}`) || await (async (params) => {
-            const providerInfoResponse = await fetch(
-              `https://management.azure.com${params.provider}?api-version=2019-08-01`,
-              { headers: { 'Authorization': `Bearer ${params.accessToken}` } }
-            );
-            const providerInfo = await providerInfoResponse.json();
-            apiVersionMap.set(`${params.provider}/${params.resourceType}`, providerInfo.resourceTypes.find((type) => type.resourceType.toLowerCase() === params.resourceType.toLowerCase()).apiVersions[0]);
-            return apiVersionMap.get(`${params.provider}/${params.resourceType}`);
-          })({ provider, resourceType, accessToken: message.accessToken });
-          if (!apiVersion) {
-            port.postMessage({ type: 'arm-template', errorMessage: `API version not found: ${resourceId}` });
-            return;
-          }
-          const response = await fetch(
-            `https://management.azure.com${message.resourceId}?api-version=${apiVersion}`,
-            { headers: { 'Authorization': `Bearer ${message.accessToken}` } }
-          );
-          const body = await response.json();
-          port.postMessage({ type: 'arm-template', body });
+          const body = await (async (message) => {
+            const { resourceId, format, accessToken } = message;
+            const splitResourceId = resourceId.split('/').map((item) => item.toLowerCase());
+            if (splitResourceId.length < 9
+              || splitResourceId[0] !== ''
+              || splitResourceId[1] !== 'subscriptions'
+              || splitResourceId[3] !== 'resourcegroups'
+              || splitResourceId[5] !== 'providers') {
+              port.postMessage({ type: 'arm-template', errorMessage: `Invalid resourceId: ${resourceId}` });
+              return;
+            }
+            switch (format) {
+              case 'bicep':
+                const requestParam = {
+                  url: `https://management.azure.com${splitResourceId.slice(0, 5).join('/')}/exportTemplate?api-version=2024-03-01`,
+                  method: 'POST',
+                  body: JSON.stringify({
+                    "resources": [
+                      resourceId
+                    ],
+                    "options": "IncludeParameterDefaultValue",
+                    "outputFormat": "Bicep"
+                  })
+                };
+                do {
+                  const response = await fetch(
+                    requestParam.url,
+                    {
+                      headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+                      redirect: 'follow',
+                      method: requestParam.method,
+                      body: requestParam.body
+                    }
+                  );
+                  if (response.status === 202 && response.headers.get('location')) {
+                    requestParam.url = response.headers.get('location');
+                    requestParam.method = 'GET';
+                    requestParam.body = void 0;
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                    continue;
+                  } else if (response.status === 200) {
+                    return (await response.json()).output;
+                  }
+                  throw new Error(`Invalid response: ${response.status}`);
+                } while (true);
+                return '';
+                break;
+              default:
+                const provider = splitResourceId[6];
+                const resourceType = splitResourceId[7];
+                const apiVersion = apiVersionMap.get(`${provider}/${resourceType}`) || await (async (params) => {
+                  const providerInfoResponse = await fetch(
+                    `https://management.azure.com/providers/${params.provider}?api-version=2019-08-01`,
+                    { headers: { 'Authorization': `Bearer ${params.accessToken}` } }
+                  );
+                  const providerInfo = await providerInfoResponse.json();
+                  apiVersionMap.set(`${params.provider}/${params.resourceType}`, providerInfo.resourceTypes.find((type) => type.resourceType.toLowerCase() === params.resourceType.toLowerCase()).apiVersions[0]);
+                  return apiVersionMap.get(`${params.provider}/${params.resourceType}`);
+                })({ provider, resourceType, accessToken });
+                if (!apiVersion) {
+                  port.postMessage({ type: 'arm-template', errorMessage: `API version not found: ${resourceId}` });
+                  return;
+                }
+                const response = await fetch(
+                  `https://management.azure.com${resourceId}?api-version=${apiVersion}`,
+                  { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                );
+                return await response.json();
+            }
+          })(message);
+          port.postMessage({ type: 'arm-template', result: 'succeeded', format: message.format || 'json', body });
         } catch (error) {
+          port.postMessage({ type: 'arm-template', result: 'failed', body: error});
           console.error(error);
         }
 
         break;
       case 'notification':
         await notify2desktop(message);
+        break;
     }
   });
   port.onDisconnect.addListener((port) => {

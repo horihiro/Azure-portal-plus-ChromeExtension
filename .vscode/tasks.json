@@ -22,7 +22,7 @@
       "type": "shell",
       "label": "Launch Edge",
       "windows": {
-        "command": "${env:ProgramFiles(x86)}\\Microsoft\\Edge\\Application\\msedge.exe\"",
+        "command": "\"${env:ProgramFiles(x86)}\\Microsoft\\Edge\\Application\\msedge.exe\"",
         "args": [
           "--remote-debugging-port=9222",
           "--load-extension=${workspaceFolder}", // this is the path to the extension folder
