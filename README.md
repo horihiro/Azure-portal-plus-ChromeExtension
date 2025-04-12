@@ -136,6 +136,13 @@ If you can try a development version, the following steps are needed.
 
 # Change logs
 
+## [0.0.8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.8)
+
+  - New feature
+    - Add a feature to open a resource in the preview portal.
+  - Improve feature
+    - Add Bicep format to advanced copy feature
+
 ## [0.0.7](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.7)
 
   - New feature
