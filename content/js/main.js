@@ -161,11 +161,39 @@ class AdvancedCopy extends Watcher {
       handler: async (event) => {
         const resource = location.hash.match(this.re);
         if (resource) {
-          this.getResourceHandler = (armJson) => {
-            navigator.clipboard.writeText(JSON.stringify(armJson, null, 2));
+          this.getResourceHandler = (message) => {
+            const { result, format, body } = message;
+            if (result !== 'succeeded' || format !== 'json') {
+              /* TODO: handle error */
+              return;
+            }
+            navigator.clipboard.writeText(JSON.stringify(body, null, 2));
             this.getResourceHandler = null;
           };
-          this.send2serviceWorker({ resourceId: resource[1], accessToken: this.getAccessToken() });
+          this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: this.getAccessToken() });
+        }
+
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
+        if (menu) {
+          menu.classList.remove('fxs-dropmenu-is-open');
+          menu.classList.add('fxs-dropmenu-hidden');
+        }
+      }
+    }, {
+      title: 'ARM template (Bicep)',
+      handler: async (event) => {
+        const resource = location.hash.match(this.re);
+        if (resource) {
+          this.getResourceHandler = (message) => {
+            const { result, format, body } = message;
+            if (result !== 'succeeded' || format !== 'bicep') {
+              /* TODO: handle error */
+              return;
+            }
+            navigator.clipboard.writeText(body);
+            this.getResourceHandler = null;
+          };
+          this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: this.getAccessToken() });
         }
 
         const menu = event.target.closest('.fxs-dropmenu-is-open');
@@ -229,7 +257,7 @@ class AdvancedCopy extends Watcher {
         if (this.messageQueue.length > 0) await this.send2serviceWorker();
         break;
       case 'arm-template':
-        this.getResourceHandler && this.getResourceHandler(message.body);
+        this.getResourceHandler && this.getResourceHandler(message);
         break;
       case 'pong':
         console.debug(message.type);
