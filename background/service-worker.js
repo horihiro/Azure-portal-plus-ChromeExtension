@@ -5,7 +5,11 @@ const apiVersionMap = new Map();
 const contextMenuProps = [
   {
     id: 'open-in-preview-portal',
-    title: 'Open in preview portal'
+    title: 'Open in `preview.portal.azure.com`',
+  },
+  {
+    id: 'open-in-ga-portal',
+    title: 'Open in `portal.azure.com`'
   }
 ];
 
@@ -124,7 +128,19 @@ chrome.storage.onChanged.addListener(async (_, area) => {
 
 chrome.runtime.onInstalled.addListener(async () => {
   console.debug('onInstalled');
-  chrome.contextMenus.create(contextMenuProps);
+  for await (const menu of contextMenuProps) {
+    await chrome.contextMenus.create(menu);
+  };
+});
+
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  const tab = await chrome.tabs.get(activeInfo.tabId);
+  chrome.contextMenus.update(contextMenuProps[0].id, {
+    visible: tab.url?.includes('://portal.azure.com')
+  });
+  chrome.contextMenus.update(contextMenuProps[1].id, {
+    visible: tab.url?.includes('://preview.portal.azure.com')
+  });
 });
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -132,8 +148,15 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === contextMenuProps[0].id && info.frameUrl) {
     console.debug(`clicked in ${info.frameUrl}`);
     await chrome.tabs.create({
-      url: info.frameUrl.replace('portal.azure.com', 'preview.portal.azure.com'),
+      url: info.frameUrl.replace('://portal.azure.com', '://preview.portal.azure.com'),
+      active: true
+    });
+  } else if (info.menuItemId === contextMenuProps[1].id && info.frameUrl) {
+    console.debug(`clicked in ${info.frameUrl}`);
+    await chrome.tabs.create({
+      url: info.frameUrl.replace('://preview.portal.azure.com', '://portal.azure.com'),
       active: true
     });
   }
+
 });
