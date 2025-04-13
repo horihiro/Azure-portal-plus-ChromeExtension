@@ -54,7 +54,170 @@ class AdvancedCopy extends Watcher {
   constructor() {
     super();
     this.messageQueue = [];
-    this.re = /(\/subscriptions\/[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}\/resourceGroups\/([^/]+)\/providers\/[^/]+\/[^/]+\/([^/]+))/i
+    this.re = /(\/subscriptions\/[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}\/resourceGroups\/([^/]+)\/providers\/[^/]+\/[^/]+\/([^/]+))/i;
+    this.menus = [{
+      title: 'Resource name',
+      handler: (event) => {
+        const resource = location.hash.match(this.re);
+        resource && navigator.clipboard.writeText(resource[3]);
+      }
+    }, {
+      title: 'Resource Id',
+      handler: (event) => {
+        const resource = location.hash.match(this.re);
+        resource && navigator.clipboard.writeText(resource[1]);
+      }
+    }, {
+      title: 'Resource name and group as Azure CLI option',
+      handler: (event) => {
+        const resource = location.hash.match(this.re);
+        resource && navigator.clipboard.writeText(`--name ${resource[3]} --resource-group ${resource[2]}`);
+      }
+    }, {
+      title: 'Resource name and group as Azure PowerShell option',
+      handler: (event) => {
+        const resource = location.hash.match(this.re);
+        resource && navigator.clipboard.writeText(`-Name ${resource[3]} -ResourceGroupName ${resource[2]}`);
+      }
+    }, {
+      title: 'ARM template (JSON)',
+      handler: async (event) => {
+        const resource = location.hash.match(this.re);
+        if (resource) {
+          this.getResourceHandler = async (message) => {
+            const { result, format, body } = message;
+            if (result !== 'succeeded' || format !== 'json') {
+              this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+              console.error(message.body);
+            } else {
+              try {
+                await navigator.clipboard.writeText(body);
+                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+              } catch (e) {
+                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+                console.error(message.body);
+              }
+            }
+            this.getResourceHandler = null;
+            this.toastLayer.classList.add('fadeOut');
+          };
+          document.body.appendChild(this.toastLayer);
+          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+          this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: this.getAccessToken() });
+        }
+      }
+    }, {
+      title: 'ARM template (Bicep)',
+      handler: async (event) => {
+        const resource = location.hash.match(this.re);
+        if (resource) {
+          this.getResourceHandler = async (message) => {
+            const { result, format, body } = message;
+            if (result !== 'succeeded' || format !== 'bicep') {
+              this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+              console.error(message.body);
+            } else {
+              try {
+                await navigator.clipboard.writeText(body);
+                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+              } catch (e) {
+                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+                console.error(message.body);
+              }
+            }
+            this.getResourceHandler = null;
+            this.toastLayer.classList.add('fadeOut');
+          };
+          document.body.appendChild(this.toastLayer);
+          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+          this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: this.getAccessToken() });
+        }
+      }
+    }, {
+      title: 'Terraform (AzApi)',
+      handler: async (event) => {
+        const resource = location.hash.match(this.re);
+        if (resource) {
+          this.getResourceHandler = async (message) => {
+            const { result, format, body } = message;
+            if (result !== 'succeeded' || format !== 'azapi') {
+              this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+              console.error(message.body);
+            } else {
+              try {
+                await navigator.clipboard.writeText(body);
+                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+              } catch (e) {
+                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+                console.error(message.body);
+              }
+            }
+            this.getResourceHandler = null;
+            this.toastLayer.classList.add('fadeOut');
+          };
+          document.body.appendChild(this.toastLayer);
+          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+          this.send2serviceWorker({ resourceId: resource[1], format: 'azapi', accessToken: this.getAccessToken() });
+        }
+      },
+      isAvailable: async () => {
+        try {
+          const response = await fetch(
+            `https://management.azure.com${location.hash.match(this.re)[1]?.split('/').slice(0, 3).join('/')}/providers/Microsoft.AzureTerraform?api-version=2021-04-01`,
+            {
+              headers: {
+                Authorization: `Bearer ${this.getAccessToken()}`
+              }
+            });
+          if (response.status !== 200 || (await response.json()).registrationState != 'Registered') return false;
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }, {
+      title: 'Terraform (AzureRM)',
+      handler: async (event) => {
+        const resource = location.hash.match(this.re);
+        if (resource) {
+          this.getResourceHandler = async (message) => {
+            const { result, format, body } = message;
+            if (result !== 'succeeded' || format !== 'azurerm') {
+              this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+              console.error(message.body);
+            } else {
+              try {
+                await navigator.clipboard.writeText(body);
+                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+              } catch (e) {
+                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+                console.error(message.body);
+              }
+            }
+            this.getResourceHandler = null;
+            this.toastLayer.classList.add('fadeOut');
+          };
+          document.body.appendChild(this.toastLayer);
+          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+          this.send2serviceWorker({ resourceId: resource[1], format: 'azurerm', accessToken: this.getAccessToken() });
+        }
+      },
+      isAvailable: async () => {
+        try {
+          const response = await fetch(
+            `https://management.azure.com${location.hash.match(this.re)[1]?.split('/').slice(0, 3).join('/')}/providers/Microsoft.AzureTerraform?api-version=2021-04-01`,
+            {
+              headers: {
+                Authorization: `Bearer ${this.getAccessToken()}`
+              }
+            });
+          if (response.status !== 200 || (await response.json()).registrationState != 'Registered') return false;
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }];
 
     this.observer = new MutationObserver(this.addCopyMenu.bind(this));
 
@@ -115,22 +278,24 @@ class AdvancedCopy extends Watcher {
     ).secret;
   };
   addCopyMenu() {
+    this.addCopyMenu1() || this.addCopyMenu2();
+  }
+  addCopyMenu1() {
     const overviewMenuItem = document.querySelector('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type');
-    if (!overviewMenuItem) return;
-    if (!this.re.test(overviewMenuItem.querySelector('a').href)) return;
+    if (!overviewMenuItem) return false;
+    if (!this.re.test(overviewMenuItem.querySelector('a').href)) return false;
     const origDropdownMenu = overviewMenuItem.closest('section')?.querySelector('*:not(.fxs-blade-actiondropmenu)+.fxs-blade-actiondropmenu[id]');
-    if (!origDropdownMenu) return;
+    if (!origDropdownMenu) return false;
 
     const parent = origDropdownMenu.parentNode;
-    if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return;
+    if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return false;
     const copyDropdownMenu = document.createElement('div');
-    copyDropdownMenu.classList.add('fxs-blade-actiondropmenu');
-    copyDropdownMenu.classList.add('app-dropdown-menu');
+    copyDropdownMenu.classList.add('fxs-blade-actiondropmenu', 'app-dropdown-menu');
     copyDropdownMenu.innerHTML = origDropdownMenu.innerHTML.replace(/id="[^"]+"/g, '');
 
     const rootButton = copyDropdownMenu.querySelector('button');
     const copyIcon = rootButton.querySelector('svg>use');
-    if (!copyIcon) return;
+    if (!copyIcon) return false;
     parent.insertBefore(copyDropdownMenu, origDropdownMenu);
     copyIcon.href.baseVal = origDropdownMenu.querySelector('button.fxs-blade-copyname svg>use').href.baseVal;
     rootButton.setAttribute('aria-label', 'More copy actions');
@@ -153,109 +318,8 @@ class AdvancedCopy extends Watcher {
     fxsBladeDropmenucontent.classList.add('fxs-blade-dropmenucontent');
     fxsBladeDropmenucontent.setAttribute('role', 'presentation');
     fxsBladeDropmenucontent.style.width = '350px';
-    [{
-      title: 'Resource name',
-      handler: (event) => {
-        const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(resource[3]);
-
-        const menu = event.target.closest('.fxs-dropmenu-is-open');
-        if (menu) {
-          menu.classList.remove('fxs-dropmenu-is-open');
-          menu.classList.add('fxs-dropmenu-hidden');
-        }
-      }
-    }, {
-      title: 'Resource Id',
-      handler: (event) => {
-        const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(resource[1]);
-
-        const menu = event.target.closest('.fxs-dropmenu-is-open');
-        if (menu) {
-          menu.classList.remove('fxs-dropmenu-is-open');
-          menu.classList.add('fxs-dropmenu-hidden');
-        }
-      }
-    }, {
-      title: 'Resource name and group as Azure CLI option',
-      handler: (event) => {
-        const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(`--name ${resource[3]} --resource-group ${resource[2]}`);
-
-        const menu = event.target.closest('.fxs-dropmenu-is-open');
-        if (menu) {
-          menu.classList.remove('fxs-dropmenu-is-open');
-          menu.classList.add('fxs-dropmenu-hidden');
-        }
-      }
-    }, {
-      title: 'Resource name and group as Azure PowerShell option',
-      handler: (event) => {
-        const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(`-Name ${resource[3]} -ResourceGroupName ${resource[2]}`);
-
-        const menu = event.target.closest('.fxs-dropmenu-is-open');
-        if (menu) {
-          menu.classList.remove('fxs-dropmenu-is-open');
-          menu.classList.add('fxs-dropmenu-hidden');
-        }
-      }
-    }, {
-      title: 'ARM template (JSON)',
-      handler: async (event) => {
-        const resource = location.hash.match(this.re);
-        if (resource) {
-          this.getResourceHandler = (message) => {
-            const { result, format, body } = message;
-            if (result !== 'succeeded' || format !== 'json') {
-              this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
-            } else {
-              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
-              navigator.clipboard.writeText(JSON.stringify(body, null, 2));
-            }
-            this.getResourceHandler = null;
-            this.toastLayer.classList.add('fadeOut');
-          };
-          document.body.appendChild(this.toastLayer);
-          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-          this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: this.getAccessToken() });
-        }
-
-        const menu = event.target.closest('.fxs-dropmenu-is-open');
-        if (menu) {
-          menu.classList.remove('fxs-dropmenu-is-open');
-          menu.classList.add('fxs-dropmenu-hidden');
-        }
-      }
-    }, {
-      title: 'ARM template (Bicep)',
-      handler: async (event) => {
-        const resource = location.hash.match(this.re);
-        if (resource) {
-          this.getResourceHandler = (message) => {
-            const { result, format, body } = message;
-            if (result !== 'succeeded' || format !== 'bicep') {
-              this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
-            } else {
-              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
-              navigator.clipboard.writeText(body);
-            }
-            this.getResourceHandler = null;
-            this.toastLayer.classList.add('fadeOut');
-          };
-          document.body.appendChild(this.toastLayer);
-          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-          this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: this.getAccessToken() });
-        }
-
-        const menu = event.target.closest('.fxs-dropmenu-is-open');
-        if (menu) {
-          menu.classList.remove('fxs-dropmenu-is-open');
-          menu.classList.add('fxs-dropmenu-hidden');
-        }
-      }
-    }].forEach((entry) => {
+    this.menus.reduce(async (_, entry) => {
+      if (entry.isAvailable && !await entry.isAvailable()) return;
       const button = document.createElement('button');
       button.setAttribute('role', 'menuitem');
       button.setAttribute('type', 'button');
@@ -268,13 +332,139 @@ class AdvancedCopy extends Watcher {
       span.style.paddingLeft = '10px';
       button.appendChild(span);
       button.addEventListener('click', entry.handler.bind(this));
+      button.addEventListener('click', (event) => {
+        const menu = event.target.closest('.fxs-dropmenu-is-open');
+        if (menu) {
+          menu.classList.remove('fxs-dropmenu-is-open');
+          menu.classList.add('fxs-dropmenu-hidden');
+        }
+      });
 
       fxsBladeDropmenucontent.appendChild(button);
-    });
+      return true;
+    }, true);
 
     fxsDropmenuContent.appendChild(fxsBladeDropmenucontent);
     origDropdownMenu.querySelector('button.fxs-blade-copyname').style.display = 'none';
+    return true;
   }
+  addCopyMenu2() {
+    const overviewMenuItem = document.querySelector('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type');
+    if (!overviewMenuItem) return false;
+    if (!this.re.test(overviewMenuItem.querySelector('a').href)) return false;
+    const origDropdownMenu = overviewMenuItem.closest('section')?.querySelector('*:not(.fxs-blade-actiondropmenu)+.fxs-blade-actiondropmenu');
+    if (!origDropdownMenu) return false;
+
+    const parent = origDropdownMenu.parentNode;
+    if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return false;
+    const copyDropdownMenu = document.createElement('div');
+    copyDropdownMenu.classList.add('fxs-blade-actiondropmenu');
+    copyDropdownMenu.classList.add('app-dropdown-menu');
+    copyDropdownMenu.innerHTML = origDropdownMenu.innerHTML.replace(/id="[^"]+"/g, '');
+
+    const rootButton = copyDropdownMenu.querySelector('button');
+    const copyIcon = rootButton.querySelector('svg');
+    if (!copyIcon) return;
+    parent.insertBefore(copyDropdownMenu, origDropdownMenu);
+    copyIcon.innerHTML = '<g><path d="M14 6.3V16H4v-3H0V0h6.7l3 3h1zM4 3h4.3l-2-2H1v11h3zm9 4h-3V4H5v11h8zm-2-1h1.3L11 4.7z"></path></g>';
+    copyIcon.setAttribute('viewBox', '0 0 16 16');
+    rootButton.setAttribute('aria-label', 'More copy actions');
+    rootButton.setAttribute('title', 'More copy actions');
+
+    const menuContainer = document.querySelector('#__aps_advcp') || document.createElement('div');
+    menuContainer.id = '__aps_advcp';
+    const hidden = (event) => {
+      if (event.target == copyDropdownMenu) {
+        event.stopPropagation();
+        return;
+      }
+      const menuContainer = document.querySelector('#__aps_advcp');
+      if (menuContainer) {
+        menuContainer.parentNode.removeChild(menuContainer);
+        rootButton.removeAttribute('aria-expanded');
+        document.body.removeEventListener('click', hidden);
+      }
+    }
+    copyDropdownMenu.addEventListener('click', (event) => {
+      event.preventDefault();
+      if (menuContainer.parentNode) {
+        menuContainer.parentNode.removeChild(menuContainer);
+        rootButton.removeAttribute('aria-expanded');
+        document.body.removeEventListener('click', hidden);
+        return;
+      }
+      rootButton.setAttribute('aria-expanded', 'true');
+      document.body.appendChild(menuContainer);
+      setTimeout(() => document.body.addEventListener('click', hidden));
+
+      if (menuContainer.childNodes.length > 0) return;
+      const styleClassName = [...document.querySelectorAll('style[id^="fui-FluentProviderr"')].reverse()[0].id;
+      menuContainer.classList.add(styleClassName);
+      const menuSubContainer = document.createElement('div');
+      menuSubContainer.setAttribute('role', 'presentation');
+      menuSubContainer.setAttribute('data-popper-placement', "bottom-start");
+      menuSubContainer.style.overflowY = 'hidden';
+      menuSubContainer.style.position = 'absolute';
+      menuSubContainer.style.left = '0px';
+      menuSubContainer.style.top = '0px';
+      menuSubContainer.style.margin = '0px';
+      menuSubContainer.style.transform = 'translate(287px, 108px)';
+      menuSubContainer.style.borderRadius = 'var(--borderRadiusMedium)';
+      menuSubContainer.style.padding = '4px';
+      menuSubContainer.style.border = '1px solid var(--colorControlBorderSecondary)';
+      menuSubContainer.style.color = 'var(--colorTextPrimary)';
+      menuSubContainer.style.backgroundColor = 'var(--colorContainerBackgroundPrimary)';
+      menuContainer.appendChild(menuSubContainer);
+
+      const menuRoot = document.createElement('div');
+      menuRoot.setAttribute('role', 'menu');
+      menuRoot.setAttribute('aria-labelledby', 'menur1');
+      menuRoot.style.gap = '2px';
+      menuRoot.style.width = '330px';
+      menuRoot.classList.add('fui-MenuList', 'fxs-blade-dropmenucontent');
+
+      menuSubContainer.appendChild(menuRoot);
+
+      const theme = document.head.className.replace(/.*(fxs-mode-(?:dark|light)+).*/, '$1');
+      this.menus.reduce(async (_, entry) => {
+        if (entry.isAvailable && !await entry.isAvailable()) return;
+        const menuItem = document.createElement('div');
+        menuItem.setAttribute('role', 'menuitem');
+        menuItem.setAttribute('tabindex', '0');
+        menuItem.setAttribute('onmouseover',
+          `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
+          `this.style.background=styles.getPropertyValue('--colorControlBackgroundHover');` +
+          `this.style.color=styles.getPropertyValue('--colorNeutralForeground2Hover');`
+        );
+        menuItem.setAttribute('onmouseout',
+          `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
+          `this.style.background=styles.getPropertyValue('--colorNeutralBackground1');` +
+          `this.style.color=styles.getPropertyValue('--colorNeutralForeground2');`
+        );
+
+        menuItem.style.fontSize = '13px';
+        menuItem.style.borderRadius = 'var(--borderRadiusMedium)';
+        menuItem.style.color = 'var(--colorNeutralForeground2)';
+        menuItem.style.backgroundColor = 'var(--colorNeutralBackground1)';
+        menuItem.style.padding = 'var(--spacingVerticalSNudge) var(--spacingVerticalSNudge)';
+        menuItem.style.boxSizing = 'border-box';
+        menuItem.style.minHeight = '32px';
+        menuItem.style.cursor = 'pointer';
+
+        const menuItemLabel = document.createElement('span');
+        menuItemLabel.classList.add('fui-MenuItem__content');
+        menuItemLabel.innerText = entry.title;
+        menuItem.appendChild(menuItemLabel);
+
+        menuItem.addEventListener('click', entry.handler.bind(this));
+
+        menuRoot.appendChild(menuItem);
+        return true;
+      }, true);
+    });
+    return true;
+  }
+
   startWatching(options) {
     this.options = options;
     this.addCopyMenu();
@@ -293,12 +483,12 @@ class AdvancedCopy extends Watcher {
   }
 
   async send2serviceWorker(message) {
-    const msg = this.messageQueue.shift() || Object.assign({ type: 'get-arm-template' }, message);
+    const msg = this.messageQueue.shift() || Object.assign({ type: 'get-resource-template' }, message);
     try {
       await this.port.postMessage(msg);
     } catch {
       this.messageQueue.push(msg);
-      this.port = chrome.runtime.connect({ name: 'get-arm-template' });
+      this.port = chrome.runtime.connect({ name: 'get-resource-template' });
       this.port.onMessage.addListener(this.onMessage.bind(this));
     }
   }
@@ -309,7 +499,7 @@ class AdvancedCopy extends Watcher {
         this.tab = message.tab;
         if (this.messageQueue.length > 0) await this.send2serviceWorker();
         break;
-      case 'arm-template':
+      case 'resource-template':
         this.getResourceHandler && this.getResourceHandler(message);
         break;
       case 'pong':
