@@ -56,6 +56,8 @@ When finishing a process taking long time, a notification is displayed on your d
 When finishing a process taking long time, the tab opening Azure portal is activated (i.e. to be brought to the top) automatically.
 
 ## 5. Copy resouce information (v0.0.5 or later)  
+> [!NOTE]
+> This feature doesn't work preview portal (https://preview.portal.azure.com)
 
 Add the following copy menu to the resource page's header and disable built-in `Copy title to clipbord` in `More content actions` menu.  
 
@@ -89,7 +91,12 @@ Add the following copy menu to the resource page's header and disable built-in `
     }
     ```
   - `Resource Template (Bicep)` (v0.0.8 or later)  
-    format:  
+    > ![NOTE]
+    > This feature depends on exporting function on Azure Platform.
+
+    <details>
+    <summary>format:</summary>  
+
     ```yaml
     param storageAccounts_stabc123_name string = 'stabc123'
 
@@ -99,6 +106,62 @@ Add the following copy menu to the resource page's header and disable built-in `
         :
     }
     ```
+    </details>
+
+  - `Terraform (AzApi)` (v0.0.8 or later)  
+    > ![NOTE]
+    > This feature depends on exporting function on Azure Platform.
+    > Subscription Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
+
+    <details>
+    <summary>format:</summary>  
+
+    ```terraform
+    terraform {
+      required_providers {
+        azapi = {
+          source  = "Azure/azapi"
+          version = "2.0.1"
+        }
+      }
+    }
+    provider "azapi" {}
+    resource "azapi_resource" "res-0" {
+      body = {
+      kind = "Storage"
+      properties = {
+        allowBlobPublicAccess        = true
+          :
+    }
+    ```
+    </details>
+
+  - `Terraform (AzureRM)` (v0.0.8 or later)  
+    > ![NOTE]
+    > This feature depends on exporting function on Azure Platform.
+    > Subscription Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
+
+    <details>
+    <summary>format:</summary>  
+
+    ```terraform
+    terraform {
+      required_providers {
+        azurerm = {
+          source  = "azurerm"
+          version = "4.5.0"
+        }
+      }
+    }
+    provider "azurerm" {
+      features {}
+    }
+    resource "azurerm_storage_account" "res-0" {
+      access_tier                       = ""
+      account_kind                      = "Storage"
+        :
+    ```
+    </details>
 
 > [!NOTE]
 > This feature is available only for each resouce page. On subscriptions, resource groups and Entra ID pages, the copy button is not shown. 
