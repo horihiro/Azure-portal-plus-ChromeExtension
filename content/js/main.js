@@ -159,6 +159,21 @@ class AdvancedCopy extends Watcher {
           this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
           this.send2serviceWorker({ resourceId: resource[1], format: 'azapi', accessToken: this.getAccessToken() });
         }
+      },
+      isAvailable: async () => {
+        try {
+          const response = await fetch(
+            `https://management.azure.com${location.hash.match(this.re)[1]?.split('/').slice(0, 3).join('/')}/providers/Microsoft.AzureTerraform?api-version=2021-04-01`,
+            {
+              headers: {
+                Authorization: `Bearer ${this.getAccessToken()}`
+              }
+            });
+          if (response.status !== 200 || (await response.json()).registrationState != 'Registered') return false;
+          return true;
+        } catch (e) {
+          return false;
+        }
       }
     }, {
       title: 'Terraform (AzureRM)',
@@ -185,6 +200,21 @@ class AdvancedCopy extends Watcher {
           document.body.appendChild(this.toastLayer);
           this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
           this.send2serviceWorker({ resourceId: resource[1], format: 'azurerm', accessToken: this.getAccessToken() });
+        }
+      },
+      isAvailable: async () => {
+        try {
+          const response = await fetch(
+            `https://management.azure.com${location.hash.match(this.re)[1]?.split('/').slice(0, 3).join('/')}/providers/Microsoft.AzureTerraform?api-version=2021-04-01`,
+            {
+              headers: {
+                Authorization: `Bearer ${this.getAccessToken()}`
+              }
+            });
+          if (response.status !== 200 || (await response.json()).registrationState != 'Registered') return false;
+          return true;
+        } catch (e) {
+          return false;
         }
       }
     }];
@@ -260,7 +290,7 @@ class AdvancedCopy extends Watcher {
     const parent = origDropdownMenu.parentNode;
     if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return false;
     const copyDropdownMenu = document.createElement('div');
-    copyDropdownMenu.classList.add('fxs-blade-actiondropmenu','app-dropdown-menu');
+    copyDropdownMenu.classList.add('fxs-blade-actiondropmenu', 'app-dropdown-menu');
     copyDropdownMenu.innerHTML = origDropdownMenu.innerHTML.replace(/id="[^"]+"/g, '');
 
     const rootButton = copyDropdownMenu.querySelector('button');
@@ -288,7 +318,8 @@ class AdvancedCopy extends Watcher {
     fxsBladeDropmenucontent.classList.add('fxs-blade-dropmenucontent');
     fxsBladeDropmenucontent.setAttribute('role', 'presentation');
     fxsBladeDropmenucontent.style.width = '350px';
-    this.menus.forEach((entry) => {
+    this.menus.reduce(async (_, entry) => {
+      if (entry.isAvailable && !await entry.isAvailable()) return;
       const button = document.createElement('button');
       button.setAttribute('role', 'menuitem');
       button.setAttribute('type', 'button');
@@ -310,7 +341,8 @@ class AdvancedCopy extends Watcher {
       });
 
       fxsBladeDropmenucontent.appendChild(button);
-    });
+      return true;
+    }, true);
 
     fxsDropmenuContent.appendChild(fxsBladeDropmenucontent);
     origDropdownMenu.querySelector('button.fxs-blade-copyname').style.display = 'none';
@@ -390,22 +422,23 @@ class AdvancedCopy extends Watcher {
       menuRoot.style.gap = '2px';
       menuRoot.style.width = '330px';
       menuRoot.classList.add('fui-MenuList', 'fxs-blade-dropmenucontent');
-      
+
       menuSubContainer.appendChild(menuRoot);
 
       const theme = document.head.className.replace(/.*(fxs-mode-(?:dark|light)+).*/, '$1');
-      this.menus.forEach((entry) => {
+      this.menus.reduce(async (_, entry) => {
+        if (entry.isAvailable && !await entry.isAvailable()) return;
         const menuItem = document.createElement('div');
         menuItem.setAttribute('role', 'menuitem');
         menuItem.setAttribute('tabindex', '0');
         menuItem.setAttribute('onmouseover',
-          `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));`+
-          `this.style.background=styles.getPropertyValue('--colorControlBackgroundHover');`+
+          `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
+          `this.style.background=styles.getPropertyValue('--colorControlBackgroundHover');` +
           `this.style.color=styles.getPropertyValue('--colorNeutralForeground2Hover');`
         );
         menuItem.setAttribute('onmouseout',
-          `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));`+
-          `this.style.background=styles.getPropertyValue('--colorNeutralBackground1');`+
+          `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
+          `this.style.background=styles.getPropertyValue('--colorNeutralBackground1');` +
           `this.style.color=styles.getPropertyValue('--colorNeutralForeground2');`
         );
 
@@ -424,9 +457,10 @@ class AdvancedCopy extends Watcher {
         menuItem.appendChild(menuItemLabel);
 
         menuItem.addEventListener('click', entry.handler.bind(this));
-  
+
         menuRoot.appendChild(menuItem);
-      });
+        return true;
+      }, true);
     });
     return true;
   }
