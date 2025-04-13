@@ -56,8 +56,6 @@ When finishing a process taking long time, a notification is displayed on your d
 When finishing a process taking long time, the tab opening Azure portal is activated (i.e. to be brought to the top) automatically.
 
 ## 5. Copy resouce information (v0.0.5 or later)  
-> [!NOTE]
-> This feature doesn't work preview portal (https://preview.portal.azure.com)
 
 Add the following copy menu to the resource page's header and disable built-in `Copy title to clipbord` in `More content actions` menu.  
 
@@ -203,8 +201,10 @@ If you can try a development version, the following steps are needed.
 
   - New feature
     - Add a feature to open a resource in the preview portal.
-  - Improve feature
-    - Add Bicep format to advanced copy feature
+  - Improve features
+    - Add Bicep and Terraform format to advanced copy feature
+  - Bug Fix
+    - Advanced Copy doesn't show for specific accounts ([#26](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/26))  
 
 ## [0.0.7](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.7)
 
