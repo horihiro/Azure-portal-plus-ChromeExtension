@@ -45,7 +45,7 @@ const notify2desktop = async (options) => {
 
 chrome.runtime.onConnect.addListener((port) => {
   console.debug(`onConnect: port ${JSON.stringify(port)}`);
-  if (!['desktop-notification', 'tab-activation', 'get-resource-template'].includes(port.name)) return;
+  if (!['desktop-notification', 'tab-activation', 'get-resource-template', 'tab-loaded'].includes(port.name)) return;
 
   port.onMessage.addListener(async (message, sender, sendResponse) => {
     switch (message.type) {
@@ -55,6 +55,14 @@ chrome.runtime.onConnect.addListener((port) => {
       case 'tab-activation':
         await chrome.tabs.update(message.tab.id, { active: true, highlighted: true });
         await chrome.windows.update(message.tab.windowId, { focused: true });
+        break;
+      case 'tab-loaded':
+        chrome.contextMenus.update(contextMenuProps[0].id, {
+          visible: message.url.includes('://portal.azure.com')
+        });
+        chrome.contextMenus.update(contextMenuProps[1].id, {
+          visible: message.url.includes('://preview.portal.azure.com')
+        });
         break;
       case 'get-resource-template':
         try {
@@ -241,16 +249,16 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   console.debug('onClicked', info, tab);
-  if (info.menuItemId === contextMenuProps[0].id && info.frameUrl) {
-    console.debug(`clicked in ${info.frameUrl}`);
+  if (info.menuItemId === contextMenuProps[0].id && tab.url) {
+    console.debug(`clicked in ${tab.url}`);
     await chrome.tabs.create({
-      url: info.frameUrl.replace('://portal.azure.com', '://preview.portal.azure.com'),
+      url: tab.url.replace('://portal.azure.com', '://preview.portal.azure.com'),
       active: true
     });
-  } else if (info.menuItemId === contextMenuProps[1].id && info.frameUrl) {
-    console.debug(`clicked in ${info.frameUrl}`);
+  } else if (info.menuItemId === contextMenuProps[1].id && tab.url) {
+    console.debug(`clicked in ${tab.url}`);
     await chrome.tabs.create({
-      url: info.frameUrl.replace('://preview.portal.azure.com', '://portal.azure.com'),
+      url: tab.url.replace('://preview.portal.azure.com', '://portal.azure.com'),
       active: true
     });
   }

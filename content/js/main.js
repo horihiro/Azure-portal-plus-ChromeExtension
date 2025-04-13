@@ -853,6 +853,46 @@ class DesktopNotifier extends ToastWatcher {
   }
 }
 
+class ContextMenuUpdater extends Watcher {
+  constructor() {
+    super();
+    this.messageQueue = [];
+  }
+  async send2serviceWorker() {
+    const msg = this.messageQueue.shift() || {
+      type: 'tab-loaded',
+      url: location.href
+    };
+    try {
+      await this.port.postMessage(msg);
+    } catch {
+      this.messageQueue.push(msg);
+      this.port = chrome.runtime.connect({ name: 'tab-loaded' });
+      this.port.onMessage.addListener(this.onMessage.bind(this));
+    }
+  }
+
+  startWatching(options) {
+    document.addEventListener('readystatechange', async () => {
+      if (document.readyState !== 'complete') return;
+      console.log('loaded');
+      this.send2serviceWorker();
+    });
+  }
+
+  async onMessage(message/* , sender, sendResponse */) {
+    switch (message.type) {
+      case 'connected':
+        this.tab = message.tab;
+        if (this.messageQueue.length > 0) await this.send2serviceWorker();
+        break;
+      case 'pong':
+        console.debug(message.type);
+        break;
+    }
+  }
+}
+
 (async () => {
   try {
     const _watchers = {};
@@ -862,6 +902,7 @@ class DesktopNotifier extends ToastWatcher {
     _watchers['activateTab'] = new TabActivator();
     _watchers['advancedCopy'] = new AdvancedCopy();
     _watchers['filterRestorer'] = new FilterRestorer();
+    _watchers['contextMenuUpdater'] = new ContextMenuUpdater();
 
     const init = async (changes) => {
       const watcherStatus = await (async (changes, watchers) => {
@@ -869,6 +910,7 @@ class DesktopNotifier extends ToastWatcher {
         return Object.fromEntries(Object.entries(changes).map(c => [c[0], c[1].newValue]))
       })(changes, _watchers);
 
+      watcherStatus['contextMenuUpdater'] = {status: true};
       Object.keys(watcherStatus).forEach(w => {
         if (!watcherStatus[w] || !_watchers[w]) return;
         if (watcherStatus[w].status) _watchers[w].startWatching(watcherStatus[w].options);
