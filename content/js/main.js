@@ -397,7 +397,10 @@ class AdvancedCopy extends Watcher {
       document.body.appendChild(menuContainer);
       setTimeout(() => document.body.addEventListener('click', hidden));
 
-      if (menuContainer.childNodes.length > 0) return;
+      if (menuContainer.childNodes.length > 0) {
+        menuContainer.childNodes[0].style.transform = `translate(${copyDropdownMenu.getBoundingClientRect().left}px, ${copyDropdownMenu.getBoundingClientRect().bottom}px)`;
+        return;
+      };
       const styleClassName = [...document.querySelectorAll('style[id^="fui-FluentProviderr"')].reverse()[0].id;
       menuContainer.classList.add(styleClassName);
       const menuSubContainer = document.createElement('div');
@@ -408,7 +411,7 @@ class AdvancedCopy extends Watcher {
       menuSubContainer.style.left = '0px';
       menuSubContainer.style.top = '0px';
       menuSubContainer.style.margin = '0px';
-      menuSubContainer.style.transform = 'translate(287px, 108px)';
+      menuSubContainer.style.transform = `translate(${copyDropdownMenu.getBoundingClientRect().left}px, ${copyDropdownMenu.getBoundingClientRect().bottom}px)`;
       menuSubContainer.style.borderRadius = 'var(--borderRadiusMedium)';
       menuSubContainer.style.padding = '4px';
       menuSubContainer.style.border = '1px solid var(--colorControlBorderSecondary)';
