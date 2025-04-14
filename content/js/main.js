@@ -465,6 +465,11 @@ class AdvancedCopy extends Watcher {
         return true;
       }, true);
     });
+    const observer = new MutationObserver(() => {
+      const titleCopy = document.querySelector('div.fxs-blade-copyname')
+      if (titleCopy) titleCopy.style.display = 'none';
+    });
+    observer.observe(document.body, { childList: true });
     return true;
   }
 
