@@ -88,8 +88,78 @@ Add the following copy menu to the resource page's header and disable built-in `
         :
     }
     ```
-  - Resource and group name as Azure CLI option
-  - Resource and group name as Azure PowerShell option
+  - `Resource Template (Bicep)` (v0.0.8 or later)  
+    > ![NOTE]
+    > This feature depends on exporting function on Azure Platform.
+
+    <details>
+    <summary>format:</summary>  
+
+    ```yaml
+    param storageAccounts_stabc123_name string = 'stabc123'
+
+    resource storageAccounts_stabc123_name_resource 'Microsoft.Storage/storageAccounts@2024-01-01' = {
+      name: storageAccounts_stabc123_name
+
+        :
+    }
+    ```
+    </details>
+
+  - `Terraform (AzApi)` (v0.0.8 or later)  
+    > ![NOTE]
+    > This feature depends on exporting function on Azure Platform.
+    > Subscription Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
+
+    <details>
+    <summary>format:</summary>  
+
+    ```terraform
+    terraform {
+      required_providers {
+        azapi = {
+          source  = "Azure/azapi"
+          version = "2.0.1"
+        }
+      }
+    }
+    provider "azapi" {}
+    resource "azapi_resource" "res-0" {
+      body = {
+      kind = "Storage"
+      properties = {
+        allowBlobPublicAccess        = true
+          :
+    }
+    ```
+    </details>
+
+  - `Terraform (AzureRM)` (v0.0.8 or later)  
+    > ![NOTE]
+    > This feature depends on exporting function on Azure Platform.
+    > Subscription Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
+
+    <details>
+    <summary>format:</summary>  
+
+    ```terraform
+    terraform {
+      required_providers {
+        azurerm = {
+          source  = "azurerm"
+          version = "4.5.0"
+        }
+      }
+    }
+    provider "azurerm" {
+      features {}
+    }
+    resource "azurerm_storage_account" "res-0" {
+      access_tier                       = ""
+      account_kind                      = "Storage"
+        :
+    ```
+    </details>
 
 > [!NOTE]
 > This feature is available only for each resouce page. On subscriptions, resource groups and Entra ID pages, the copy button is not shown. 
@@ -97,6 +167,13 @@ Add the following copy menu to the resource page's header and disable built-in `
 ## 6. Restore filter string on each list view (v0.0.6 or later)  (Experimental)
 
 By storing filter string on inputting/updating on each list view, this can restore the filter string on the list view when opening the list view again.
+
+## 7. Open in the preview portal (v0.0.8 or later)  (Experimental)
+
+When your resource is opened in `portal.azure.com`, you can open it in `preview.portal.azure.com` from the context menu, and vice versa.
+
+> [!NOTE]
+> To open the context menu on Azure portal, you need to use right-click with <kbd>ctrl</kbd> key.
 
 # Try this
 
@@ -119,6 +196,15 @@ If you can try a development version, the following steps are needed.
 1. select the directory created by cloning at step 1.
 
 # Change logs
+
+## [0.0.8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.8)
+
+  - New feature
+    - Add a feature to open a resource in the preview portal.
+  - Improve features
+    - Add Bicep and Terraform format to advanced copy feature
+  - Bug Fix
+    - Advanced Copy doesn't show for specific accounts ([#26](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/26))  
 
 ## [0.0.7](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.7)
 
