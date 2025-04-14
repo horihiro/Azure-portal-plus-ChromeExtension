@@ -252,13 +252,13 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === contextMenuProps[0].id && tab.url) {
     console.debug(`clicked in ${tab.url}`);
     await chrome.tabs.create({
-      url: tab.url.replace('://[^/]+/', '://preview.portal.azure.com/'),
+      url: tab.url.replace(/:\/\/[^\/]+\//, '://preview.portal.azure.com/'),
       active: true
     });
   } else if (info.menuItemId === contextMenuProps[1].id && tab.url) {
     console.debug(`clicked in ${tab.url}`);
     await chrome.tabs.create({
-      url: tab.url.replace('://[^/]+/', '://portal.azure.com/'),
+      url: tab.url.replace(/:\/\/[^\/]+\//, '://portal.azure.com/'),
       active: true
     });
   }
