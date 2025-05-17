@@ -123,82 +123,80 @@ class AdvancedCopy extends Watcher {
       title: 'ARM template (JSON)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        if (resource) {
-          this.getResourceHandler = async (message) => {
-            const { result, format, body } = message;
-            if (result !== 'succeeded' || format !== 'json') {
+        if (!resource) return;
+
+        this.getResourceHandler = async (message) => {
+          const { result, format, body } = message;
+          if (result !== 'succeeded' || format !== 'json') {
+            this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+            console.error(message.body);
+          } else {
+            try {
+              await navigator.clipboard.writeText(body);
+              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+            } catch (e) {
               this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
               console.error(message.body);
-            } else {
-              try {
-                await navigator.clipboard.writeText(body);
-                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
-              } catch (e) {
-                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
-                console.error(message.body);
-              }
             }
-            this.getResourceHandler = null;
-            this.toastLayer.classList.add('fadeOut');
-          };
-          document.body.appendChild(this.toastLayer);
-          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-          this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: this.getAccessToken() });
-        }
+          }
+          this.getResourceHandler = null;
+          this.toastLayer.classList.add('fadeOut');
+        };
+        document.body.appendChild(this.toastLayer);
+        this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+        this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: this.getAccessToken() });
       }
     }, {
       title: 'ARM template (Bicep)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        if (resource) {
-          this.getResourceHandler = async (message) => {
-            const { result, format, body } = message;
-            if (result !== 'succeeded' || format !== 'bicep') {
+        if (!resource) return;
+        this.getResourceHandler = async (message) => {
+          const { result, format, body } = message;
+          if (result !== 'succeeded' || format !== 'bicep') {
+            this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+            console.error(message.body);
+          } else {
+            try {
+              await navigator.clipboard.writeText(body);
+              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+            } catch (e) {
               this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
               console.error(message.body);
-            } else {
-              try {
-                await navigator.clipboard.writeText(body);
-                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
-              } catch (e) {
-                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
-                console.error(message.body);
-              }
             }
-            this.getResourceHandler = null;
-            this.toastLayer.classList.add('fadeOut');
-          };
-          document.body.appendChild(this.toastLayer);
-          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-          this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: this.getAccessToken() });
-        }
+          }
+          this.getResourceHandler = null;
+          this.toastLayer.classList.add('fadeOut');
+        };
+        document.body.appendChild(this.toastLayer);
+        this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+        this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: this.getAccessToken() });
       }
     }, {
       title: 'Terraform (AzApi)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        if (resource) {
-          this.getResourceHandler = async (message) => {
-            const { result, format, body } = message;
-            if (result !== 'succeeded' || format !== 'azapi') {
+        if (!resource) return;
+        this.getResourceHandler = async (message) => {
+          const { result, format, body } = message;
+          if (result !== 'succeeded' || format !== 'azapi') {
+            this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+            console.error(message.body);
+          } else {
+            try {
+              await navigator.clipboard.writeText(body);
+              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+            } catch (e) {
               this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
               console.error(message.body);
-            } else {
-              try {
-                await navigator.clipboard.writeText(body);
-                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
-              } catch (e) {
-                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
-                console.error(message.body);
-              }
             }
-            this.getResourceHandler = null;
-            this.toastLayer.classList.add('fadeOut');
-          };
-          document.body.appendChild(this.toastLayer);
-          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-          this.send2serviceWorker({ resourceId: resource[1], format: 'azapi', accessToken: this.getAccessToken() });
-        }
+          }
+          this.getResourceHandler = null;
+          this.toastLayer.classList.add('fadeOut');
+        };
+        document.body.appendChild(this.toastLayer);
+        this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+        this.send2serviceWorker({ resourceId: resource[1], format: 'azapi', accessToken: this.getAccessToken() });
       },
       isAvailable: async () => {
         try {
@@ -219,28 +217,28 @@ class AdvancedCopy extends Watcher {
       title: 'Terraform (AzureRM)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        if (resource) {
-          this.getResourceHandler = async (message) => {
-            const { result, format, body } = message;
-            if (result !== 'succeeded' || format !== 'azurerm') {
+        if (!resource) return;
+
+        this.getResourceHandler = async (message) => {
+          const { result, format, body } = message;
+          if (result !== 'succeeded' || format !== 'azurerm') {
+            this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+            console.error(message.body);
+          } else {
+            try {
+              await navigator.clipboard.writeText(body);
+              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+            } catch (e) {
               this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
               console.error(message.body);
-            } else {
-              try {
-                await navigator.clipboard.writeText(body);
-                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
-              } catch (e) {
-                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
-                console.error(message.body);
-              }
             }
-            this.getResourceHandler = null;
-            this.toastLayer.classList.add('fadeOut');
-          };
-          document.body.appendChild(this.toastLayer);
-          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-          this.send2serviceWorker({ resourceId: resource[1], format: 'azurerm', accessToken: this.getAccessToken() });
-        }
+          }
+          this.getResourceHandler = null;
+          this.toastLayer.classList.add('fadeOut');
+        };
+        document.body.appendChild(this.toastLayer);
+        this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+        this.send2serviceWorker({ resourceId: resource[1], format: 'azurerm', accessToken: this.getAccessToken() });
       },
       isAvailable: async () => {
         try {
