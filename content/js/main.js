@@ -54,12 +54,13 @@ class AdvancedCopy extends Watcher {
   constructor() {
     super();
     this.messageQueue = [];
-    this.re = /(\/subscriptions\/[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}\/resourceGroups\/([^/]+)\/providers\/[^/]+\/[^/]+\/([^/]+))/i;
+    this.re = /(\/subscriptions\/[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}\/resourceGroups\/([^/]+)\/providers\/([^/]+)\/([^/]+)\/([^/]+))/i;
+    this.cache = {};
     this.menus = [{
       title: 'Resource name',
       handler: (event) => {
         const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(resource[3]);
+        resource && navigator.clipboard.writeText(resource[5]);
       }
     }, {
       title: 'Resource Id',
@@ -71,13 +72,52 @@ class AdvancedCopy extends Watcher {
       title: 'Resource name and group as Azure CLI option',
       handler: (event) => {
         const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(`--name ${resource[3]} --resource-group ${resource[2]}`);
+        resource && navigator.clipboard.writeText(`--name ${resource[5]} --resource-group ${resource[2]}`);
       }
     }, {
       title: 'Resource name and group as Azure PowerShell option',
       handler: (event) => {
         const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(`-Name ${resource[3]} -ResourceGroupName ${resource[2]}`);
+        resource && navigator.clipboard.writeText(`-Name ${resource[5]} -ResourceGroupName ${resource[2]}`);
+      }
+    }, {
+      title: 'Resource Ids as `az network bastion` option',
+      handler: async (event) => {
+        const resource = location.hash.match(this.re);
+        if (!resource || resource[3].toLowerCase() !== 'microsoft.compute' || resource[4].toLowerCase() !== 'virtualmachines') return false;
+        if (!this.cache[resource[1]]?.bastionId) return false;
+        const bastionId = this.cache[resource[1]]?.bastionId;
+        navigator.clipboard.writeText(`--ids ${bastionId} --target-resource-id ${resource[1]} `);
+        return true;
+      },
+      isAvailable: async () => {
+        const resource = location.hash.match(this.re);
+        if (!resource || resource[3].toLowerCase() !== 'microsoft.compute' || resource[4].toLowerCase() !== 'virtualmachines') return false;
+        if (this.cache[resource[1]]?.bastionId) return true;
+        try {
+          const response = await fetch(
+            `https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01`,
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${this.getAccessToken()}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(
+                {
+                  options: { "$top": 1000, "$skip": 0, "$skipToken": "", "resultFormat": "table"},
+                  query: this.createBastionQuery(resource[1])
+                }
+              )
+            });
+          if (response.status !== 200) return false;
+          const json = await response.json();
+          const bastionId = json.data.rows[0][0];
+          this.cache[resource[1]] = Object.assign(this.cache[resource[1]] || {}, {bastionId});
+        } catch (e) {
+          return false;
+        }
+        return true;
       }
     }, {
       title: 'ARM template (JSON)',
@@ -265,6 +305,39 @@ class AdvancedCopy extends Watcher {
 `;
 
   }
+  createBastionQuery(vmId) {
+    return `resources
+| where type =~ 'Microsoft.Network/virtualNetworks'
+| where array_length(properties.virtualNetworkPeerings) == 0
+| project vnetid=tolower(id)
+| union (resources
+| where type =~ 'Microsoft.Network/virtualNetworks'
+| mv-expand peering=properties.virtualNetworkPeerings limit 400
+| project vnetid=tolower(id), remoteid=tolower(tostring(peering.properties.remoteVirtualNetwork.id))
+)
+| join kind= leftouter  (
+  resources
+  | where type =~ 'Microsoft.Network/networkInterfaces'
+  | where properties.virtualMachine.id =~ tolower('${vmId}')
+  | project vnetid=tolower(extract('(.*/virtualnetworks/[^/]+)/', 1, tolower(tostring(properties.ipConfigurations[0].properties.subnet.id)))), nicid1=id
+  ) on $left.vnetid == $right.vnetid
+| join kind= leftouter (
+  resources
+  | where type =~ 'Microsoft.Network/networkInterfaces'
+  | where properties.virtualMachine.id =~ tolower('${vmId}')
+  | project vnetid=tolower(extract('(.*/virtualnetworks/[^/]+)/', 1, tolower(tostring(properties.ipConfigurations[0].properties.subnet.id)))), nicid2=id
+  ) on $left.remoteid == $right.vnetid
+  | where not(isempty(nicid1)) or not(isempty(nicid2))
+  | project vnetid
+| join kind=inner (
+  resources
+  | where type =~ 'microsoft.network/bastionHosts'
+  | where sku.name in ('Standard', 'Premium')
+  | extend vnetid=tolower(extract('(.*/virtualnetworks/[^/]+)/', 1, tolower(tostring(properties.ipConfigurations[0].properties.subnet.id))))
+) on vnetid
+| project id
+`
+  }
   getAccessToken() {
     const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
     const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
@@ -318,7 +391,8 @@ class AdvancedCopy extends Watcher {
     fxsBladeDropmenucontent.classList.add('fxs-blade-dropmenucontent');
     fxsBladeDropmenucontent.setAttribute('role', 'presentation');
     fxsBladeDropmenucontent.style.width = '350px';
-    this.menus.reduce(async (_, entry) => {
+    this.menus.reduce(async (promise, entry) => {
+      await promise;
       if (entry.isAvailable && !await entry.isAvailable()) return;
       const button = document.createElement('button');
       button.setAttribute('role', 'menuitem');
@@ -341,8 +415,8 @@ class AdvancedCopy extends Watcher {
       });
 
       fxsBladeDropmenucontent.appendChild(button);
-      return true;
-    }, true);
+      return Promise.resolve(true);
+    }, Promise.resolve(true));
 
     fxsDropmenuContent.appendChild(fxsBladeDropmenucontent);
     origDropdownMenu.querySelector('button.fxs-blade-copyname').style.display = 'none';
@@ -429,7 +503,8 @@ class AdvancedCopy extends Watcher {
       menuSubContainer.appendChild(menuRoot);
 
       const theme = document.head.className.replace(/.*(fxs-mode-(?:dark|light)+).*/, '$1');
-      this.menus.reduce(async (_, entry) => {
+      this.menus.reduce(async (promise, entry) => {
+        await promise;
         if (entry.isAvailable && !await entry.isAvailable()) return;
         const menuItem = document.createElement('div');
         menuItem.setAttribute('role', 'menuitem');
@@ -462,8 +537,8 @@ class AdvancedCopy extends Watcher {
         menuItem.addEventListener('click', entry.handler.bind(this));
 
         menuRoot.appendChild(menuItem);
-        return true;
-      }, true);
+        return Promise.resolve(true);
+      }, Promise.resolve(true));
     });
     const observer = new MutationObserver(() => {
       const titleCopy = document.querySelector('div.fxs-blade-copyname')
@@ -918,7 +993,7 @@ class ContextMenuUpdater extends Watcher {
         return Object.fromEntries(Object.entries(changes).map(c => [c[0], c[1].newValue]))
       })(changes, _watchers);
 
-      watcherStatus['contextMenuUpdater'] = {status: true};
+      watcherStatus['contextMenuUpdater'] = { status: true };
       Object.keys(watcherStatus).forEach(w => {
         if (!watcherStatus[w] || !_watchers[w]) return;
         if (watcherStatus[w].status) _watchers[w].startWatching(watcherStatus[w].options);
