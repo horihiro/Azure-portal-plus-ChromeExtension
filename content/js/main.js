@@ -217,7 +217,7 @@ class AdvancedCopy extends Watcher {
         }
       }
     }, {
-      title: 'Resource Ids as `az network bastion` option',
+      title: 'VM and Bastion Ids as `az network bastion` option',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
         if (!resource || resource[3].toLowerCase() !== 'microsoft.compute' || resource[4].toLowerCase() !== 'virtualmachines') return false;
