@@ -81,45 +81,6 @@ class AdvancedCopy extends Watcher {
         resource && navigator.clipboard.writeText(`-Name ${resource[5]} -ResourceGroupName ${resource[2]}`);
       }
     }, {
-      title: 'Resource Ids as `az network bastion` option',
-      handler: async (event) => {
-        const resource = location.hash.match(this.re);
-        if (!resource || resource[3].toLowerCase() !== 'microsoft.compute' || resource[4].toLowerCase() !== 'virtualmachines') return false;
-        if (!this.cache[resource[1]]?.bastionId) return false;
-        const bastionId = this.cache[resource[1]]?.bastionId;
-        navigator.clipboard.writeText(`--ids ${bastionId} --target-resource-id ${resource[1]} `);
-        return true;
-      },
-      isAvailable: async () => {
-        const resource = location.hash.match(this.re);
-        if (!resource || resource[3].toLowerCase() !== 'microsoft.compute' || resource[4].toLowerCase() !== 'virtualmachines') return false;
-        if (this.cache[resource[1]]?.bastionId) return true;
-        try {
-          const response = await fetch(
-            `https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01`,
-            {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${this.getAccessToken()}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(
-                {
-                  options: { "$top": 1000, "$skip": 0, "$skipToken": "", "resultFormat": "table"},
-                  query: this.createBastionQuery(resource[1])
-                }
-              )
-            });
-          if (response.status !== 200) return false;
-          const json = await response.json();
-          const bastionId = json.data.rows[0][0];
-          this.cache[resource[1]] = Object.assign(this.cache[resource[1]] || {}, {bastionId});
-        } catch (e) {
-          return false;
-        }
-        return true;
-      }
-    }, {
       title: 'ARM template (JSON)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
@@ -255,6 +216,45 @@ class AdvancedCopy extends Watcher {
           return false;
         }
       }
+    }, {
+      title: 'Resource Ids as `az network bastion` option',
+      handler: async (event) => {
+        const resource = location.hash.match(this.re);
+        if (!resource || resource[3].toLowerCase() !== 'microsoft.compute' || resource[4].toLowerCase() !== 'virtualmachines') return false;
+        if (!this.cache[resource[1]]?.bastionId) return false;
+        const bastionId = this.cache[resource[1]]?.bastionId;
+        navigator.clipboard.writeText(`--ids ${bastionId} --target-resource-id ${resource[1]} `);
+        return true;
+      },
+      isAvailable: async () => {
+        const resource = location.hash.match(this.re);
+        if (!resource || resource[3].toLowerCase() !== 'microsoft.compute' || resource[4].toLowerCase() !== 'virtualmachines') return false;
+        if (this.cache[resource[1]]?.bastionId) return true;
+        try {
+          const response = await fetch(
+            `https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01`,
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${this.getAccessToken()}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(
+                {
+                  options: { "$top": 1000, "$skip": 0, "$skipToken": "", "resultFormat": "table" },
+                  query: this.createBastionQuery(resource[1])
+                }
+              )
+            });
+          if (response.status !== 200) return false;
+          const json = await response.json();
+          const bastionId = json.data.rows[0][0];
+          this.cache[resource[1]] = Object.assign(this.cache[resource[1]] || {}, { bastionId });
+        } catch (e) {
+          return false;
+        }
+        return true;
+      }
     }];
 
     this.observer = new MutationObserver(this.addCopyMenu.bind(this));
@@ -325,8 +325,8 @@ class AdvancedCopy extends Watcher {
   | where properties.virtualMachine.id =~ tolower('${vmId}')
   | project vnetid=tolower(extract('(.*/virtualnetworks/[^/]+)/', 1, tolower(tostring(properties.ipConfigurations[0].properties.subnet.id)))), nicid2=id
   ) on $left.remoteid == $right.vnetid
-  | where not(isempty(nicid1)) or not(isempty(nicid2))
-  | project vnetid
+| where not(isempty(nicid1)) or not(isempty(nicid2))
+| project vnetid
 | join kind=inner (
   resources
   | where type =~ 'microsoft.network/bastionHosts'
@@ -457,6 +457,8 @@ class AdvancedCopy extends Watcher {
         document.body.removeEventListener('click', hidden);
       }
     }
+    const styleClassName = [...document.querySelectorAll('style[id^="fui-FluentProviderr"')].reverse()[0].id;
+    menuContainer.classList.add(styleClassName);
     copyDropdownMenu.addEventListener('click', (event) => {
       event.preventDefault();
       if (menuContainer.parentNode) {
@@ -473,71 +475,71 @@ class AdvancedCopy extends Watcher {
         menuContainer.childNodes[0].style.transform = `translate(${copyDropdownMenu.getBoundingClientRect().left}px, ${copyDropdownMenu.getBoundingClientRect().bottom}px)`;
         return;
       };
-      const styleClassName = [...document.querySelectorAll('style[id^="fui-FluentProviderr"')].reverse()[0].id;
-      menuContainer.classList.add(styleClassName);
-      const menuSubContainer = document.createElement('div');
-      menuSubContainer.setAttribute('role', 'presentation');
-      menuSubContainer.setAttribute('data-popper-placement', "bottom-start");
-      menuSubContainer.style.overflowY = 'hidden';
-      menuSubContainer.style.position = 'absolute';
-      menuSubContainer.style.left = '0px';
-      menuSubContainer.style.top = '0px';
-      menuSubContainer.style.margin = '0px';
-      menuSubContainer.style.transform = `translate(${copyDropdownMenu.getBoundingClientRect().left}px, ${copyDropdownMenu.getBoundingClientRect().bottom}px)`;
-      menuSubContainer.style.borderRadius = 'var(--borderRadiusMedium)';
-      menuSubContainer.style.padding = '4px';
-      menuSubContainer.style.border = '1px solid var(--colorControlBorderSecondary)';
-      menuSubContainer.style.color = 'var(--colorTextPrimary)';
-      menuSubContainer.style.backgroundColor = 'var(--colorContainerBackgroundPrimary)';
-      menuContainer.appendChild(menuSubContainer);
-
-      const menuRoot = document.createElement('div');
-      menuRoot.setAttribute('role', 'menu');
-      menuRoot.setAttribute('aria-labelledby', 'menur1');
-      menuRoot.style.gap = '2px';
-      menuRoot.style.width = '330px';
-      menuRoot.classList.add('fui-MenuList', 'fxs-blade-dropmenucontent');
-
-      menuSubContainer.appendChild(menuRoot);
-
-      const theme = document.head.className.replace(/.*(fxs-mode-(?:dark|light)+).*/, '$1');
-      this.menus.reduce(async (promise, entry) => {
-        await promise;
-        if (entry.isAvailable && !await entry.isAvailable()) return;
-        const menuItem = document.createElement('div');
-        menuItem.setAttribute('role', 'menuitem');
-        menuItem.setAttribute('tabindex', '0');
-        menuItem.setAttribute('onmouseover',
-          `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
-          `this.style.background=styles.getPropertyValue('--colorControlBackgroundHover');` +
-          `this.style.color=styles.getPropertyValue('--colorNeutralForeground2Hover');`
-        );
-        menuItem.setAttribute('onmouseout',
-          `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
-          `this.style.background=styles.getPropertyValue('--colorNeutralBackground1');` +
-          `this.style.color=styles.getPropertyValue('--colorNeutralForeground2');`
-        );
-
-        menuItem.style.fontSize = '13px';
-        menuItem.style.borderRadius = 'var(--borderRadiusMedium)';
-        menuItem.style.color = 'var(--colorNeutralForeground2)';
-        menuItem.style.backgroundColor = 'var(--colorNeutralBackground1)';
-        menuItem.style.padding = 'var(--spacingVerticalSNudge) var(--spacingVerticalSNudge)';
-        menuItem.style.boxSizing = 'border-box';
-        menuItem.style.minHeight = '32px';
-        menuItem.style.cursor = 'pointer';
-
-        const menuItemLabel = document.createElement('span');
-        menuItemLabel.classList.add('fui-MenuItem__content');
-        menuItemLabel.innerText = entry.title;
-        menuItem.appendChild(menuItemLabel);
-
-        menuItem.addEventListener('click', entry.handler.bind(this));
-
-        menuRoot.appendChild(menuItem);
-        return Promise.resolve(true);
-      }, Promise.resolve(true));
     });
+
+    const menuSubContainer = document.createElement('div');
+    menuSubContainer.setAttribute('role', 'presentation');
+    menuSubContainer.setAttribute('data-popper-placement', "bottom-start");
+    menuSubContainer.style.overflowY = 'hidden';
+    menuSubContainer.style.position = 'absolute';
+    menuSubContainer.style.left = '0px';
+    menuSubContainer.style.top = '0px';
+    menuSubContainer.style.margin = '0px';
+    menuSubContainer.style.transform = `translate(${copyDropdownMenu.getBoundingClientRect().left}px, ${copyDropdownMenu.getBoundingClientRect().bottom}px)`;
+    menuSubContainer.style.borderRadius = 'var(--borderRadiusMedium)';
+    menuSubContainer.style.padding = '4px';
+    menuSubContainer.style.border = '1px solid var(--colorControlBorderSecondary)';
+    menuSubContainer.style.color = 'var(--colorTextPrimary)';
+    menuSubContainer.style.backgroundColor = 'var(--colorContainerBackgroundPrimary)';
+    menuContainer.appendChild(menuSubContainer);
+
+    const menuRoot = document.createElement('div');
+    menuRoot.setAttribute('role', 'menu');
+    menuRoot.setAttribute('aria-labelledby', 'menur1');
+    menuRoot.style.gap = '2px';
+    menuRoot.style.width = '330px';
+    menuRoot.classList.add('fui-MenuList', 'fxs-blade-dropmenucontent');
+
+    menuSubContainer.appendChild(menuRoot);
+
+    const theme = document.head.className.replace(/.*(fxs-mode-(?:dark|light)+).*/, '$1');
+    this.menus.reduce(async (promise, entry) => {
+      await promise;
+      if (entry.isAvailable && !await entry.isAvailable()) return;
+      const menuItem = document.createElement('div');
+      menuItem.setAttribute('role', 'menuitem');
+      menuItem.setAttribute('tabindex', '0');
+      menuItem.setAttribute('onmouseover',
+        `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
+        `this.style.background=styles.getPropertyValue('--colorControlBackgroundHover');` +
+        `this.style.color=styles.getPropertyValue('--colorNeutralForeground2Hover');`
+      );
+      menuItem.setAttribute('onmouseout',
+        `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
+        `this.style.background=styles.getPropertyValue('--colorNeutralBackground1');` +
+        `this.style.color=styles.getPropertyValue('--colorNeutralForeground2');`
+      );
+
+      menuItem.style.fontSize = '13px';
+      menuItem.style.borderRadius = 'var(--borderRadiusMedium)';
+      menuItem.style.color = 'var(--colorNeutralForeground2)';
+      menuItem.style.backgroundColor = 'var(--colorNeutralBackground1)';
+      menuItem.style.padding = 'var(--spacingVerticalSNudge) var(--spacingVerticalSNudge)';
+      menuItem.style.boxSizing = 'border-box';
+      menuItem.style.minHeight = '32px';
+      menuItem.style.cursor = 'pointer';
+
+      const menuItemLabel = document.createElement('span');
+      menuItemLabel.classList.add('fui-MenuItem__content');
+      menuItemLabel.innerText = entry.title;
+      menuItem.appendChild(menuItemLabel);
+
+      menuItem.addEventListener('click', entry.handler.bind(this));
+
+      menuRoot.appendChild(menuItem);
+      return Promise.resolve(true);
+    }, Promise.resolve(true));
+
     const observer = new MutationObserver(() => {
       const titleCopy = document.querySelector('div.fxs-blade-copyname')
       if (titleCopy) titleCopy.style.display = 'none';
