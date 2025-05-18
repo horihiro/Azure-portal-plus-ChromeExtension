@@ -59,7 +59,13 @@ When finishing a process taking long time, the tab opening Azure portal is activ
 
 Add the following copy menu to the resource page's header and disable built-in `Copy title to clipbord` in `More content actions` menu.  
 
+> [!NOTE]
+> This feature is available only for each resouce page.   
+> On subscriptions, resource groups and Entra ID pages, the copy button is not shown. 
+
 <img src="./popup/img/advanced-copy-menu.png">
+
+### Supported formats
 
   - `Resource name`
   - `Resource Id`  
@@ -89,8 +95,7 @@ Add the following copy menu to the resource page's header and disable built-in `
     }
     ```
   - `Resource Template (Bicep)` (v0.0.8 or later)  
-    > ![NOTE]
-    > This feature depends on exporting function on Azure Platform.
+    NOTE: This feature depends on exporting function on Azure Platform.
 
     <details>
     <summary>format:</summary>  
@@ -107,9 +112,7 @@ Add the following copy menu to the resource page's header and disable built-in `
     </details>
 
   - `Terraform (AzApi)` (v0.0.8 or later)  
-    > ![NOTE]
-    > This feature depends on exporting function on Azure Platform.
-    > Subscription Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
+    NOTE: This feature depends on exporting function on Azure Platform. Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
 
     <details>
     <summary>format:</summary>  
@@ -135,9 +138,7 @@ Add the following copy menu to the resource page's header and disable built-in `
     </details>
 
   - `Terraform (AzureRM)` (v0.0.8 or later)  
-    > ![NOTE]
-    > This feature depends on exporting function on Azure Platform.
-    > Subscription Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
+    NOTE: This feature depends on exporting function on Azure Platform. Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
 
     <details>
     <summary>format:</summary>  
@@ -161,8 +162,13 @@ Add the following copy menu to the resource page's header and disable built-in `
     ```
     </details>
 
-> [!NOTE]
-> This feature is available only for each resouce page. On subscriptions, resource groups and Entra ID pages, the copy button is not shown. 
+  - `` VM and Bastion Ids as `az network bastion` option `` (v0.0.9 or later)  
+    NOTE: This feature shows on Virtual Machine resource only.
+
+    format:  
+    ```bash
+    --ids {basion_resource_id} --target-resource-id {vm_resource_id}
+    ```
 
 ## 6. Restore filter string on each list view (v0.0.6 or later)  (Experimental)
 
@@ -201,6 +207,7 @@ If you can try a development version, the following steps are needed.
 
   - New feature
   - Improve features
+    - Add copying resource IDs of Bastion and VM for `az network bastion` command to advanced copy feature
   - Bug Fix
 
 ## [0.0.8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.8)
