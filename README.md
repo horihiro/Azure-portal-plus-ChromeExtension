@@ -95,7 +95,7 @@ Add the following copy menu to the resource page's header and disable built-in `
     }
     ```
   - `Resource Template (Bicep)` (v0.0.8 or later)  
-    NOTE: This feature depends on exporting function on Azure Platform.
+    NOTE: ***This feature depends on exporting function on Azure Platform.***
 
     <details>
     <summary>format:</summary>  
@@ -112,7 +112,7 @@ Add the following copy menu to the resource page's header and disable built-in `
     </details>
 
   - `Terraform (AzApi)` (v0.0.8 or later)  
-    NOTE: This feature depends on exporting function on Azure Platform. Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
+    NOTE: ***This feature depends on exporting function on Azure Platform. Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.***
 
     <details>
     <summary>format:</summary>  
@@ -138,7 +138,7 @@ Add the following copy menu to the resource page's header and disable built-in `
     </details>
 
   - `Terraform (AzureRM)` (v0.0.8 or later)  
-    NOTE: This feature depends on exporting function on Azure Platform. Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
+    NOTE: ***This feature depends on exporting function on Azure Platform. Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.***
 
     <details>
     <summary>format:</summary>  
@@ -163,7 +163,7 @@ Add the following copy menu to the resource page's header and disable built-in `
     </details>
 
   - `` VM and Bastion Ids as `az network bastion` option `` (v0.0.9 or later)  
-    NOTE: This feature shows on Virtual Machine resource only.
+    NOTE: ***This feature shows on Virtual Machine resource that can be connected via Azure Bastion with `Standard` / `Premium` SKU only.***
 
     format:  
     ```bash
