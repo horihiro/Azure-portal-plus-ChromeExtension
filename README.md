@@ -197,6 +197,12 @@ If you can try a development version, the following steps are needed.
 
 # Change logs
 
+## [0.0.9](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.9)
+
+  - New feature
+  - Improve features
+  - Bug Fix
+
 ## [0.0.8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.8)
 
   - New feature
