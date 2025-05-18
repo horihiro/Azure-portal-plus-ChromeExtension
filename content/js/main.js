@@ -241,14 +241,14 @@ class AdvancedCopy extends Watcher {
               },
               body: JSON.stringify(
                 {
-                  options: { "$top": 1000, "$skip": 0, "$skipToken": "", "resultFormat": "table" },
+                  options: { "$top": 1000, "$skip": 0, "$skipToken": "", "resultFormat": "objectArray" },
                   query: this.createBastionQuery(resource[1])
                 }
               )
             });
           if (response.status !== 200) return false;
           const json = await response.json();
-          const bastionId = json.data.rows[0][0];
+          const bastionId = json.data[0].id;
           this.cache[resource[1]] = Object.assign(this.cache[resource[1]] || {}, { bastionId });
         } catch (e) {
           return false;
