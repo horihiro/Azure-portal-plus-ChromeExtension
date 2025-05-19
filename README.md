@@ -230,6 +230,8 @@ If you can try a development version, the following steps are needed.
 
   - Improve feature(s)
     - Add copying resource IDs of Bastion and VM for `az network bastion` command to advanced copy feature
+  - Bug Fix(es)
+    - Advanced Copy cannot copy ARM Template(JSON)
 
 ## [0.0.8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.8)
 
