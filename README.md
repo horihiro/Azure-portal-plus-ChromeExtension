@@ -67,22 +67,34 @@ Add the following copy menu to the resource page's header and disable built-in `
 
 ### Supported formats
 
-  - `Resource name`
+  - `Resource name`  
+
+    https://github.com/user-attachments/assets/6e4fa3a6-382a-4db0-b41e-4144c61825b9
+
   - `Resource Id`  
     format:  
     ```
     /subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/{resource_provider_name}/{resource_type}/{resource_name}
     ```
+
+    https://github.com/user-attachments/assets/5a906a4e-c67c-45bc-9886-6c380b315b19
+
   - `Resource name and group as Azure CLI option`  
     format:  
     ```bash
     --name {resource_name} --resource-group {resource_group_name}
     ```
+
+    https://github.com/user-attachments/assets/0a17aac0-8746-48e1-852e-130862e41bc4
+
   - `Resource name and group as Azure PowerShell option`  
     format:  
     ```pwsh
     -Name {resource_name} -ResourceGroup {resource_group_name}
     ```
+
+    https://github.com/user-attachments/assets/2073ca02-41f2-4744-a4be-6b48fd622131
+
   - `Resource Template (JSON)`  
     format:  
     ```json
@@ -94,6 +106,9 @@ Add the following copy menu to the resource page's header and disable built-in `
         :
     }
     ```
+
+    https://github.com/user-attachments/assets/409cdd80-d188-4b96-a1c9-037c14858e3e
+
   - `Resource Template (Bicep)` (v0.0.8 or later)  
     NOTE: ***This feature depends on exporting function on Azure Platform.***
 
@@ -110,6 +125,8 @@ Add the following copy menu to the resource page's header and disable built-in `
     }
     ```
     </details>
+    
+    https://github.com/user-attachments/assets/69bee0cf-cfef-432c-ac0b-10c9687701af
 
   - `Terraform (AzApi)` (v0.0.8 or later)  
     NOTE: ***This feature depends on exporting function on Azure Platform. Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.***
@@ -136,6 +153,8 @@ Add the following copy menu to the resource page's header and disable built-in `
     }
     ```
     </details>
+    
+    https://github.com/user-attachments/assets/d4b77182-528c-4991-abdb-ae6c354e48f3
 
   - `Terraform (AzureRM)` (v0.0.8 or later)  
     NOTE: ***This feature depends on exporting function on Azure Platform. Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.***
@@ -161,6 +180,8 @@ Add the following copy menu to the resource page's header and disable built-in `
         :
     ```
     </details>
+    
+    https://github.com/user-attachments/assets/7eeb8af9-189a-4e77-85ad-df6a1405f93b
 
   - `` VM and Bastion Ids as `az network bastion` option `` (v0.0.9 or later)  
     NOTE: ***This feature shows on Virtual Machine resource that can be connected via Azure Bastion with `Standard` / `Premium` SKU only.***
