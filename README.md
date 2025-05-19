@@ -205,52 +205,50 @@ If you can try a development version, the following steps are needed.
 
 ## [0.0.9](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.9)
 
-  - New feature
-  - Improve features
+  - Improve feature(s)
     - Add copying resource IDs of Bastion and VM for `az network bastion` command to advanced copy feature
-  - Bug Fix
 
 ## [0.0.8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.8)
 
-  - New feature
+  - New feature(s)
     - Add a feature to open a resource in the preview portal.
-  - Improve features
+  - Improve feature(s)
     - Add Bicep and Terraform format to advanced copy feature
-  - Bug Fix
+  - Bug Fix(es)
     - Advanced Copy doesn't show for specific accounts ([#26](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/26))  
 
 ## [0.0.7](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.7)
 
-  - New feature
+  - New feature(s)
     - Add a feature to restore fitler string on each list view.
 
 ## [0.0.6](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.6)
 
-  - Bug fix
+  - Bug fix(es)
     - Cannot keep a resource icon as the favicon when hiding the sidebar ([#15](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/15))  
-  - Improve features
+  - Improve feature(s)
     - Copy ARM template(JSON)
 
 ## [0.0.5](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.5)
 
-  - New feature
+  - New feature(s)
     - Add a feature to copy resource infomation in various formats.
 
 ## [0.0.4](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.4)
 
-  - Improve features
+  - Improve feature(s)
     - Add beforeunload event listener to prevent accidental page leave during blinking favicon ([#8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/8))
-  - New feature
+  - New feature(s)
     - Activate the tab opening Azure portal (i.e. bring it to the top) automatically when finishing a process taking long time ([#9](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/9))
 
 ## [0.0.3](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.3)
 
-  - Bug fix
+  - Bug fix(es)
     - Refactor main.js to update favicon containers ([#6](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/6))
 
 ## [0.0.2](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.2)
 
-  - New features
+  - New feature(s)
     - Add the following origins ([#1](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/1))
       - `ms.portal.azure.com`
       - `preview.portal.azure.com`
@@ -258,7 +256,7 @@ If you can try a development version, the following steps are needed.
 ## [0.0.1](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.1)
 The First release
 
-  - Basic features
+  - Basic feature(s)
     - Replace favicon to one of the resource displayed
     - Blink favicon during configuration
     - Notify when finishing configuration 
