@@ -170,6 +170,8 @@ Add the following copy menu to the resource page's header and disable built-in `
     --ids {basion_resource_id} --target-resource-id {vm_resource_id}
     ```
 
+    https://github.com/user-attachments/assets/8e0765fd-8e3e-4e9d-a7f3-55813eec0908
+
 ## 6. Restore filter string on each list view (v0.0.6 or later)  (Experimental)
 
 By storing filter string on inputting/updating on each list view, this can restore the filter string on the list view when opening the list view again.
