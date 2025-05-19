@@ -93,7 +93,7 @@ class AdvancedCopy extends Watcher {
             console.error(message.body);
           } else {
             try {
-              await navigator.clipboard.writeText(body);
+              await navigator.clipboard.writeText(JSON.stringify(body, null, 2));
               this.toastLayer.childNodes[0].innerHTML = this.icons.done;
             } catch (e) {
               this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
