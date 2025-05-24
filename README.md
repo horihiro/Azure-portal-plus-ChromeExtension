@@ -59,24 +59,42 @@ When finishing a process taking long time, the tab opening Azure portal is activ
 
 Add the following copy menu to the resource page's header and disable built-in `Copy title to clipbord` in `More content actions` menu.  
 
+> [!NOTE]
+> This feature is available only for each resouce page.   
+> On subscriptions, resource groups and Entra ID pages, the copy button is not shown. 
+
 <img src="./popup/img/advanced-copy-menu.png">
 
-  - `Resource name`
+### Supported formats
+
+  - `Resource name`  
+
+    https://github.com/user-attachments/assets/6e4fa3a6-382a-4db0-b41e-4144c61825b9
+
   - `Resource Id`  
     format:  
     ```
     /subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/{resource_provider_name}/{resource_type}/{resource_name}
     ```
+
+    https://github.com/user-attachments/assets/5a906a4e-c67c-45bc-9886-6c380b315b19
+
   - `Resource name and group as Azure CLI option`  
     format:  
     ```bash
     --name {resource_name} --resource-group {resource_group_name}
     ```
+
+    https://github.com/user-attachments/assets/0a17aac0-8746-48e1-852e-130862e41bc4
+
   - `Resource name and group as Azure PowerShell option`  
     format:  
     ```pwsh
     -Name {resource_name} -ResourceGroup {resource_group_name}
     ```
+
+    https://github.com/user-attachments/assets/2073ca02-41f2-4744-a4be-6b48fd622131
+
   - `Resource Template (JSON)`  
     format:  
     ```json
@@ -88,9 +106,11 @@ Add the following copy menu to the resource page's header and disable built-in `
         :
     }
     ```
+
+    https://github.com/user-attachments/assets/409cdd80-d188-4b96-a1c9-037c14858e3e
+
   - `Resource Template (Bicep)` (v0.0.8 or later)  
-    > ![NOTE]
-    > This feature depends on exporting function on Azure Platform.
+    NOTE: ***This feature depends on exporting function on Azure Platform.***
 
     <details>
     <summary>format:</summary>  
@@ -105,11 +125,11 @@ Add the following copy menu to the resource page's header and disable built-in `
     }
     ```
     </details>
+    
+    https://github.com/user-attachments/assets/69bee0cf-cfef-432c-ac0b-10c9687701af
 
   - `Terraform (AzApi)` (v0.0.8 or later)  
-    > ![NOTE]
-    > This feature depends on exporting function on Azure Platform.
-    > Subscription Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
+    NOTE: ***This feature depends on exporting function on Azure Platform. Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.***
 
     <details>
     <summary>format:</summary>  
@@ -133,11 +153,11 @@ Add the following copy menu to the resource page's header and disable built-in `
     }
     ```
     </details>
+    
+    https://github.com/user-attachments/assets/d4b77182-528c-4991-abdb-ae6c354e48f3
 
   - `Terraform (AzureRM)` (v0.0.8 or later)  
-    > ![NOTE]
-    > This feature depends on exporting function on Azure Platform.
-    > Subscription Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.
+    NOTE: ***This feature depends on exporting function on Azure Platform. Registering Resource Provider `Microsoft.AzureTerraform` for your subscription is required.***
 
     <details>
     <summary>format:</summary>  
@@ -160,9 +180,18 @@ Add the following copy menu to the resource page's header and disable built-in `
         :
     ```
     </details>
+    
+    https://github.com/user-attachments/assets/7eeb8af9-189a-4e77-85ad-df6a1405f93b
 
-> [!NOTE]
-> This feature is available only for each resouce page. On subscriptions, resource groups and Entra ID pages, the copy button is not shown. 
+  - `` VM and Bastion Ids as `az network bastion` option `` (v0.0.9 or later)  
+    NOTE: ***This feature shows on Virtual Machine resource that can be connected via Azure Bastion with `Standard` / `Premium` SKU only.***
+
+    format:  
+    ```bash
+    --ids {basion_resource_id} --target-resource-id {vm_resource_id}
+    ```
+
+    https://github.com/user-attachments/assets/8e0765fd-8e3e-4e9d-a7f3-55813eec0908
 
 ## 6. Restore filter string on each list view (v0.0.6 or later)  (Experimental)
 
@@ -197,47 +226,54 @@ If you can try a development version, the following steps are needed.
 
 # Change logs
 
+## [0.0.9](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.9)
+
+  - Improve feature(s)
+    - Add copying resource IDs of Bastion and VM for `az network bastion` command to advanced copy feature
+  - Bug Fix(es)
+    - Advanced Copy cannot copy ARM Template(JSON)
+
 ## [0.0.8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.8)
 
-  - New feature
+  - New feature(s)
     - Add a feature to open a resource in the preview portal.
-  - Improve features
+  - Improve feature(s)
     - Add Bicep and Terraform format to advanced copy feature
-  - Bug Fix
+  - Bug Fix(es)
     - Advanced Copy doesn't show for specific accounts ([#26](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/26))  
 
 ## [0.0.7](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.7)
 
-  - New feature
+  - New feature(s)
     - Add a feature to restore fitler string on each list view.
 
 ## [0.0.6](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.6)
 
-  - Bug fix
+  - Bug fix(es)
     - Cannot keep a resource icon as the favicon when hiding the sidebar ([#15](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/15))  
-  - Improve features
+  - Improve feature(s)
     - Copy ARM template(JSON)
 
 ## [0.0.5](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.5)
 
-  - New feature
+  - New feature(s)
     - Add a feature to copy resource infomation in various formats.
 
 ## [0.0.4](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.4)
 
-  - Improve features
+  - Improve feature(s)
     - Add beforeunload event listener to prevent accidental page leave during blinking favicon ([#8](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/8))
-  - New feature
+  - New feature(s)
     - Activate the tab opening Azure portal (i.e. bring it to the top) automatically when finishing a process taking long time ([#9](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/9))
 
 ## [0.0.3](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.3)
 
-  - Bug fix
+  - Bug fix(es)
     - Refactor main.js to update favicon containers ([#6](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/pull/6))
 
 ## [0.0.2](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.2)
 
-  - New features
+  - New feature(s)
     - Add the following origins ([#1](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/1))
       - `ms.portal.azure.com`
       - `preview.portal.azure.com`
@@ -245,7 +281,7 @@ If you can try a development version, the following steps are needed.
 ## [0.0.1](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.1)
 The First release
 
-  - Basic features
+  - Basic feature(s)
     - Replace favicon to one of the resource displayed
     - Blink favicon during configuration
     - Notify when finishing configuration 

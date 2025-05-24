@@ -54,12 +54,13 @@ class AdvancedCopy extends Watcher {
   constructor() {
     super();
     this.messageQueue = [];
-    this.re = /(\/subscriptions\/[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}\/resourceGroups\/([^/]+)\/providers\/[^/]+\/[^/]+\/([^/]+))/i;
+    this.re = /(\/subscriptions\/[0-9a-f]{8}(?:-[0-9a-f]{4}){4}[0-9a-f]{8}\/resourceGroups\/([^/]+)\/providers\/([^/]+)\/([^/]+)\/([^/]+))/i;
+    this.cache = {};
     this.menus = [{
       title: 'Resource name',
       handler: (event) => {
         const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(resource[3]);
+        resource && navigator.clipboard.writeText(resource[5]);
       }
     }, {
       title: 'Resource Id',
@@ -71,94 +72,92 @@ class AdvancedCopy extends Watcher {
       title: 'Resource name and group as Azure CLI option',
       handler: (event) => {
         const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(`--name ${resource[3]} --resource-group ${resource[2]}`);
+        resource && navigator.clipboard.writeText(`--name ${resource[5]} --resource-group ${resource[2]}`);
       }
     }, {
       title: 'Resource name and group as Azure PowerShell option',
       handler: (event) => {
         const resource = location.hash.match(this.re);
-        resource && navigator.clipboard.writeText(`-Name ${resource[3]} -ResourceGroupName ${resource[2]}`);
+        resource && navigator.clipboard.writeText(`-Name ${resource[5]} -ResourceGroupName ${resource[2]}`);
       }
     }, {
       title: 'ARM template (JSON)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        if (resource) {
-          this.getResourceHandler = async (message) => {
-            const { result, format, body } = message;
-            if (result !== 'succeeded' || format !== 'json') {
+        if (!resource) return;
+
+        this.getResourceHandler = async (message) => {
+          const { result, format, body } = message;
+          if (result !== 'succeeded' || format !== 'json') {
+            this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+            console.error(message.body);
+          } else {
+            try {
+              await navigator.clipboard.writeText(JSON.stringify(body, null, 2));
+              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+            } catch (e) {
               this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
               console.error(message.body);
-            } else {
-              try {
-                await navigator.clipboard.writeText(body);
-                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
-              } catch (e) {
-                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
-                console.error(message.body);
-              }
             }
-            this.getResourceHandler = null;
-            this.toastLayer.classList.add('fadeOut');
-          };
-          document.body.appendChild(this.toastLayer);
-          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-          this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: this.getAccessToken() });
-        }
+          }
+          this.getResourceHandler = null;
+          this.toastLayer.classList.add('fadeOut');
+        };
+        document.body.appendChild(this.toastLayer);
+        this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+        this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: this.getAccessToken() });
       }
     }, {
       title: 'ARM template (Bicep)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        if (resource) {
-          this.getResourceHandler = async (message) => {
-            const { result, format, body } = message;
-            if (result !== 'succeeded' || format !== 'bicep') {
+        if (!resource) return;
+        this.getResourceHandler = async (message) => {
+          const { result, format, body } = message;
+          if (result !== 'succeeded' || format !== 'bicep') {
+            this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+            console.error(message.body);
+          } else {
+            try {
+              await navigator.clipboard.writeText(body);
+              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+            } catch (e) {
               this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
               console.error(message.body);
-            } else {
-              try {
-                await navigator.clipboard.writeText(body);
-                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
-              } catch (e) {
-                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
-                console.error(message.body);
-              }
             }
-            this.getResourceHandler = null;
-            this.toastLayer.classList.add('fadeOut');
-          };
-          document.body.appendChild(this.toastLayer);
-          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-          this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: this.getAccessToken() });
-        }
+          }
+          this.getResourceHandler = null;
+          this.toastLayer.classList.add('fadeOut');
+        };
+        document.body.appendChild(this.toastLayer);
+        this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+        this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: this.getAccessToken() });
       }
     }, {
       title: 'Terraform (AzApi)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        if (resource) {
-          this.getResourceHandler = async (message) => {
-            const { result, format, body } = message;
-            if (result !== 'succeeded' || format !== 'azapi') {
+        if (!resource) return;
+        this.getResourceHandler = async (message) => {
+          const { result, format, body } = message;
+          if (result !== 'succeeded' || format !== 'azapi') {
+            this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+            console.error(message.body);
+          } else {
+            try {
+              await navigator.clipboard.writeText(body);
+              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+            } catch (e) {
               this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
               console.error(message.body);
-            } else {
-              try {
-                await navigator.clipboard.writeText(body);
-                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
-              } catch (e) {
-                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
-                console.error(message.body);
-              }
             }
-            this.getResourceHandler = null;
-            this.toastLayer.classList.add('fadeOut');
-          };
-          document.body.appendChild(this.toastLayer);
-          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-          this.send2serviceWorker({ resourceId: resource[1], format: 'azapi', accessToken: this.getAccessToken() });
-        }
+          }
+          this.getResourceHandler = null;
+          this.toastLayer.classList.add('fadeOut');
+        };
+        document.body.appendChild(this.toastLayer);
+        this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+        this.send2serviceWorker({ resourceId: resource[1], format: 'azapi', accessToken: this.getAccessToken() });
       },
       isAvailable: async () => {
         try {
@@ -179,28 +178,28 @@ class AdvancedCopy extends Watcher {
       title: 'Terraform (AzureRM)',
       handler: async (event) => {
         const resource = location.hash.match(this.re);
-        if (resource) {
-          this.getResourceHandler = async (message) => {
-            const { result, format, body } = message;
-            if (result !== 'succeeded' || format !== 'azurerm') {
+        if (!resource) return;
+
+        this.getResourceHandler = async (message) => {
+          const { result, format, body } = message;
+          if (result !== 'succeeded' || format !== 'azurerm') {
+            this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
+            console.error(message.body);
+          } else {
+            try {
+              await navigator.clipboard.writeText(body);
+              this.toastLayer.childNodes[0].innerHTML = this.icons.done;
+            } catch (e) {
               this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
               console.error(message.body);
-            } else {
-              try {
-                await navigator.clipboard.writeText(body);
-                this.toastLayer.childNodes[0].innerHTML = this.icons.done;
-              } catch (e) {
-                this.toastLayer.childNodes[0].innerHTML = this.icons.failed;
-                console.error(message.body);
-              }
             }
-            this.getResourceHandler = null;
-            this.toastLayer.classList.add('fadeOut');
-          };
-          document.body.appendChild(this.toastLayer);
-          this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-          this.send2serviceWorker({ resourceId: resource[1], format: 'azurerm', accessToken: this.getAccessToken() });
-        }
+          }
+          this.getResourceHandler = null;
+          this.toastLayer.classList.add('fadeOut');
+        };
+        document.body.appendChild(this.toastLayer);
+        this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
+        this.send2serviceWorker({ resourceId: resource[1], format: 'azurerm', accessToken: this.getAccessToken() });
       },
       isAvailable: async () => {
         try {
@@ -216,6 +215,45 @@ class AdvancedCopy extends Watcher {
         } catch (e) {
           return false;
         }
+      }
+    }, {
+      title: 'VM and Bastion Ids as `az network bastion` option',
+      handler: async (event) => {
+        const resource = location.hash.match(this.re);
+        if (!resource || resource[3].toLowerCase() !== 'microsoft.compute' || resource[4].toLowerCase() !== 'virtualmachines') return false;
+        if (!this.cache[resource[1]]?.bastionId) return false;
+        const bastionId = this.cache[resource[1]]?.bastionId;
+        navigator.clipboard.writeText(`--ids ${bastionId} --target-resource-id ${resource[1]} `);
+        return true;
+      },
+      isAvailable: async () => {
+        const resource = location.hash.match(this.re);
+        if (!resource || resource[3].toLowerCase() !== 'microsoft.compute' || resource[4].toLowerCase() !== 'virtualmachines') return false;
+        if (this.cache[resource[1]]?.bastionId) return true;
+        try {
+          const response = await fetch(
+            `https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01`,
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${this.getAccessToken()}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(
+                {
+                  options: { "$top": 1000, "$skip": 0, "$skipToken": "", "resultFormat": "objectArray" },
+                  query: this.createBastionQuery(resource[1])
+                }
+              )
+            });
+          if (response.status !== 200) return false;
+          const json = await response.json();
+          const bastionId = json.data[0].id;
+          this.cache[resource[1]] = Object.assign(this.cache[resource[1]] || {}, { bastionId });
+        } catch (e) {
+          return false;
+        }
+        return true;
       }
     }];
 
@@ -264,6 +302,39 @@ class AdvancedCopy extends Watcher {
 }
 `;
 
+  }
+  createBastionQuery(vmId) {
+    return `resources
+| where type =~ 'Microsoft.Network/virtualNetworks'
+| where array_length(properties.virtualNetworkPeerings) == 0
+| project vnetid=tolower(id)
+| union (resources
+| where type =~ 'Microsoft.Network/virtualNetworks'
+| mv-expand peering=properties.virtualNetworkPeerings limit 400
+| project vnetid=tolower(id), remoteid=tolower(tostring(peering.properties.remoteVirtualNetwork.id))
+)
+| join kind= leftouter  (
+  resources
+  | where type =~ 'Microsoft.Network/networkInterfaces'
+  | where properties.virtualMachine.id =~ tolower('${vmId}')
+  | project vnetid=tolower(extract('(.*/virtualnetworks/[^/]+)/', 1, tolower(tostring(properties.ipConfigurations[0].properties.subnet.id)))), nicid1=id
+  ) on $left.vnetid == $right.vnetid
+| join kind= leftouter (
+  resources
+  | where type =~ 'Microsoft.Network/networkInterfaces'
+  | where properties.virtualMachine.id =~ tolower('${vmId}')
+  | project vnetid=tolower(extract('(.*/virtualnetworks/[^/]+)/', 1, tolower(tostring(properties.ipConfigurations[0].properties.subnet.id)))), nicid2=id
+  ) on $left.remoteid == $right.vnetid
+| where not(isempty(nicid1)) or not(isempty(nicid2))
+| project vnetid
+| join kind=inner (
+  resources
+  | where type =~ 'microsoft.network/bastionHosts'
+  | where sku.name in~ ('standard', 'premium')
+  | extend vnetid=tolower(extract('(.*/virtualnetworks/[^/]+)/', 1, tolower(tostring(properties.ipConfigurations[0].properties.subnet.id))))
+) on vnetid
+| project id
+`
   }
   getAccessToken() {
     const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
@@ -318,7 +389,8 @@ class AdvancedCopy extends Watcher {
     fxsBladeDropmenucontent.classList.add('fxs-blade-dropmenucontent');
     fxsBladeDropmenucontent.setAttribute('role', 'presentation');
     fxsBladeDropmenucontent.style.width = '350px';
-    this.menus.reduce(async (_, entry) => {
+    this.menus.reduce(async (promise, entry) => {
+      await promise;
       if (entry.isAvailable && !await entry.isAvailable()) return;
       const button = document.createElement('button');
       button.setAttribute('role', 'menuitem');
@@ -341,8 +413,8 @@ class AdvancedCopy extends Watcher {
       });
 
       fxsBladeDropmenucontent.appendChild(button);
-      return true;
-    }, true);
+      return Promise.resolve(true);
+    }, Promise.resolve(true));
 
     fxsDropmenuContent.appendChild(fxsBladeDropmenucontent);
     origDropdownMenu.querySelector('button.fxs-blade-copyname').style.display = 'none';
@@ -385,6 +457,8 @@ class AdvancedCopy extends Watcher {
         document.body.removeEventListener('click', hidden);
       }
     }
+    const styleClassName = [...document.querySelectorAll('style[id^="fui-FluentProviderr"')].reverse()[0].id;
+    menuContainer.classList.add(styleClassName);
     copyDropdownMenu.addEventListener('click', (event) => {
       event.preventDefault();
       if (menuContainer.parentNode) {
@@ -401,70 +475,71 @@ class AdvancedCopy extends Watcher {
         menuContainer.childNodes[0].style.transform = `translate(${copyDropdownMenu.getBoundingClientRect().left}px, ${copyDropdownMenu.getBoundingClientRect().bottom}px)`;
         return;
       };
-      const styleClassName = [...document.querySelectorAll('style[id^="fui-FluentProviderr"')].reverse()[0].id;
-      menuContainer.classList.add(styleClassName);
-      const menuSubContainer = document.createElement('div');
-      menuSubContainer.setAttribute('role', 'presentation');
-      menuSubContainer.setAttribute('data-popper-placement', "bottom-start");
-      menuSubContainer.style.overflowY = 'hidden';
-      menuSubContainer.style.position = 'absolute';
-      menuSubContainer.style.left = '0px';
-      menuSubContainer.style.top = '0px';
-      menuSubContainer.style.margin = '0px';
-      menuSubContainer.style.transform = `translate(${copyDropdownMenu.getBoundingClientRect().left}px, ${copyDropdownMenu.getBoundingClientRect().bottom}px)`;
-      menuSubContainer.style.borderRadius = 'var(--borderRadiusMedium)';
-      menuSubContainer.style.padding = '4px';
-      menuSubContainer.style.border = '1px solid var(--colorControlBorderSecondary)';
-      menuSubContainer.style.color = 'var(--colorTextPrimary)';
-      menuSubContainer.style.backgroundColor = 'var(--colorContainerBackgroundPrimary)';
-      menuContainer.appendChild(menuSubContainer);
-
-      const menuRoot = document.createElement('div');
-      menuRoot.setAttribute('role', 'menu');
-      menuRoot.setAttribute('aria-labelledby', 'menur1');
-      menuRoot.style.gap = '2px';
-      menuRoot.style.width = '330px';
-      menuRoot.classList.add('fui-MenuList', 'fxs-blade-dropmenucontent');
-
-      menuSubContainer.appendChild(menuRoot);
-
-      const theme = document.head.className.replace(/.*(fxs-mode-(?:dark|light)+).*/, '$1');
-      this.menus.reduce(async (_, entry) => {
-        if (entry.isAvailable && !await entry.isAvailable()) return;
-        const menuItem = document.createElement('div');
-        menuItem.setAttribute('role', 'menuitem');
-        menuItem.setAttribute('tabindex', '0');
-        menuItem.setAttribute('onmouseover',
-          `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
-          `this.style.background=styles.getPropertyValue('--colorControlBackgroundHover');` +
-          `this.style.color=styles.getPropertyValue('--colorNeutralForeground2Hover');`
-        );
-        menuItem.setAttribute('onmouseout',
-          `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
-          `this.style.background=styles.getPropertyValue('--colorNeutralBackground1');` +
-          `this.style.color=styles.getPropertyValue('--colorNeutralForeground2');`
-        );
-
-        menuItem.style.fontSize = '13px';
-        menuItem.style.borderRadius = 'var(--borderRadiusMedium)';
-        menuItem.style.color = 'var(--colorNeutralForeground2)';
-        menuItem.style.backgroundColor = 'var(--colorNeutralBackground1)';
-        menuItem.style.padding = 'var(--spacingVerticalSNudge) var(--spacingVerticalSNudge)';
-        menuItem.style.boxSizing = 'border-box';
-        menuItem.style.minHeight = '32px';
-        menuItem.style.cursor = 'pointer';
-
-        const menuItemLabel = document.createElement('span');
-        menuItemLabel.classList.add('fui-MenuItem__content');
-        menuItemLabel.innerText = entry.title;
-        menuItem.appendChild(menuItemLabel);
-
-        menuItem.addEventListener('click', entry.handler.bind(this));
-
-        menuRoot.appendChild(menuItem);
-        return true;
-      }, true);
     });
+
+    const menuSubContainer = document.createElement('div');
+    menuSubContainer.setAttribute('role', 'presentation');
+    menuSubContainer.setAttribute('data-popper-placement', "bottom-start");
+    menuSubContainer.style.overflowY = 'hidden';
+    menuSubContainer.style.position = 'absolute';
+    menuSubContainer.style.left = '0px';
+    menuSubContainer.style.top = '0px';
+    menuSubContainer.style.margin = '0px';
+    menuSubContainer.style.transform = `translate(${copyDropdownMenu.getBoundingClientRect().left}px, ${copyDropdownMenu.getBoundingClientRect().bottom}px)`;
+    menuSubContainer.style.borderRadius = 'var(--borderRadiusMedium)';
+    menuSubContainer.style.padding = '4px';
+    menuSubContainer.style.border = '1px solid var(--colorControlBorderSecondary)';
+    menuSubContainer.style.color = 'var(--colorTextPrimary)';
+    menuSubContainer.style.backgroundColor = 'var(--colorContainerBackgroundPrimary)';
+    menuContainer.appendChild(menuSubContainer);
+
+    const menuRoot = document.createElement('div');
+    menuRoot.setAttribute('role', 'menu');
+    menuRoot.setAttribute('aria-labelledby', 'menur1');
+    menuRoot.style.gap = '2px';
+    menuRoot.style.width = '330px';
+    menuRoot.classList.add('fui-MenuList', 'fxs-blade-dropmenucontent');
+
+    menuSubContainer.appendChild(menuRoot);
+
+    const theme = document.head.className.replace(/.*(fxs-mode-(?:dark|light)+).*/, '$1');
+    this.menus.reduce(async (promise, entry) => {
+      await promise;
+      if (entry.isAvailable && !await entry.isAvailable()) return;
+      const menuItem = document.createElement('div');
+      menuItem.setAttribute('role', 'menuitem');
+      menuItem.setAttribute('tabindex', '0');
+      menuItem.setAttribute('onmouseover',
+        `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
+        `this.style.background=styles.getPropertyValue('--colorControlBackgroundHover');` +
+        `this.style.color=styles.getPropertyValue('--colorNeutralForeground2Hover');`
+      );
+      menuItem.setAttribute('onmouseout',
+        `const styles=getComputedStyle(document.querySelector('.${styleClassName}'));` +
+        `this.style.background=styles.getPropertyValue('--colorNeutralBackground1');` +
+        `this.style.color=styles.getPropertyValue('--colorNeutralForeground2');`
+      );
+
+      menuItem.style.fontSize = '13px';
+      menuItem.style.borderRadius = 'var(--borderRadiusMedium)';
+      menuItem.style.color = 'var(--colorNeutralForeground2)';
+      menuItem.style.backgroundColor = 'var(--colorNeutralBackground1)';
+      menuItem.style.padding = 'var(--spacingVerticalSNudge) var(--spacingVerticalSNudge)';
+      menuItem.style.boxSizing = 'border-box';
+      menuItem.style.minHeight = '32px';
+      menuItem.style.cursor = 'pointer';
+
+      const menuItemLabel = document.createElement('span');
+      menuItemLabel.classList.add('fui-MenuItem__content');
+      menuItemLabel.innerText = entry.title;
+      menuItem.appendChild(menuItemLabel);
+
+      menuItem.addEventListener('click', entry.handler.bind(this));
+
+      menuRoot.appendChild(menuItem);
+      return Promise.resolve(true);
+    }, Promise.resolve(true));
+
     const observer = new MutationObserver(() => {
       const titleCopy = document.querySelector('div.fxs-blade-copyname')
       if (titleCopy) titleCopy.style.display = 'none';
@@ -918,7 +993,7 @@ class ContextMenuUpdater extends Watcher {
         return Object.fromEntries(Object.entries(changes).map(c => [c[0], c[1].newValue]))
       })(changes, _watchers);
 
-      watcherStatus['contextMenuUpdater'] = {status: true};
+      watcherStatus['contextMenuUpdater'] = { status: true };
       Object.keys(watcherStatus).forEach(w => {
         if (!watcherStatus[w] || !_watchers[w]) return;
         if (watcherStatus[w].status) _watchers[w].startWatching(watcherStatus[w].options);

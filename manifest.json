@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Azure Portal plus",
-  "version": "0.0.8",
-  "version_name": "0.0.8-hokke",
+  "version": "0.0.9",
+  "version_name": "0.0.9-iwana",
   "description": "Add features to Azure Portal",
   "permissions": [
     "storage",
