@@ -331,6 +331,7 @@ class AdvancedCopy extends Watcher {
   resources
   | where type =~ 'microsoft.network/bastionHosts'
   | where sku.name in~ ('standard', 'premium')
+  | where properties.enableTunneling == true
   | extend vnetid=tolower(extract('(.*/virtualnetworks/[^/]+)/', 1, tolower(tostring(properties.ipConfigurations[0].properties.subnet.id))))
 ) on vnetid
 | project id
