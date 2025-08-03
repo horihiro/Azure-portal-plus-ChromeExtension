@@ -12,6 +12,48 @@ class Watcher {
   }
 }
 
+class VisibilityRestorer extends Watcher {
+  constructor() {
+    super();
+    this.observer = new MutationObserver(this.detectTargetElement.bind(this));
+    this.SELECTOR_BLADE_TITLE = 'section:last-of-type .fxs-blade-title-titleText';
+    this.inputMap = {};
+    this.propName = 'resourceVisibility';
+    this.SELECTOR_TARGET_ELEMENT = 'section:last-of-type .ext-hubs-artbrowse-filter-showall .azc-validatableControl-none.azc-text-label';
+  }
+  async updateTargetElement(inputEvent) {
+    inputEvent.stopPropagation();
+    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    if (!view) return;
+    const input = inputEvent.currentTarget.querySelector('input[type="checkbox"]');
+    if (!input) return;
+    this.options[this.propName][view] = input.checked;
+    await chrome.storage.local.set({
+      "visibilityRestorer": {
+        status: true,
+        options: this.options
+      }
+    });
+  }
+  detectTargetElement() {
+    const targetElements = [...document.querySelectorAll(this.SELECTOR_TARGET_ELEMENT)];
+    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    if (targetElements.length === 0 || !view || this.inputMap[view] == targetElements[0]) return;
+    this.inputMap[view] = targetElements[0];
+    if (this.options[this.propName][view]) this.inputMap[view].click();
+    this.inputMap[view].addEventListener('click', this.updateTargetElement.bind(this));
+  }
+  startWatching(options) {
+    this.options = options || { [this.propName]: {} };
+    this.detectTargetElement();
+    this.observer.observe(document, { childList: true, subtree: true });
+  }
+
+  stopWatching() {
+    super.stopWatching();
+  }
+}
+
 class FilterRestorer extends Watcher {
   constructor() {
     super();
@@ -987,6 +1029,7 @@ class ContextMenuUpdater extends Watcher {
     _watchers['advancedCopy'] = new AdvancedCopy();
     _watchers['filterRestorer'] = new FilterRestorer();
     _watchers['contextMenuUpdater'] = new ContextMenuUpdater();
+    _watchers['visibilityRestorer'] = new VisibilityRestorer();
 
     const init = async (changes) => {
       const watcherStatus = await (async (changes, watchers) => {
