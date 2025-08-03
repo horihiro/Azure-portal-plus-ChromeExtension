@@ -26,7 +26,10 @@ class VisibilityRestorer extends Watcher {
     if (!view) return;
     const input = inputEvent.currentTarget.querySelector('input[type="checkbox"]');
     if (!input) return;
-    this.options[this.propName][view] = input.checked;
+
+    if (input.checked) this.options[this.propName][view] = input.checked;
+    else delete this.options[this.propName][view];
+
     await chrome.storage.local.set({
       "visibilityRestorer": {
         status: true,
@@ -65,7 +68,10 @@ class FilterRestorer extends Watcher {
   async updateFileterString(inputEvent) {
     const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
     if (!view) return;
-    this.options[this.propName][view] = inputEvent.target.value;
+
+    if (inputEvent.target.value) this.options[this.propName][view] = inputEvent.target.value;
+    else delete this.options[this.propName][view];
+
     await chrome.storage.local.set({
       "filterRestorer": {
         status: true,
