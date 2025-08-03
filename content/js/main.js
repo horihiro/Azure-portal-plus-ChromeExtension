@@ -16,7 +16,6 @@ class VisibilityRestorer extends Watcher {
   constructor() {
     super();
     this.observer = new MutationObserver(this.detectTargetElement.bind(this));
-    this.SELECTOR_BLADE_TITLE = 'section:last-of-type .fxs-blade-title-titleText';
     this.inputMap = {};
     this.propName = 'resourceVisibility';
     this.SELECTOR_TARGET_ELEMENT = 'section:last-of-type .ext-hubs-artbrowse-filter-showall .azc-validatableControl-none.azc-text-label';
@@ -60,11 +59,13 @@ class FilterRestorer extends Watcher {
     this.observer = new MutationObserver(this.detectFilterInput.bind(this));
     this.SELECTOR_BLADE_TITLE = 'section:last-of-type .fxs-blade-title-titleText';
     this.inputMap = {};
+    this.propName = 'filterString';
+    this.SELECTOR_TARGET_ELEMENT = 'section:last-of-type .ext-hubs-artbrowse-filter-container input[type="text"]';
   }
   async updateFileterString(inputEvent) {
-    const bladeTitle = document.querySelector(this.SELECTOR_BLADE_TITLE)?.innerText || '';
-    if (!bladeTitle) return;
-    this.options.filterString[bladeTitle] = inputEvent.target.value;
+    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    if (!view) return;
+    this.options[this.propName][view] = inputEvent.target.value;
     await chrome.storage.local.set({
       "filterRestorer": {
         status: true,
@@ -73,13 +74,13 @@ class FilterRestorer extends Watcher {
     });
   }
   detectFilterInput() {
-    const filterInputs = [...document.querySelectorAll('section:last-of-type .ext-hubs-artbrowse-filter-container input[type="text"]')];
-    const bladeTitle = document.querySelector(this.SELECTOR_BLADE_TITLE)?.innerText || '';
-    if (filterInputs.length === 0 || !bladeTitle || this.inputMap[bladeTitle] == filterInputs[0]) return;
-    this.inputMap[bladeTitle] = filterInputs[0];
-    this.inputMap[bladeTitle].value = this.options.filterString[bladeTitle] || '';
-    if (this.inputMap[bladeTitle].value) this.inputMap[bladeTitle].dispatchEvent(new Event('input', { bubbles: true }));
-    this.inputMap[bladeTitle].addEventListener('input', this.updateFileterString.bind(this));
+    const filterInputs = [...document.querySelectorAll(this.SELECTOR_TARGET_ELEMENT)];
+    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    if (filterInputs.length === 0 || !view || this.inputMap[view] == filterInputs[0]) return;
+    this.inputMap[view] = filterInputs[0];
+    this.inputMap[view].value = this.options[this.propName][view] || '';
+    if (this.inputMap[view].value) this.inputMap[view].dispatchEvent(new Event('input', { bubbles: true }));
+    this.inputMap[view].addEventListener('input', this.updateFileterString.bind(this));
   }
   startWatching(options) {
     this.options = options || { filterString: {} };
