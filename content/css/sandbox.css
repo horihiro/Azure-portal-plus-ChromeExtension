@@ -1,0 +1,13 @@
+[class^=appls-resource-count-] a { color: rgb(255,0,0); }
+[class^=appls-resource-count-] > div {background-color: rgba(255,0,0,0.1);}
+
+[class^=appls-resource-count-00] a {color: rgb(0,127,0);}
+[class^=appls-resource-count-00] > div {background-color: rgba(0,255,0,0.1);}
+
+.appls-resource-count-002 a,
+.appls-resource-count-001 a {color: rgb(0,0,255);}
+.appls-resource-count-002 > div,
+.appls-resource-count-001 > div {background-color: rgba(0,0,255,0.2);}
+
+.appls-resource-count-000 a {color: rgb(127,127,127);}
+.appls-resource-count-000 > div {background-color: rgba(223,223,223,0.7);}

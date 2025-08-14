@@ -32,6 +32,18 @@
       "js": [
         "content/js/main.js"
       ]
+    },
+    {
+      "all_frames": true,
+      "matches": [
+        "https://sandbox-1.reactblade.portal.azure.net/*"
+      ],
+      "js": [
+        "content/js/sandbox.js"
+      ],
+      "css": [
+        "content/css/sandbox.css"
+      ]
     }
   ]
 }

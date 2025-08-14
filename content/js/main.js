@@ -10,6 +10,54 @@ class Watcher {
     if (!this.observer) return;
     this.observer.disconnect();
   }
+  async getAccessToken() {
+    const { accessToken } = await chrome.storage.local.get('accessToken');
+    return accessToken;
+  }
+}
+
+class VisibilityRestorer extends Watcher {
+  constructor() {
+    super();
+    this.observer = new MutationObserver(this.detectTargetElement.bind(this));
+    this.inputMap = {};
+    this.propName = 'resourceVisibility';
+    this.SELECTOR_TARGET_ELEMENT = 'section:last-of-type .ext-hubs-artbrowse-filter-showall .azc-validatableControl-none.azc-text-label';
+  }
+  async updateTargetElement(inputEvent) {
+    inputEvent.stopPropagation();
+    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    if (!view) return;
+    const input = inputEvent.currentTarget.querySelector('input[type="checkbox"]');
+    if (!input) return;
+
+    if (input.checked) this.options[this.propName][view] = input.checked;
+    else delete this.options[this.propName][view];
+
+    await chrome.storage.local.set({
+      "visibilityRestorer": {
+        status: true,
+        options: this.options
+      }
+    });
+  }
+  detectTargetElement() {
+    const targetElements = [...document.querySelectorAll(this.SELECTOR_TARGET_ELEMENT)];
+    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    if (targetElements.length === 0 || !view || this.inputMap[view] == targetElements[0]) return;
+    this.inputMap[view] = targetElements[0];
+    if (this.options[this.propName][view]) this.inputMap[view].click();
+    this.inputMap[view].addEventListener('click', this.updateTargetElement.bind(this));
+  }
+  startWatching(options) {
+    this.options = options || { [this.propName]: {} };
+    this.detectTargetElement();
+    this.observer.observe(document, { childList: true, subtree: true });
+  }
+
+  stopWatching() {
+    super.stopWatching();
+  }
 }
 
 class FilterRestorer extends Watcher {
@@ -18,11 +66,16 @@ class FilterRestorer extends Watcher {
     this.observer = new MutationObserver(this.detectFilterInput.bind(this));
     this.SELECTOR_BLADE_TITLE = 'section:last-of-type .fxs-blade-title-titleText';
     this.inputMap = {};
+    this.propName = 'filterString';
+    this.SELECTOR_TARGET_ELEMENT = 'section:last-of-type .ext-hubs-artbrowse-filter-container input[type="text"]';
   }
   async updateFileterString(inputEvent) {
-    const bladeTitle = document.querySelector(this.SELECTOR_BLADE_TITLE)?.innerText || '';
-    if (!bladeTitle) return;
-    this.options.filterString[bladeTitle] = inputEvent.target.value;
+    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    if (!view) return;
+
+    if (inputEvent.target.value) this.options[this.propName][view] = inputEvent.target.value;
+    else delete this.options[this.propName][view];
+
     await chrome.storage.local.set({
       "filterRestorer": {
         status: true,
@@ -31,13 +84,13 @@ class FilterRestorer extends Watcher {
     });
   }
   detectFilterInput() {
-    const filterInputs = [...document.querySelectorAll('section:last-of-type .ext-hubs-artbrowse-filter-container input[type="text"]')];
-    const bladeTitle = document.querySelector(this.SELECTOR_BLADE_TITLE)?.innerText || '';
-    if (filterInputs.length === 0 || !bladeTitle || this.inputMap[bladeTitle] == filterInputs[0]) return;
-    this.inputMap[bladeTitle] = filterInputs[0];
-    this.inputMap[bladeTitle].value = this.options.filterString[bladeTitle] || '';
-    if (this.inputMap[bladeTitle].value) this.inputMap[bladeTitle].dispatchEvent(new Event('input', { bubbles: true }));
-    this.inputMap[bladeTitle].addEventListener('input', this.updateFileterString.bind(this));
+    const filterInputs = [...document.querySelectorAll(this.SELECTOR_TARGET_ELEMENT)];
+    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    if (filterInputs.length === 0 || !view || this.inputMap[view] == filterInputs[0]) return;
+    this.inputMap[view] = filterInputs[0];
+    this.inputMap[view].value = this.options[this.propName][view] || '';
+    if (this.inputMap[view].value) this.inputMap[view].dispatchEvent(new Event('input', { bubbles: true }));
+    this.inputMap[view].addEventListener('input', this.updateFileterString.bind(this));
   }
   startWatching(options) {
     this.options = options || { filterString: {} };
@@ -105,7 +158,7 @@ class AdvancedCopy extends Watcher {
         };
         document.body.appendChild(this.toastLayer);
         this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-        this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: this.getAccessToken() });
+        this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: await this.getAccessToken() });
       }
     }, {
       title: 'ARM template (Bicep)',
@@ -131,7 +184,7 @@ class AdvancedCopy extends Watcher {
         };
         document.body.appendChild(this.toastLayer);
         this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-        this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: this.getAccessToken() });
+        this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: await this.getAccessToken() });
       }
     }, {
       title: 'Terraform (AzApi)',
@@ -157,7 +210,7 @@ class AdvancedCopy extends Watcher {
         };
         document.body.appendChild(this.toastLayer);
         this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-        this.send2serviceWorker({ resourceId: resource[1], format: 'azapi', accessToken: this.getAccessToken() });
+        this.send2serviceWorker({ resourceId: resource[1], format: 'azapi', accessToken: await this.getAccessToken() });
       },
       isAvailable: async () => {
         try {
@@ -165,7 +218,7 @@ class AdvancedCopy extends Watcher {
             `https://management.azure.com${location.hash.match(this.re)[1]?.split('/').slice(0, 3).join('/')}/providers/Microsoft.AzureTerraform?api-version=2021-04-01`,
             {
               headers: {
-                Authorization: `Bearer ${this.getAccessToken()}`
+                Authorization: `Bearer ${await this.getAccessToken()}`
               }
             });
           if (response.status !== 200 || (await response.json()).registrationState != 'Registered') return false;
@@ -199,7 +252,7 @@ class AdvancedCopy extends Watcher {
         };
         document.body.appendChild(this.toastLayer);
         this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-        this.send2serviceWorker({ resourceId: resource[1], format: 'azurerm', accessToken: this.getAccessToken() });
+        this.send2serviceWorker({ resourceId: resource[1], format: 'azurerm', accessToken: await this.getAccessToken() });
       },
       isAvailable: async () => {
         try {
@@ -207,7 +260,7 @@ class AdvancedCopy extends Watcher {
             `https://management.azure.com${location.hash.match(this.re)[1]?.split('/').slice(0, 3).join('/')}/providers/Microsoft.AzureTerraform?api-version=2021-04-01`,
             {
               headers: {
-                Authorization: `Bearer ${this.getAccessToken()}`
+                Authorization: `Bearer ${await this.getAccessToken()}`
               }
             });
           if (response.status !== 200 || (await response.json()).registrationState != 'Registered') return false;
@@ -236,7 +289,7 @@ class AdvancedCopy extends Watcher {
             {
               method: 'POST',
               headers: {
-                Authorization: `Bearer ${this.getAccessToken()}`,
+                Authorization: `Bearer ${await this.getAccessToken()}`,
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify(
@@ -337,21 +390,11 @@ class AdvancedCopy extends Watcher {
 | project id
 `
   }
-  getAccessToken() {
-    const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
-    const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
-    return JSON.parse(
-      sessionStorage.getItem(
-        `${(JSON.parse(
-          sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
-        ).accessToken || []).find(entry => SCOPES.some((scope) => entry.includes(scope))) || ''
-        }`
-      ) || '{}'
-    ).secret;
-  };
+
   addCopyMenu() {
     this.addCopyMenu1() || this.addCopyMenu2();
   }
+
   addCopyMenu1() {
     const overviewMenuItem = document.querySelector('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type');
     if (!overviewMenuItem) return false;
@@ -362,7 +405,7 @@ class AdvancedCopy extends Watcher {
     const parent = origDropdownMenu.parentNode;
     if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return false;
     const copyDropdownMenu = document.createElement('div');
-    copyDropdownMenu.classList.add('fxs-blade-actiondropmenu', 'app-dropdown-menu');
+    copyDropdownMenu.classList.add('fxs-blade-actiondropmenu', 'appls-dropdown-menu');
     copyDropdownMenu.innerHTML = origDropdownMenu.innerHTML.replace(/id="[^"]+"/g, '');
 
     const rootButton = copyDropdownMenu.querySelector('button');
@@ -432,7 +475,7 @@ class AdvancedCopy extends Watcher {
     if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return false;
     const copyDropdownMenu = document.createElement('div');
     copyDropdownMenu.classList.add('fxs-blade-actiondropmenu');
-    copyDropdownMenu.classList.add('app-dropdown-menu');
+    copyDropdownMenu.classList.add('appls-dropdown-menu');
     copyDropdownMenu.innerHTML = origDropdownMenu.innerHTML.replace(/id="[^"]+"/g, '');
 
     const rootButton = copyDropdownMenu.querySelector('button');
@@ -444,14 +487,14 @@ class AdvancedCopy extends Watcher {
     rootButton.setAttribute('aria-label', 'More copy actions');
     rootButton.setAttribute('title', 'More copy actions');
 
-    const menuContainer = document.querySelector('#__aps_advcp') || document.createElement('div');
-    menuContainer.id = '__aps_advcp';
+    const menuContainer = document.querySelector('#__appls_advcp') || document.createElement('div');
+    menuContainer.id = '__appls_advcp';
     const hidden = (event) => {
       if (event.target == copyDropdownMenu) {
         event.stopPropagation();
         return;
       }
-      const menuContainer = document.querySelector('#__aps_advcp');
+      const menuContainer = document.querySelector('#__appls_advcp');
       if (menuContainer) {
         menuContainer.parentNode.removeChild(menuContainer);
         rootButton.removeAttribute('aria-expanded');
@@ -557,7 +600,7 @@ class AdvancedCopy extends Watcher {
 
   stopWatching() {
     super.stopWatching();
-    document.querySelectorAll('.app-dropdown-menu').forEach((menu) => {
+    document.querySelectorAll('.appls-dropdown-menu').forEach((menu) => {
       menu.parentNode.removeChild(menu);
     });
     document.querySelectorAll('section button.fxs-blade-copyname').forEach(b => {
@@ -977,6 +1020,20 @@ class ContextMenuUpdater extends Watcher {
   }
 }
 
+const storeAccessToken = async () => {
+  const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
+  const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
+  const tenantId = localStorage.getItem('SavedDefaultDirectory') || document.querySelectorAll('button.fxs-menu-account')[0].getAttribute('title').split(/\n/)[2].replace(/.*\(([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\)/, '$1');
+  const key = (JSON.parse(
+    sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
+  ).accessToken || [])
+    .find(entry => SCOPES.some((scope) => entry.includes(scope) && entry.includes(tenantId)));
+  const accessToken = key ? JSON.parse(sessionStorage.getItem(key)).secret : null;
+
+  await chrome.storage.local.set({ accessToken });
+  return accessToken;
+};
+
 (async () => {
   try {
     const _watchers = {};
@@ -987,6 +1044,7 @@ class ContextMenuUpdater extends Watcher {
     _watchers['advancedCopy'] = new AdvancedCopy();
     _watchers['filterRestorer'] = new FilterRestorer();
     _watchers['contextMenuUpdater'] = new ContextMenuUpdater();
+    _watchers['visibilityRestorer'] = new VisibilityRestorer();
 
     const init = async (changes) => {
       const watcherStatus = await (async (changes, watchers) => {
@@ -1000,6 +1058,10 @@ class ContextMenuUpdater extends Watcher {
         if (watcherStatus[w].status) _watchers[w].startWatching(watcherStatus[w].options);
         else _watchers[w].stopWatching();
       });
+
+      setInterval(async () => {
+        await storeAccessToken();
+      }, 10000);
     }
 
     chrome.storage.onChanged.addListener(async (changes, area) => {

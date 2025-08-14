@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async (e) => {
-  const { replaceFavicon, blinkFavicon, desktopNotification, activateTab, advancedCopy, filterRestorer } = (await chrome.storage.local.get(['replaceFavicon', 'blinkFavicon', 'desktopNotification', 'activateTab', 'advancedCopy', 'filterRestorer']));
+  const { replaceFavicon, blinkFavicon, desktopNotification, activateTab, advancedCopy, filterRestorer, visibilityRestorer } = (await chrome.storage.local.get(['replaceFavicon', 'blinkFavicon', 'desktopNotification', 'activateTab', 'advancedCopy', 'filterRestorer', 'visibilityRestorer']));
 
   const enableReplaceFaviconCheckbox = document.querySelector('#enableReplaceFaviconCheckbox');
   const enableBlinkFaviconCheckbox = document.querySelector('#enableBlinkFaviconCheckbox');
@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   const enableActivateTabCheckbox = document.querySelector('#enableActivateTabCheckbox');
   const enableAdvancedCopyCheckbox = document.querySelector('#enableAdvancedCopyCheckbox');
   const enableRestoreFilterStringCheckbox = document.querySelector('#enableRestoreFilterStringCheckbox');
+  const enableRestoreResourceVisibilityCheckbox = document.querySelector('#enableRestoreResourceVisibilityCheckbox');
 
   enableReplaceFaviconCheckbox.checked = replaceFavicon && replaceFavicon.status;
   enableBlinkFaviconCheckbox.checked = blinkFavicon && blinkFavicon.status;
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   enableActivateTabCheckbox.checked = activateTab && activateTab.status;
   enableAdvancedCopyCheckbox.checked = advancedCopy && advancedCopy.status;
   enableRestoreFilterStringCheckbox.checked = filterRestorer && filterRestorer.status;
+  enableRestoreResourceVisibilityCheckbox.checked = visibilityRestorer && visibilityRestorer.status;
 
   enableReplaceFaviconCheckbox.addEventListener('change', async (e) => {
     await chrome.storage.local.set({
@@ -61,6 +63,17 @@ document.addEventListener('DOMContentLoaded', async (e) => {
         'filterRestorer': {
           status: e.target.checked,
           options: current.filterRestorer?.options
+        }
+      }
+    );
+  });
+  enableRestoreResourceVisibilityCheckbox.addEventListener('change', async (e) => {
+    const current = await chrome.storage.local.get(['visibilityRestorer']) || {};
+    await chrome.storage.local.set(
+      {
+        'visibilityRestorer': {
+          status: e.target.checked,
+          options: current.visibilityRestorer?.options
         }
       }
     );
