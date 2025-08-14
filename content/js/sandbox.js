@@ -17,7 +17,7 @@ class Watcher {
 }
 
 
-class ResourceCounter extends Watcher {
+class ResourceGroupDecorator extends Watcher {
   constructor() {
     super();
     this.observer = new MutationObserver(this.rgListWatcher.bind(this));
@@ -34,7 +34,7 @@ class ResourceCounter extends Watcher {
       return subscriptionId && resourceGroup;
     });
     console.debug(`Found ${rgRows.length} resource groups.`);
-    if (rgRows.length === 0)  {
+    if (rgRows.length === 0) {
       this.status = 'idle';
       return;
     }
@@ -69,7 +69,7 @@ class ResourceCounter extends Watcher {
         const [_, subscriptionId, resourceGroup] = rgRow.querySelector('a')?.href?.toLowerCase()?.match(/([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\/resourcegroups\/([^\\]+)$/) || [];
         if (subscriptionId && resourceGroup) {
           const count = json.data.find((item) => item.subscriptionId === subscriptionId && item.resourceGroup === resourceGroup)?.count_ || 0;
-          rgRow.classList.value = `appls-resource-count-${String(count).padStart(3, '0')} ${rgRow.classList.value.replace(/app-resource-count-\d{3}/g, '').trim()}`;
+          rgRow.classList.value = `appls-resource-count-${String(count).padStart(3, '0')} ${rgRow.classList.value.replace(/appls-resource-count-\d{3}/g, '').trim()}`;
           rgRow.title = count == 0 ? 'no resource' : (count == 1 ? '1 resource' : `${count} resources`);
         }
       });
@@ -81,16 +81,34 @@ class ResourceCounter extends Watcher {
   startWatching(options) {
     this.options = options || { [this.propName]: {} };
     this.observer.observe(document, { childList: true, subtree: true });
+    this.rgListWatcher();
   }
   stopWatching() {
     super.stopWatching();
+    this.timeout && clearTimeout(this.timeout);
+    const rgRows = [...document.querySelectorAll('.ms-List-cell')].filter((rgRow) => {
+      const [_, subscriptionId, resourceGroup] = rgRow.querySelector('a')?.href?.toLowerCase()?.match(/([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\/resourcegroups\/([^\\]+)$/) || [];
+      return subscriptionId && resourceGroup;
+    });
+    if (rgRows.length === 0) {
+      this.status = 'idle';
+      return;
+    }
+    rgRows.forEach((rgRow) => {
+      const [_, subscriptionId, resourceGroup] = rgRow.querySelector('a')?.href?.toLowerCase()?.match(/([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\/resourcegroups\/([^\\]+)$/) || [];
+      if (subscriptionId && resourceGroup) {
+        rgRow.classList.value = rgRow.classList.value.replace(/appls-resource-count-\d{3}/g, '').trim();
+        delete rgRow.title;
+      }
+    });
+    this.status = 'idle';
   }
 }
 
 (async () => {
   try {
     const _watchers = {};
-    _watchers['resourceCounter'] = new ResourceCounter();
+    _watchers['resourceGroupDecorator'] = new ResourceGroupDecorator();
 
     const init = async (changes) => {
       const watcherStatus = await (async (changes, watchers) => {
@@ -98,7 +116,6 @@ class ResourceCounter extends Watcher {
         return Object.fromEntries(Object.entries(changes).map(c => [c[0], c[1].newValue]))
       })(changes, _watchers);
 
-      watcherStatus['resourceCounter'] = { status: true };
       Object.keys(watcherStatus).forEach(w => {
         if (!watcherStatus[w] || !_watchers[w]) return;
         if (watcherStatus[w].status) _watchers[w].startWatching(watcherStatus[w].options);

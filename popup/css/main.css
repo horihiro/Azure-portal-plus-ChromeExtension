@@ -83,7 +83,7 @@ div#linkContainer>div{
   width:fit-content;
 }
 
-div#linkContainer a {
+a {
   color: #1191ff;
   text-decoration:underline;
 }

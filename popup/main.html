@@ -79,16 +79,15 @@
   </details>
   <details>
     <summary>Experimental features</summary>
+    <div>
+      <label>NOTE: The following features are <span class="note">experimental</span>.</label>
+    </div>
     <div id="activateToggle" class="toggleButton">
       <label class="switch">
         <input type="checkbox" id="enableActivateTabCheckbox">
         <span class="slider"></span>
         <span>Bring the window top when finishing configuration</span>
       </label>
-      <div>
-        NOTE: This feature is <span class="note">experimental</span>.
-        <br>
-      </div>
     </div>
     <div id="restoreFilterString" class="toggleButton">
       <label class="switch">
@@ -96,10 +95,6 @@
         <span class="slider"></span>
         <span>Restore filter string on each list view</span>
       </label>
-      <div>
-        NOTE: This feature is <span class="note">experimental</span>.
-        <br>
-      </div>
     </div>
     <div id="restoreResourceVisibility" class="toggleButton">
       <label class="switch">
@@ -107,10 +102,16 @@
         <span class="slider"></span>
         <span>Restore resource visibility on each list view</span>
       </label>
-      <div>
-        NOTE: This feature is <span class="note">experimental</span>.
+    </div>
+    <div id="decorateResourceGroupList" class="toggleButton">
+      <label class="switch">
+        <input type="checkbox" id="enableResourceGroupDecoratorCheckbox">
+        <span class="slider"></span>
+        <span>Decorate resource group list</span>
+      </label>
         <br>
-      </div>
+        <span class="slider" style="visibility: hidden;"></span>
+        <span><a href="https://chromewebstore.google.com/search/user%20css" target="_blank" rel="noopener noreferrer">The User CSS extensions</a> can change the decoration</span>
     </div>
   </details>
 </body>
