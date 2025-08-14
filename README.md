@@ -1,8 +1,8 @@
 # Chrome Extension for Azure portal
-![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/jkcphnjnffinkpflgnpcjagggmjmakdg)
-![Chrome Web Store Last Updated](https://img.shields.io/chrome-web-store/last-updated/jkcphnjnffinkpflgnpcjagggmjmakdg)
-![Chrome Web Store Stars](https://img.shields.io/chrome-web-store/stars/jkcphnjnffinkpflgnpcjagggmjmakdg)
-![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/jkcphnjnffinkpflgnpcjagggmjmakdg)
+![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/khmmpfbdpddloceabielidbdnhaokekn)
+![Chrome Web Store Last Updated](https://img.shields.io/chrome-web-store/last-updated/khmmpfbdpddloceabielidbdnhaokekn)
+![Chrome Web Store Stars](https://img.shields.io/chrome-web-store/stars/khmmpfbdpddloceabielidbdnhaokekn)
+![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/khmmpfbdpddloceabielidbdnhaokekn)
 
 This extension can add features to [Azure portal](https://portal.azure.com).  
 
@@ -309,7 +309,7 @@ And you can change the style by using <a href="https://chromewebstore.google.com
 # Try this
 
 ### From Chrome Web Store
-This extension can be installed from [Chrome Web Store](https://chromewebstore.google.com/detail/azure-portal-plus/jkcphnjnffinkpflgnpcjagggmjmakdg).
+This extension can be installed from [Chrome Web Store](https://chromewebstore.google.com/detail/azure-portal-plus/khmmpfbdpddloceabielidbdnhaokekn).
 
 ### From this repository
 If you can try a development version, the following steps are needed.
