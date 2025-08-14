@@ -304,7 +304,7 @@ The default decoration colors are:
 
 </details>
 
-And you can change the style by using the CSS manipulating extensions (i.e. Stylus etc.)
+And you can change the style by using <a href="https://chromewebstore.google.com/search/user%20css">the User CSS extensions</a> (i.e. Stylus etc.)
 
 # Try this
 
