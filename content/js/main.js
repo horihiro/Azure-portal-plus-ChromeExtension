@@ -405,7 +405,7 @@ class AdvancedCopy extends Watcher {
     const parent = origDropdownMenu.parentNode;
     if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return false;
     const copyDropdownMenu = document.createElement('div');
-    copyDropdownMenu.classList.add('fxs-blade-actiondropmenu', 'app-dropdown-menu');
+    copyDropdownMenu.classList.add('fxs-blade-actiondropmenu', 'appls-dropdown-menu');
     copyDropdownMenu.innerHTML = origDropdownMenu.innerHTML.replace(/id="[^"]+"/g, '');
 
     const rootButton = copyDropdownMenu.querySelector('button');
@@ -475,7 +475,7 @@ class AdvancedCopy extends Watcher {
     if (parent.querySelectorAll('div+.fxs-blade-actiondropmenu').length != 0) return false;
     const copyDropdownMenu = document.createElement('div');
     copyDropdownMenu.classList.add('fxs-blade-actiondropmenu');
-    copyDropdownMenu.classList.add('app-dropdown-menu');
+    copyDropdownMenu.classList.add('appls-dropdown-menu');
     copyDropdownMenu.innerHTML = origDropdownMenu.innerHTML.replace(/id="[^"]+"/g, '');
 
     const rootButton = copyDropdownMenu.querySelector('button');
@@ -487,14 +487,14 @@ class AdvancedCopy extends Watcher {
     rootButton.setAttribute('aria-label', 'More copy actions');
     rootButton.setAttribute('title', 'More copy actions');
 
-    const menuContainer = document.querySelector('#__aps_advcp') || document.createElement('div');
-    menuContainer.id = '__aps_advcp';
+    const menuContainer = document.querySelector('#__appls_advcp') || document.createElement('div');
+    menuContainer.id = '__appls_advcp';
     const hidden = (event) => {
       if (event.target == copyDropdownMenu) {
         event.stopPropagation();
         return;
       }
-      const menuContainer = document.querySelector('#__aps_advcp');
+      const menuContainer = document.querySelector('#__appls_advcp');
       if (menuContainer) {
         menuContainer.parentNode.removeChild(menuContainer);
         rootButton.removeAttribute('aria-expanded');
@@ -600,7 +600,7 @@ class AdvancedCopy extends Watcher {
 
   stopWatching() {
     super.stopWatching();
-    document.querySelectorAll('.app-dropdown-menu').forEach((menu) => {
+    document.querySelectorAll('.appls-dropdown-menu').forEach((menu) => {
       menu.parentNode.removeChild(menu);
     });
     document.querySelectorAll('section button.fxs-blade-copyname').forEach(b => {
