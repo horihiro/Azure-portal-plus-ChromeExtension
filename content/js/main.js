@@ -10,6 +10,10 @@ class Watcher {
     if (!this.observer) return;
     this.observer.disconnect();
   }
+  async getAccessToken() {
+    const { accessToken } = await chrome.storage.local.get('accessToken');
+    return accessToken;
+  }
 }
 
 class VisibilityRestorer extends Watcher {
@@ -154,7 +158,7 @@ class AdvancedCopy extends Watcher {
         };
         document.body.appendChild(this.toastLayer);
         this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-        this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: this.getAccessToken() });
+        this.send2serviceWorker({ resourceId: resource[1], format: 'json', accessToken: await this.getAccessToken() });
       }
     }, {
       title: 'ARM template (Bicep)',
@@ -180,7 +184,7 @@ class AdvancedCopy extends Watcher {
         };
         document.body.appendChild(this.toastLayer);
         this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-        this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: this.getAccessToken() });
+        this.send2serviceWorker({ resourceId: resource[1], format: 'bicep', accessToken: await this.getAccessToken() });
       }
     }, {
       title: 'Terraform (AzApi)',
@@ -206,7 +210,7 @@ class AdvancedCopy extends Watcher {
         };
         document.body.appendChild(this.toastLayer);
         this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-        this.send2serviceWorker({ resourceId: resource[1], format: 'azapi', accessToken: this.getAccessToken() });
+        this.send2serviceWorker({ resourceId: resource[1], format: 'azapi', accessToken: await this.getAccessToken() });
       },
       isAvailable: async () => {
         try {
@@ -214,7 +218,7 @@ class AdvancedCopy extends Watcher {
             `https://management.azure.com${location.hash.match(this.re)[1]?.split('/').slice(0, 3).join('/')}/providers/Microsoft.AzureTerraform?api-version=2021-04-01`,
             {
               headers: {
-                Authorization: `Bearer ${this.getAccessToken()}`
+                Authorization: `Bearer ${await this.getAccessToken()}`
               }
             });
           if (response.status !== 200 || (await response.json()).registrationState != 'Registered') return false;
@@ -248,7 +252,7 @@ class AdvancedCopy extends Watcher {
         };
         document.body.appendChild(this.toastLayer);
         this.toastLayer.childNodes[0].innerHTML = this.icons.loading;
-        this.send2serviceWorker({ resourceId: resource[1], format: 'azurerm', accessToken: this.getAccessToken() });
+        this.send2serviceWorker({ resourceId: resource[1], format: 'azurerm', accessToken: await this.getAccessToken() });
       },
       isAvailable: async () => {
         try {
@@ -256,7 +260,7 @@ class AdvancedCopy extends Watcher {
             `https://management.azure.com${location.hash.match(this.re)[1]?.split('/').slice(0, 3).join('/')}/providers/Microsoft.AzureTerraform?api-version=2021-04-01`,
             {
               headers: {
-                Authorization: `Bearer ${this.getAccessToken()}`
+                Authorization: `Bearer ${await this.getAccessToken()}`
               }
             });
           if (response.status !== 200 || (await response.json()).registrationState != 'Registered') return false;
@@ -285,7 +289,7 @@ class AdvancedCopy extends Watcher {
             {
               method: 'POST',
               headers: {
-                Authorization: `Bearer ${this.getAccessToken()}`,
+                Authorization: `Bearer ${await this.getAccessToken()}`,
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify(
@@ -386,21 +390,11 @@ class AdvancedCopy extends Watcher {
 | project id
 `
   }
-  getAccessToken() {
-    const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
-    const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
-    return JSON.parse(
-      sessionStorage.getItem(
-        `${(JSON.parse(
-          sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
-        ).accessToken || []).find(entry => SCOPES.some((scope) => entry.includes(scope))) || ''
-        }`
-      ) || '{}'
-    ).secret;
-  };
+
   addCopyMenu() {
     this.addCopyMenu1() || this.addCopyMenu2();
   }
+
   addCopyMenu1() {
     const overviewMenuItem = document.querySelector('section:last-of-type div[role="listitem"]:first-child li[role="listitem"]:first-of-type');
     if (!overviewMenuItem) return false;
@@ -1026,6 +1020,20 @@ class ContextMenuUpdater extends Watcher {
   }
 }
 
+const storeAccessToken = async () => {
+  const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
+  const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
+  const tenantId = localStorage.getItem('SavedDefaultDirectory') || document.querySelectorAll('button.fxs-menu-account')[0].getAttribute('title').split(/\n/)[2].replace(/.*\(([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\)/, '$1');
+  const key = (JSON.parse(
+    sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
+  ).accessToken || [])
+    .find(entry => SCOPES.some((scope) => entry.includes(scope) && entry.includes(tenantId)));
+  const accessToken = key ? JSON.parse(sessionStorage.getItem(key)).secret : null;
+
+  await chrome.storage.local.set({ accessToken });
+  return accessToken;
+};
+
 (async () => {
   try {
     const _watchers = {};
@@ -1050,6 +1058,10 @@ class ContextMenuUpdater extends Watcher {
         if (watcherStatus[w].status) _watchers[w].startWatching(watcherStatus[w].options);
         else _watchers[w].stopWatching();
       });
+
+      setInterval(async () => {
+        await storeAccessToken();
+      }, 10000);
     }
 
     chrome.storage.onChanged.addListener(async (changes, area) => {
