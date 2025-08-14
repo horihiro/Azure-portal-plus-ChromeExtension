@@ -59,6 +59,8 @@ chrome.runtime.onConnect.addListener((port) => {
         port.postMessage({ type: 'pong' });
         break;
       case 'tab-activation':
+        if (!message.tab?.id || !message.tab?.windowId) break;
+
         await chrome.tabs.update(message.tab.id, { active: true, highlighted: true });
         await chrome.windows.update(message.tab.windowId, { focused: true });
         break;
