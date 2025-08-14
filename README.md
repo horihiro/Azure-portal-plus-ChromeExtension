@@ -212,13 +212,52 @@ The font color and background color can be changed based on the number of the re
 
 <img width="1555" height="927" alt="image" src="https://github.com/user-attachments/assets/565d1593-8794-454d-b411-c5a738667532" />
 
-The default colors are:
-| # of resources | light mode | dark mode |
-|:- |:-:|:-:|
-| 0   | <span style="color: rgb(127,127,127); background-color: rgba(223,223,223,0.7);">example</span> | <span style="color: rgb(127,127,127); background-color: rgba(32,32,32,0.7);">example</span> |
-| 1-2 | <span style="color: rgb(0,0,255); background-color: rgba(0,0,255,0.2);">example</span> | <span style="color: rgb(127,127,255); background-color: rgba(0,0,255,0.2);">example</span> | 
-| 3-9 | <span style="color: rgb(0,127,0); background-color: rgba(0,255,0,0.1);">example</span> | <span style="color: rgb(63,127,63); background-color: rgba(0,255,0,0.1);">example</span> | 
-| 10- | <span style="color: rgb(255,0,0); background-color: rgba(255,0,0,0.1);">example</span> | <span style="color: rgb(255,127,127); background-color: rgba(255,0,0,0.1);">example</span> | 
+The default decoration colors are:
+<table>
+  <thead>
+    <tr>
+      <th rowspan=2># of resources</th>
+      <th colspan=2>light mode</th>
+      <th colspan=2>dark mode</th>
+    </tr>
+    <tr>
+      <th>font color</th>
+      <th>background color</th>
+      <th>font color</th>
+      <th>background color</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>rgb(127,127,127)</td>
+      <td>rgba(223,223,223,0.7)</td>
+      <td>rgb(127,127,127)</td>
+      <td>rgba(32,32,32,0.7)</td>
+    </tr>
+    <tr>
+      <td>1-2</td>
+      <td>rgb(0,0,255)</td>
+      <td>rgba(0,0,255,0.2)</td>
+      <td>rgb(127,127,255)</td>
+      <td>rgba(0,0,255,0.2)</td>
+    </tr>
+    <tr>
+      <td>3-9</td>
+      <td>rgb(0,127,0)</td>
+      <td>rgba(0,255,0,0.1)</td>
+      <td>rgb(63,127,63)</td>
+      <td>rgba(0,255,0,0.1)</td>
+    </tr>
+    <tr>
+      <td>10-</td>
+      <td>rgb(255,0,0)</td>
+      <td>rgba(255,0,0,0.1)</td>
+      <td>rgb(255,127,127)</td>
+      <td>rgba(255,0,0,0.1)</td>
+    </tr>
+  </tbody>
+</table>
 
 <details>
 <summary>The CSS for the default colors is:</summary>
