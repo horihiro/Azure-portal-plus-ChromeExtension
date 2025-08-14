@@ -25,7 +25,8 @@ const notificationCore = async (options) => {
     if (notificationQueue.length == 0) return;
     await notificationCore(notificationQueue[0]);
   });
-  const { id, windowId } = options.tab;
+  const { id, windowId } = options?.tab || {};
+  if (!id || !windowId) return;
   chrome.notifications.onClicked.addListener(async (/* notificationId */) => {
     await chrome.tabs.update(id, { active: true, highlighted: true })
     await chrome.windows.update(windowId, { focused: true });
