@@ -213,29 +213,57 @@ The font color and background color can be changed based on the number of the re
 <img width="1555" height="927" alt="image" src="https://github.com/user-attachments/assets/565d1593-8794-454d-b411-c5a738667532" />
 
 The default colors are:
-| # of resources | font color | background color |
+| # of resources | light mode | dark mode |
 |:- |:-:|:-:|
-| 0 | #7f7f7fff | #dfdfdfb3 |
-| 1-2 | #0000ffff | #0000ff33 | 
-| 3-9 | #007f00ff | #00ff001a |
-| 10- | #ff0000ff | #ff00001a |
+| 0   | <span style="color: rgb(127,127,127); background-color: rgba(223,223,223,0.7);">example</span> | <span style="color: rgb(127,127,127); background-color: rgba(32,32,32,0.7);">example</span> |
+| 1-2 | <span style="color: rgb(0,0,255); background-color: rgba(0,0,255,0.2);">example</span> | <span style="color: rgb(127,127,255); background-color: rgba(0,0,255,0.2);">example</span> | 
+| 3-9 | <span style="color: rgb(0,127,0); background-color: rgba(0,255,0,0.1);">example</span> | <span style="color: rgb(63,127,63); background-color: rgba(0,255,0,0.1);">example</span> | 
+| 10- | <span style="color: rgb(255,0,0); background-color: rgba(255,0,0,0.1);">example</span> | <span style="color: rgb(255,127,127); background-color: rgba(255,0,0,0.1);">example</span> | 
 
-The CSS for the default colors is:
+<details>
+<summary>The CSS for the default colors is:</summary>
+
 ```css
-[class^=appls-resource-count-] a { color: rgba(255, 0, 0, 1); }
-[class^=appls-resource-count-] > div {background-color: rgba(255,0,0,0.1);}
+/* for light mode */
+/* for more than ten resources */
+.fxs-mode-light [class^=appls-resource-count-] a { color: rgb(255,0,0); }
+.fxs-mode-light [class^=appls-resource-count-] > div {background-color: rgba(255,0,0,0.1);}
 
-[class^=appls-resource-count-00] a {color: rgb(0,127,0);}
-[class^=appls-resource-count-00] > div {background-color: rgba(0,255,0,0.1);}
+/* for between three and nine resources */
+.fxs-mode-light [class^=appls-resource-count-00] a {color: rgb(0,127,0);}
+.fxs-mode-light [class^=appls-resource-count-00] > div {background-color: rgba(0,255,0,0.1);}
 
-.appls-resource-count-002 a,
-.appls-resource-count-001 a {color: rgb(0,0,255);}
-.appls-resource-count-002 > div,
-.appls-resource-count-001 > div {background-color: rgba(0,0,255,0.2);}
+/* for one or two resources */
+.fxs-mode-light .appls-resource-count-002 a,
+.fxs-mode-light .appls-resource-count-001 a {color: rgb(0,0,255);}
+.fxs-mode-light .appls-resource-count-002 > div,
+.fxs-mode-light .appls-resource-count-001 > div {background-color: rgba(0,0,255,0.2);}
 
-.appls-resource-count-000 a {color: rgba(127, 127, 127, 1);}
-.appls-resource-count-000 > div {background-color: rgba(223,223,223,0.7);}
+/* for no resource */
+.fxs-mode-light .appls-resource-count-000 a {color: rgb(127,127,127);}
+.fxs-mode-light .appls-resource-count-000 > div {background-color: rgba(223,223,223,0.7);}
+
+/* for dark mode */
+/* for more than ten resources */
+.fxs-mode-dark [class^=appls-resource-count-] a { color: rgb(255,127,127); }
+.fxs-mode-dark [class^=appls-resource-count-] > div {background-color: rgba(255,0,0,0.1);}
+
+/* for between three and nine resources */
+.fxs-mode-dark [class^=appls-resource-count-00] a {color: rgb(63,127,63);}
+.fxs-mode-dark [class^=appls-resource-count-00] > div {background-color: rgba(0,255,0,0.1);}
+
+/* for one or two resources */
+.fxs-mode-dark .appls-resource-count-002 a,
+.fxs-mode-dark .appls-resource-count-001 a {color: rgb(127,127,255);}
+.fxs-mode-dark .appls-resource-count-002 > div,
+.fxs-mode-dark .appls-resource-count-001 > div {background-color: rgba(0,0,255,0.2);}
+
+/* for no resource */
+.fxs-mode-dark .appls-resource-count-000 a {color: rgb(127,127,127);}
+.fxs-mode-dark .appls-resource-count-000 > div {background-color: rgba(32,32,32,0.7);}
 ```
+
+</details>
 
 And you can change the style by using the CSS manipulating extensions (i.e. Stylus etc.)
 
