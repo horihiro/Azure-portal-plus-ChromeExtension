@@ -6,7 +6,7 @@
 
 This extension can add features to [Azure portal](https://portal.azure.com).  
 
-** Note this extension is NOT Microsoft official and `Azure` is a trademark of the Microsoft group of companies.**
+**Note: this extension is NOT Microsoft official and `Azure` is a trademark of the Microsoft group of companies.**
 
 https://github.com/horihiro/Azure-portal-plus-ChromeExtension/assets/4566555/89a272f3-52fc-418c-9aa2-723cfca77f53
 
