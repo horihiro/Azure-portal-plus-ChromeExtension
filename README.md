@@ -210,6 +210,8 @@ By storing the state of the flag for hidden resources on each list view, this ca
 
 The font color and background color can be changed based on the number of the resources in each resource group.
 
+<img width="1555" height="927" alt="image" src="https://github.com/user-attachments/assets/565d1593-8794-454d-b411-c5a738667532" />
+
 The default colors are:
 | # of resources | font color | background color |
 |:- |:-:|:-:|
@@ -235,7 +237,7 @@ The CSS for the default colors is:
 .appls-resource-count-000 > div {background-color: rgba(223,223,223,0.7);}
 ```
 
-And the style can be overwritten by the CSS handling extensions (i.e. Stylus etc.)
+And you can change the style by using the CSS manipulating extensions (i.e. Stylus etc.)
 
 # Try this
 
