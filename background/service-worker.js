@@ -25,7 +25,8 @@ const notificationCore = async (options) => {
     if (notificationQueue.length == 0) return;
     await notificationCore(notificationQueue[0]);
   });
-  const { id, windowId } = options.tab;
+  const { id, windowId } = options?.tab || {};
+  if (!id || !windowId) return;
   chrome.notifications.onClicked.addListener(async (/* notificationId */) => {
     await chrome.tabs.update(id, { active: true, highlighted: true })
     await chrome.windows.update(windowId, { focused: true });
@@ -43,9 +44,14 @@ const notify2desktop = async (options) => {
   notificationQueue.push(options);
 }
 
+const getAccessToken = async () => {
+  const { accessToken } = await chrome.storage.local.get('accessToken');
+  return accessToken;
+}
+
 chrome.runtime.onConnect.addListener((port) => {
   console.debug(`onConnect: port ${JSON.stringify(port)}`);
-  if (!['desktop-notification', 'tab-activation', 'get-resource-template', 'tab-loaded'].includes(port.name)) return;
+  if (!['desktop-notification', 'tab-activation', 'get-resource-template', 'tab-loaded', 'set-access-token'].includes(port.name)) return;
 
   port.onMessage.addListener(async (message, sender, sendResponse) => {
     switch (message.type) {
@@ -53,6 +59,8 @@ chrome.runtime.onConnect.addListener((port) => {
         port.postMessage({ type: 'pong' });
         break;
       case 'tab-activation':
+        if (!message.tab?.id || !message.tab?.windowId) break;
+
         await chrome.tabs.update(message.tab.id, { active: true, highlighted: true });
         await chrome.windows.update(message.tab.windowId, { focused: true });
         break;
@@ -67,7 +75,7 @@ chrome.runtime.onConnect.addListener((port) => {
       case 'get-resource-template':
         try {
           const body = await (async (message) => {
-            const { resourceId, format, accessToken } = message;
+            const { resourceId, format } = message;
             const splitResourceId = resourceId.split('/').map((item) => item.toLowerCase());
             if (splitResourceId.length < 9
               || splitResourceId[0] !== ''
@@ -94,7 +102,7 @@ chrome.runtime.onConnect.addListener((port) => {
                   const response = await fetch(
                     requestParamBicep.url,
                     {
-                      headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+                      headers: { 'Authorization': `Bearer ${await getAccessToken()}`, 'Content-Type': 'application/json' },
                       redirect: 'follow',
                       method: requestParamBicep.method,
                       body: requestParamBicep.body
@@ -119,7 +127,7 @@ chrome.runtime.onConnect.addListener((port) => {
                   `https://management.azure.com${splitResourceId.slice(0, 3).join('/')}/providers/Microsoft.AzureTerraform?api-version=2021-04-01`,
                 {
                   headers: {
-                    Authorization: `Bearer ${accessToken}`
+                    Authorization: `Bearer ${await getAccessToken()}`
                   }
                 });
                 if (response.status !== 200 || (await response.json()).registrationState != 'Registered') {
@@ -141,7 +149,7 @@ chrome.runtime.onConnect.addListener((port) => {
                     requestParamTerraform.url,
                     {
                       headers: {
-                        'Authorization': `Bearer ${accessToken}`,
+                        'Authorization': `Bearer ${await getAccessToken()}`,
                         'Content-Type': 'application/json',
                         "commandName": "HubsExtension.TemplateViewer.generateTerraformTemplate",
                       },
@@ -169,19 +177,19 @@ chrome.runtime.onConnect.addListener((port) => {
                 const apiVersion = apiVersionMap.get(`${provider}/${resourceType}`) || await (async (params) => {
                   const providerInfoResponse = await fetch(
                     `https://management.azure.com/providers/${params.provider}?api-version=2019-08-01`,
-                    { headers: { 'Authorization': `Bearer ${params.accessToken}` } }
+                    { headers: { 'Authorization': `Bearer ${await getAccessToken()}` } }
                   );
                   const providerInfo = await providerInfoResponse.json();
                   apiVersionMap.set(`${params.provider}/${params.resourceType}`, providerInfo.resourceTypes.find((type) => type.resourceType.toLowerCase() === params.resourceType.toLowerCase()).apiVersions[0]);
                   return apiVersionMap.get(`${params.provider}/${params.resourceType}`);
-                })({ provider, resourceType, accessToken });
+                })({ provider, resourceType });
                 if (!apiVersion) {
                   port.postMessage({ type: 'resource-template', errorMessage: `API version not found: ${resourceId}` });
                   return;
                 }
                 const responseArmJson = await fetch(
                   `https://management.azure.com${resourceId}?api-version=${apiVersion}`,
-                  { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                  { headers: { 'Authorization': `Bearer ${await getAccessToken()}` } }
                 );
                 return await responseArmJson.json();
             }
@@ -190,7 +198,6 @@ chrome.runtime.onConnect.addListener((port) => {
         } catch (error) {
           port.postMessage({ type: 'resource-template', result: 'failed', body: error.message});
         }
-
         break;
       case 'notification':
         await notify2desktop(message);

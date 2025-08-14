@@ -83,7 +83,7 @@ div#linkContainer>div{
   width:fit-content;
 }
 
-div#linkContainer a {
+a {
   color: #1191ff;
   text-decoration:underline;
 }
@@ -95,6 +95,20 @@ div#linkContainer a>img {
 
 h3 {
   margin-top: 0%;
+}
+
+div#trademarkfootnote {
+  position: absolute;
+  top: 42px;
+  left: 150px;
+  font-size: xx-small;
+  color: #aaa;
+}
+
+div#trademarkfootnote>span {
+  color: #fff;
+  font-weight: bold;
+  font-style: italic;
 }
 
 div:has(label) {

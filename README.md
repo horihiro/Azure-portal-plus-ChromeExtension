@@ -6,11 +6,9 @@
 
 This extension can add features to [Azure portal](https://portal.azure.com).  
 
-
+**Note: this extension is NOT Microsoft official and `Azure` is a trademark of the Microsoft group of companies.**
 
 https://github.com/horihiro/Azure-portal-plus-ChromeExtension/assets/4566555/89a272f3-52fc-418c-9aa2-723cfca77f53
-
-
 
 # Features
 ![image](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/assets/4566555/c57cc9ae-8fbb-4cb1-aa06-850af9fabeb6)
@@ -204,6 +202,110 @@ When your resource is opened in `portal.azure.com`, you can open it in `preview.
 > [!NOTE]
 > To open the context menu on Azure portal, you need to use right-click with <kbd>ctrl</kbd> key.
 
+## 8. Restore the flag for hidden resources on each list view (v0.0.10 or later)  (Experimental)
+
+By storing the state of the flag for hidden resources on each list view, this can restore the state on the list view when opening the list view again.
+
+## 9. Decorate resource group list depending on the number of resources included in each group (v0.0.10 or later)  (Experimental)
+
+The font color and background color can be changed based on the number of the resources in each resource group.
+
+<img width="1555" height="927" alt="image" src="https://github.com/user-attachments/assets/565d1593-8794-454d-b411-c5a738667532" />
+
+The default decoration colors are:
+<table>
+  <thead>
+    <tr>
+      <th rowspan=2># of resources</th>
+      <th colspan=2>light mode</th>
+      <th colspan=2>dark mode</th>
+    </tr>
+    <tr>
+      <th>font color</th>
+      <th>background color</th>
+      <th>font color</th>
+      <th>background color</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>rgb(127,127,127)</td>
+      <td>rgba(223,223,223,0.7)</td>
+      <td>rgb(127,127,127)</td>
+      <td>rgba(32,32,32,0.7)</td>
+    </tr>
+    <tr>
+      <td>1-2</td>
+      <td>rgb(0,0,255)</td>
+      <td>rgba(0,0,255,0.2)</td>
+      <td>rgb(127,127,255)</td>
+      <td>rgba(0,0,255,0.2)</td>
+    </tr>
+    <tr>
+      <td>3-9</td>
+      <td>rgb(0,127,0)</td>
+      <td>rgba(0,255,0,0.1)</td>
+      <td>rgb(63,127,63)</td>
+      <td>rgba(0,255,0,0.1)</td>
+    </tr>
+    <tr>
+      <td>10-</td>
+      <td>rgb(255,0,0)</td>
+      <td>rgba(255,0,0,0.1)</td>
+      <td>rgb(255,127,127)</td>
+      <td>rgba(255,0,0,0.1)</td>
+    </tr>
+  </tbody>
+</table>
+
+<details>
+<summary>The CSS for the default colors is:</summary>
+
+```css
+/* for light mode */
+/* for more than ten resources */
+.fxs-mode-light [class^=appls-resource-count-] a { color: rgb(255,0,0); }
+.fxs-mode-light [class^=appls-resource-count-] > div {background-color: rgba(255,0,0,0.1);}
+
+/* for between three and nine resources */
+.fxs-mode-light [class^=appls-resource-count-00] a {color: rgb(0,127,0);}
+.fxs-mode-light [class^=appls-resource-count-00] > div {background-color: rgba(0,255,0,0.1);}
+
+/* for one or two resources */
+.fxs-mode-light .appls-resource-count-002 a,
+.fxs-mode-light .appls-resource-count-001 a {color: rgb(0,0,255);}
+.fxs-mode-light .appls-resource-count-002 > div,
+.fxs-mode-light .appls-resource-count-001 > div {background-color: rgba(0,0,255,0.2);}
+
+/* for no resource */
+.fxs-mode-light .appls-resource-count-000 a {color: rgb(127,127,127);}
+.fxs-mode-light .appls-resource-count-000 > div {background-color: rgba(223,223,223,0.7);}
+
+/* for dark mode */
+/* for more than ten resources */
+.fxs-mode-dark [class^=appls-resource-count-] a { color: rgb(255,127,127); }
+.fxs-mode-dark [class^=appls-resource-count-] > div {background-color: rgba(255,0,0,0.1);}
+
+/* for between three and nine resources */
+.fxs-mode-dark [class^=appls-resource-count-00] a {color: rgb(63,127,63);}
+.fxs-mode-dark [class^=appls-resource-count-00] > div {background-color: rgba(0,255,0,0.1);}
+
+/* for one or two resources */
+.fxs-mode-dark .appls-resource-count-002 a,
+.fxs-mode-dark .appls-resource-count-001 a {color: rgb(127,127,255);}
+.fxs-mode-dark .appls-resource-count-002 > div,
+.fxs-mode-dark .appls-resource-count-001 > div {background-color: rgba(0,0,255,0.2);}
+
+/* for no resource */
+.fxs-mode-dark .appls-resource-count-000 a {color: rgb(127,127,127);}
+.fxs-mode-dark .appls-resource-count-000 > div {background-color: rgba(32,32,32,0.7);}
+```
+
+</details>
+
+And you can change the style by using <a href="https://chromewebstore.google.com/search/user%20css">the User CSS extensions</a> (i.e. Stylus etc.)
+
 # Try this
 
 ### From Chrome Web Store
@@ -225,6 +327,18 @@ If you can try a development version, the following steps are needed.
 1. select the directory created by cloning at step 1.
 
 # Change logs
+
+## [0.0.10](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.10)
+
+  - New feature(s)
+    - Add a feature to restore the flag for hidden resources on each list view.
+    - Add a feature to decorate resource group list depending on the number of included resource in the group  ([#33](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/33)).
+  - Improve feature(s)
+    - Improve access token management
+  - Bug Fix(es)
+    - Fix object handling in notification process ([#34](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/34))  
+
+And a trademark footnote for `Azure` on the popup window.
 
 ## [0.0.9](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.9)
 
