@@ -6,11 +6,9 @@
 
 This extension can add features to [Azure portal](https://portal.azure.com).  
 
-
+** Note this extension is NOT Microsoft official and `Azure` is a trademark of the Microsoft group of companies.**
 
 https://github.com/horihiro/Azure-portal-plus-ChromeExtension/assets/4566555/89a272f3-52fc-418c-9aa2-723cfca77f53
-
-
 
 # Features
 ![image](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/assets/4566555/c57cc9ae-8fbb-4cb1-aa06-850af9fabeb6)
@@ -204,6 +202,41 @@ When your resource is opened in `portal.azure.com`, you can open it in `preview.
 > [!NOTE]
 > To open the context menu on Azure portal, you need to use right-click with <kbd>ctrl</kbd> key.
 
+## 8. Restore the flag for hidden resources on each list view (v0.0.10 or later)  (Experimental)
+
+By storing the state of the flag for hidden resources on each list view, this can restore the state on the list view when opening the list view again.
+
+## 9. Decorate resource group list depending on the number of resources included in each group (v0.0.10 or later)  (Experimental)
+
+The font color and background color can be changed based on the number of the resources in each resource group.
+
+The default colors are:
+| # of resources | font color | background color |
+|:- |:-:|:-:|
+| 0 | #7f7f7fff | #dfdfdfb3 |
+| 1-2 | #0000ffff | #0000ff33 | 
+| 3-9 | #007f00ff | #00ff001a |
+| 10- | #ff0000ff | #ff00001a |
+
+The CSS for the default colors is:
+```css
+[class^=appls-resource-count-] a { color: rgba(255, 0, 0, 1); }
+[class^=appls-resource-count-] > div {background-color: rgba(255,0,0,0.1);}
+
+[class^=appls-resource-count-00] a {color: rgb(0,127,0);}
+[class^=appls-resource-count-00] > div {background-color: rgba(0,255,0,0.1);}
+
+.appls-resource-count-002 a,
+.appls-resource-count-001 a {color: rgb(0,0,255);}
+.appls-resource-count-002 > div,
+.appls-resource-count-001 > div {background-color: rgba(0,0,255,0.2);}
+
+.appls-resource-count-000 a {color: rgba(127, 127, 127, 1);}
+.appls-resource-count-000 > div {background-color: rgba(223,223,223,0.7);}
+```
+
+And the style can be overwritten by the CSS handling extensions (i.e. Stylus etc.)
+
 # Try this
 
 ### From Chrome Web Store
@@ -227,6 +260,16 @@ If you can try a development version, the following steps are needed.
 # Change logs
 
 ## [0.0.10](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.10)
+
+  - New feature(s)
+    - Add a feature to restore the flag for hidden resources on each list view.
+    - Add a feature to decorate resource group list depending on the number of included resource in the group  ([#33](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/33)).
+  - Improve feature(s)
+    - Improve access token management
+  - Bug Fix(es)
+    - Fix object handling in notification process ([#34](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/issues/34))  
+
+And a trademark footnote for `Azure` on the popup window.
 
 ## [0.0.9](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.9)
 
