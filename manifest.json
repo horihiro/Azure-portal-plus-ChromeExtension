@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Azure Portal plus",
-  "version": "0.0.10",
-  "version_name": "0.0.10-jusanugui",
+  "version": "0.0.11",
+  "version_name": "0.0.11-karei",
   "description": "Add features to Azure Portal",
   "permissions": [
     "storage",
