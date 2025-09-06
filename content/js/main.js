@@ -1025,7 +1025,7 @@ const storeAccessToken = async () => {
   const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
   const tenantId = localStorage.getItem('SavedDefaultDirectory') || document.querySelectorAll('button.fxs-menu-account')[0].getAttribute('title').split(/\n/)[2].replace(/.*\(([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\)/, '$1');
   const key = (JSON.parse(
-    sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
+    sessionStorage.getItem(`msal.1.token.keys.${CLIENT_ID}`) || sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
   ).accessToken || [])
     .find(entry => SCOPES.some((scope) => entry.includes(scope) && entry.includes(tenantId)));
   const accessToken = key ? JSON.parse(sessionStorage.getItem(key)).secret : null;
