@@ -328,6 +328,12 @@ If you can try a development version, the following steps are needed.
 
 # Change logs
 
+## [0.0.11](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.11)
+  - New feature(s)
+  - Improve feature(s)
+  - Bug Fix(es)
+    - Fix handling access token
+
 ## [0.0.10](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.10)
 
   - New feature(s)
