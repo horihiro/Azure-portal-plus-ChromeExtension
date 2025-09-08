@@ -44,6 +44,25 @@
       "css": [
         "content/css/sandbox.css"
       ]
+    },
+    {
+      "all_frames": true,
+      "world": "MAIN",
+      "matches": [
+        "https://ux.console.azure.com/*"
+      ],
+      "js": [
+        "content/js/cloudshell/main.js"
+      ]
+    },
+    {
+      "all_frames": true,
+      "matches": [
+        "https://ux.console.azure.com/*"
+      ],
+      "js": [
+        "content/js/cloudshell/isolated.js"
+      ]
     }
   ]
 }
