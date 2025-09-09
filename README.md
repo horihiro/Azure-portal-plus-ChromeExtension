@@ -306,6 +306,14 @@ The default decoration colors are:
 
 And you can change the style by using <a href="https://chromewebstore.google.com/search/user%20css">the User CSS extensions</a> (i.e. Stylus etc.)
 
+## 10. Keep Azure Cloud Shell session alive more than 20 minutes (v0.0.11 or later)  (Experimental)
+n Azure Cloud Shell, sessions are automatically disconnected after 20 minutes of inactivity.
+
+This feature overrides the default timeout, allowing users to maintain an active Cloud Shell session beyond the 20-minute inactivity limit.
+
+> [!NOTE]
+> This feature is available only on beta version of Azure Cloud Shell.   
+
 # Try this
 
 ### From Chrome Web Store
