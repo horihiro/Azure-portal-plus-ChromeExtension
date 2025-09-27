@@ -36,7 +36,8 @@
     {
       "all_frames": true,
       "matches": [
-        "https://sandbox-1.reactblade.portal.azure.net/*"
+        "https://sandbox-1.reactblade.portal.azure.net/*",
+        "https://sandbox-2.reactblade.portal.azure.net/*"
       ],
       "js": [
         "content/js/sandbox.js"
