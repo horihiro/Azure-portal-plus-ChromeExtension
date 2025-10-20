@@ -1,14 +1,15 @@
 document.addEventListener('DOMContentLoaded', async (e) => {
-  const { replaceFavicon, blinkFavicon, desktopNotification, activateTab, advancedCopy, filterRestorer, visibilityRestorer, resourceGroupDecorator } = (await chrome.storage.local.get(['replaceFavicon', 'blinkFavicon', 'desktopNotification', 'activateTab', 'advancedCopy', 'filterRestorer', 'visibilityRestorer', 'resourceGroupDecorator']));
-
+  const { replaceFavicon, blinkFavicon, desktopNotification, activateTab, advancedCopy, filterRestorer, visibilityRestorer, resourceGroupDecorator, keepCloudShellSession } = (await chrome.storage.local.get(['replaceFavicon', 'blinkFavicon', 'desktopNotification', 'activateTab', 'advancedCopy', 'filterRestorer'/* , 'visibilityRestorer' */, 'resourceGroupDecorator', 'keepCloudShellSession'])) || {};
+  
   const enableReplaceFaviconCheckbox = document.querySelector('#enableReplaceFaviconCheckbox');
   const enableBlinkFaviconCheckbox = document.querySelector('#enableBlinkFaviconCheckbox');
   const enableDesktopNotificationCheckbox = document.querySelector('#enableDesktopNotificationCheckbox');
   const enableActivateTabCheckbox = document.querySelector('#enableActivateTabCheckbox');
   const enableAdvancedCopyCheckbox = document.querySelector('#enableAdvancedCopyCheckbox');
   const enableRestoreFilterStringCheckbox = document.querySelector('#enableRestoreFilterStringCheckbox');
-  const enableRestoreResourceVisibilityCheckbox = document.querySelector('#enableRestoreResourceVisibilityCheckbox');
+  // const enableRestoreResourceVisibilityCheckbox = document.querySelector('#enableRestoreResourceVisibilityCheckbox');
   const enableResourceGroupDecoratorCheckbox = document.querySelector('#enableResourceGroupDecoratorCheckbox');
+  const enableKeepCloudShellSessionCheckbox = document.querySelector('#enableKeepCloudShellSessionCheckbox');
 
   enableReplaceFaviconCheckbox.checked = replaceFavicon && replaceFavicon.status;
   enableBlinkFaviconCheckbox.checked = blinkFavicon && blinkFavicon.status;
@@ -16,8 +17,9 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   enableActivateTabCheckbox.checked = activateTab && activateTab.status;
   enableAdvancedCopyCheckbox.checked = advancedCopy && advancedCopy.status;
   enableRestoreFilterStringCheckbox.checked = filterRestorer && filterRestorer.status;
-  enableRestoreResourceVisibilityCheckbox.checked = visibilityRestorer && visibilityRestorer.status;
+  // enableRestoreResourceVisibilityCheckbox.checked = visibilityRestorer && visibilityRestorer.status;
   enableResourceGroupDecoratorCheckbox.checked = resourceGroupDecorator && resourceGroupDecorator.status;
+  enableKeepCloudShellSessionCheckbox.checked = keepCloudShellSession && keepCloudShellSession.status;
 
   enableReplaceFaviconCheckbox.addEventListener('change', async (e) => {
     await chrome.storage.local.set({
@@ -69,17 +71,17 @@ document.addEventListener('DOMContentLoaded', async (e) => {
       }
     );
   });
-  enableRestoreResourceVisibilityCheckbox.addEventListener('change', async (e) => {
-    const current = await chrome.storage.local.get(['visibilityRestorer']) || {};
-    await chrome.storage.local.set(
-      {
-        'visibilityRestorer': {
-          status: e.target.checked,
-          options: current.visibilityRestorer?.options
-        }
-      }
-    );
-  });
+  // enableRestoreResourceVisibilityCheckbox.addEventListener('change', async (e) => {
+  //   const current = await chrome.storage.local.get(['visibilityRestorer']) || {};
+  //   await chrome.storage.local.set(
+  //     {
+  //       'visibilityRestorer': {
+  //         status: e.target.checked,
+  //         options: current.visibilityRestorer?.options
+  //       }
+  //     }
+  //   );
+  // });
   enableResourceGroupDecoratorCheckbox.addEventListener('change', async (e) => {
     const current = await chrome.storage.local.get(['resourceGroupDecorator']) || {};
     await chrome.storage.local.set(
@@ -87,6 +89,17 @@ document.addEventListener('DOMContentLoaded', async (e) => {
         'resourceGroupDecorator': {
           status: e.target.checked,
           options: current.resourceGroupDecorator?.options
+        }
+      }
+    );
+  });
+  enableKeepCloudShellSessionCheckbox.addEventListener('change', async (e) => {
+    const current = await chrome.storage.local.get(['keepCloudShellSession']) || {};
+    await chrome.storage.local.set(
+      {
+        'keepCloudShellSession': {
+          status: e.target.checked,
+          options: current.keepCloudShellSession?.options
         }
       }
     );

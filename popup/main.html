@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Azure Portal PLUS Popup</title>
+  <title>TweakIt for Microsoft Azure Portal Popup</title>
   <link rel="stylesheet" type="text/css" href="./css/main.css">
   <script src="./js/main.js"></script>
   <style>
@@ -10,7 +10,7 @@
 </head>
 
 <body>
-  <h3>Azure Portal Plus</h3>
+  <h3>TweakIt for Microsoft Azure Portal</h3>
   <div id="trademarkfootnote"><span>Azure</span> is a trademark of the Microsoft group of companies.</div>
   <div id="linkContainer">
     <div id="linkWrapper">
@@ -96,13 +96,13 @@
         <span>Restore filter string on each list view</span>
       </label>
     </div>
-    <div id="restoreResourceVisibility" class="toggleButton">
+    <!-- <div id="restoreResourceVisibility" class="toggleButton">
       <label class="switch">
         <input type="checkbox" id="enableRestoreResourceVisibilityCheckbox">
         <span class="slider"></span>
         <span>Restore resource visibility on each list view</span>
       </label>
-    </div>
+    </div> -->
     <div id="decorateResourceGroupList" class="toggleButton">
       <label class="switch">
         <input type="checkbox" id="enableResourceGroupDecoratorCheckbox">
@@ -112,6 +112,13 @@
         <br>
         <span class="slider" style="visibility: hidden;"></span>
         <span><a href="https://chromewebstore.google.com/search/user%20css" target="_blank" rel="noopener noreferrer">The User CSS extensions</a> can change the decoration</span>
+    </div>
+    <div id="keepCloudShellSession" class="toggleButton">
+      <label class="switch">
+        <input type="checkbox" id="enableKeepCloudShellSessionCheckbox">
+        <span class="slider"></span>
+        <span>Keep Cloud Shell session alive more than 20 minutes</span>
+      </label>
     </div>
   </details>
 </body>

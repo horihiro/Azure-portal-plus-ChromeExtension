@@ -308,6 +308,14 @@ And you can change the style by using <a href="https://chromewebstore.google.com
 
 - Example: Hide empty resource groups  
   https://userstyles.world/style/23821
+ 
+## 10. Keep Azure Cloud Shell session alive more than 20 minutes (v0.0.11 or later)  (Experimental)
+n Azure Cloud Shell, sessions are automatically disconnected after 20 minutes of inactivity.
+
+This feature overrides the default timeout, allowing users to maintain an active Cloud Shell session beyond the 20-minute inactivity limit.
+
+> [!NOTE]
+> This feature is available only on beta version of Azure Cloud Shell, doesn't work on classic version of it.   
 
 # Try this
 
@@ -330,6 +338,18 @@ If you can try a development version, the following steps are needed.
 1. select the directory created by cloning at step 1.
 
 # Change logs
+
+## [1.0.0](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/1.0.0)
+  - Rename this extension
+
+## [0.0.11]
+  - New feature(s)
+    - Add a feature to keep Azure Cloud Shell session more then 20 minutes
+  - Bug Fix(es)
+    - Fix handling access token
+    - Fix
+  - Remove feature(s)
+    - Remove a feature to restore the flag for hidden resources on each list view.
 
 ## [0.0.10](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.10)
 

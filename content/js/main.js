@@ -16,49 +16,49 @@ class Watcher {
   }
 }
 
-class VisibilityRestorer extends Watcher {
-  constructor() {
-    super();
-    this.observer = new MutationObserver(this.detectTargetElement.bind(this));
-    this.inputMap = {};
-    this.propName = 'resourceVisibility';
-    this.SELECTOR_TARGET_ELEMENT = 'section:last-of-type .ext-hubs-artbrowse-filter-showall .azc-validatableControl-none.azc-text-label';
-  }
-  async updateTargetElement(inputEvent) {
-    inputEvent.stopPropagation();
-    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
-    if (!view) return;
-    const input = inputEvent.currentTarget.querySelector('input[type="checkbox"]');
-    if (!input) return;
+// class VisibilityRestorer extends Watcher {
+//   constructor() {
+//     super();
+//     this.observer = new MutationObserver(this.detectTargetElement.bind(this));
+//     this.inputMap = {};
+//     this.propName = 'resourceVisibility';
+//     this.SELECTOR_TARGET_ELEMENT = 'section:last-of-type .ext-hubs-artbrowse-filter-showall .azc-validatableControl-none.azc-text-label';
+//   }
+//   async updateTargetElement(inputEvent) {
+//     inputEvent.stopPropagation();
+//     const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+//     if (!view) return;
+//     const input = inputEvent.currentTarget.querySelector('input[type="checkbox"]');
+//     if (!input) return;
 
-    if (input.checked) this.options[this.propName][view] = input.checked;
-    else delete this.options[this.propName][view];
+//     if (input.checked) this.options[this.propName][view] = input.checked;
+//     else delete this.options[this.propName][view];
 
-    await chrome.storage.local.set({
-      "visibilityRestorer": {
-        status: true,
-        options: this.options
-      }
-    });
-  }
-  detectTargetElement() {
-    const targetElements = [...document.querySelectorAll(this.SELECTOR_TARGET_ELEMENT)];
-    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
-    if (targetElements.length === 0 || !view || this.inputMap[view] == targetElements[0]) return;
-    this.inputMap[view] = targetElements[0];
-    if (this.options[this.propName][view]) this.inputMap[view].click();
-    this.inputMap[view].addEventListener('click', this.updateTargetElement.bind(this));
-  }
-  startWatching(options) {
-    this.options = options || { [this.propName]: {} };
-    this.detectTargetElement();
-    this.observer.observe(document, { childList: true, subtree: true });
-  }
+//     await chrome.storage.local.set({
+//       "visibilityRestorer": {
+//         status: true,
+//         options: this.options
+//       }
+//     });
+//   }
+//   detectTargetElement() {
+//     const targetElements = [...document.querySelectorAll(this.SELECTOR_TARGET_ELEMENT)];
+//     const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+//     if (targetElements.length === 0 || !view || this.inputMap[view] == targetElements[0]) return;
+//     this.inputMap[view] = targetElements[0];
+//     if (this.options[this.propName][view]) this.inputMap[view].click();
+//     this.inputMap[view].addEventListener('click', this.updateTargetElement.bind(this));
+//   }
+//   startWatching(options) {
+//     this.options = options || { [this.propName]: {} };
+//     this.detectTargetElement();
+//     this.observer.observe(document, { childList: true, subtree: true });
+//   }
 
-  stopWatching() {
-    super.stopWatching();
-  }
-}
+//   stopWatching() {
+//     super.stopWatching();
+//   }
+// }
 
 class FilterRestorer extends Watcher {
   constructor() {
@@ -1024,10 +1024,10 @@ const storeAccessToken = async () => {
   const CLIENT_ID = 'c44b4083-3bb0-49c1-b47d-974e53cbdf3c';
   const SCOPES = ['https://management.core.windows.net//user_impersonation', 'https://management.core.windows.net//.default'];
   const tenantId = localStorage.getItem('SavedDefaultDirectory') || document.querySelectorAll('button.fxs-menu-account')[0].getAttribute('title').split(/\n/)[2].replace(/.*\(([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\)/, '$1');
-  const key = (JSON.parse(
-    sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}'
-  ).accessToken || [])
-    .find(entry => SCOPES.some((scope) => entry.includes(scope) && entry.includes(tenantId)));
+  const key = [
+    ... JSON.parse(sessionStorage.getItem(`msal.1.token.keys.${CLIENT_ID}`) || '{}').accessToken || [],
+    ... JSON.parse(sessionStorage.getItem(`msal.token.keys.${CLIENT_ID}`) || '{}').accessToken || []
+  ].find(entry => SCOPES.some((scope) => entry.includes(scope) && entry.includes(tenantId)));
   const accessToken = key ? JSON.parse(sessionStorage.getItem(key)).secret : null;
 
   await chrome.storage.local.set({ accessToken });
@@ -1044,7 +1044,7 @@ const storeAccessToken = async () => {
     _watchers['advancedCopy'] = new AdvancedCopy();
     _watchers['filterRestorer'] = new FilterRestorer();
     _watchers['contextMenuUpdater'] = new ContextMenuUpdater();
-    _watchers['visibilityRestorer'] = new VisibilityRestorer();
+    // _watchers['visibilityRestorer'] = new VisibilityRestorer();
 
     const init = async (changes) => {
       const watcherStatus = await (async (changes, watchers) => {
