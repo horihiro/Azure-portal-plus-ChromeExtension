@@ -306,6 +306,9 @@ The default decoration colors are:
 
 And you can change the style by using <a href="https://chromewebstore.google.com/search/user%20css">the User CSS extensions</a> (i.e. Stylus etc.)
 
+- Example: Hide empty resource groups  
+  https://userstyles.world/style/23821
+ 
 ## 10. Keep Azure Cloud Shell session alive more than 20 minutes (v0.0.11 or later)  (Experimental)
 n Azure Cloud Shell, sessions are automatically disconnected after 20 minutes of inactivity.
 
