@@ -342,6 +342,8 @@ If you can try a development version, the following steps are needed.
   - Bug Fix(es)
     - Fix handling access token
     - Fix
+  - Remove feature(s)
+    - Remove a feature to restore the flag for hidden resources on each list view.
 
 ## [0.0.10](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.10)
 
