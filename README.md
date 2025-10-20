@@ -336,7 +336,10 @@ If you can try a development version, the following steps are needed.
 
 # Change logs
 
-## [0.0.11](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/0.0.11)
+## [1.0.0](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/1.0.0)
+  - Rename this extension
+
+## [0.0.11]
   - New feature(s)
     - Add a feature to keep Azure Cloud Shell session more then 20 minutes
   - Bug Fix(es)
