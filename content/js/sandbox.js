@@ -16,6 +16,48 @@ class Watcher {
   }
 }
 
+class FilterRestorer extends Watcher {
+  constructor() {
+    super();
+    this.observer = new MutationObserver(this.detectFilterInput.bind(this));
+    this.SELECTOR_BLADE_TITLE = 'section:last-of-type .fxs-blade-title-titleText';
+    this.inputMap = {};
+    this.propName = 'filterString';
+    this.SELECTOR_TARGET_ELEMENT = 'input[role="searchbox"]';
+  }
+  async updateFileterString(inputEvent) {
+    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    if (!view) return;
+
+    if (inputEvent.target.value) this.options[this.propName][view] = inputEvent.target.value;
+    else delete this.options[this.propName][view];
+
+    await chrome.storage.local.set({
+      "filterRestorer": {
+        status: true,
+        options: this.options
+      }
+    });
+  }
+  detectFilterInput() {
+    const filterInputs = [...document.querySelectorAll(this.SELECTOR_TARGET_ELEMENT)];
+    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    if (filterInputs.length === 0 || !view || this.inputMap[view] == filterInputs[0]) return;
+    this.inputMap[view] = filterInputs[0];
+    this.inputMap[view].value = this.options[this.propName][view] || '';
+    if (this.inputMap[view].value) this.inputMap[view].dispatchEvent(new Event('input', { bubbles: true }));
+    this.inputMap[view].addEventListener('input', this.updateFileterString.bind(this));
+  }
+  startWatching(options) {
+    this.options = options || { filterString: {} };
+    this.detectFilterInput();
+    this.observer.observe(document, { childList: true, subtree: true });
+  }
+
+  stopWatching() {
+    super.stopWatching();
+  }
+}
 
 class ResourceGroupDecorator extends Watcher {
   constructor() {
@@ -108,6 +150,7 @@ class ResourceGroupDecorator extends Watcher {
 (async () => {
   try {
     const _watchers = {};
+    _watchers['filterRestorer'] = new FilterRestorer();
     _watchers['resourceGroupDecorator'] = new ResourceGroupDecorator();
 
     const init = async (changes) => {
