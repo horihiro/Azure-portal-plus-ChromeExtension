@@ -1,8 +1,8 @@
 # Chrome Extension for Azure portal
-![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/khmmpfbdpddloceabielidbdnhaokekn)
-![Chrome Web Store Last Updated](https://img.shields.io/chrome-web-store/last-updated/khmmpfbdpddloceabielidbdnhaokekn)
-![Chrome Web Store Stars](https://img.shields.io/chrome-web-store/stars/khmmpfbdpddloceabielidbdnhaokekn)
-![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/khmmpfbdpddloceabielidbdnhaokekn)
+![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/bdabondjmakfflangegpjbflakdehhoc)
+![Chrome Web Store Last Updated](https://img.shields.io/chrome-web-store/last-updated/bdabondjmakfflangegpjbflakdehhoc)
+![Chrome Web Store Stars](https://img.shields.io/chrome-web-store/stars/bdabondjmakfflangegpjbflakdehhoc)
+![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/bdabondjmakfflangegpjbflakdehhoc)
 
 This extension can add features to [Azure portal](https://portal.azure.com).  
 
@@ -202,7 +202,10 @@ When your resource is opened in `portal.azure.com`, you can open it in `preview.
 > [!NOTE]
 > To open the context menu on Azure portal, you need to use right-click with <kbd>ctrl</kbd> key.
 
-## 8. Restore the flag for hidden resources on each list view (v0.0.10 or later)  (Experimental)
+## 8. Restore the flag for hidden resources on each list view (only v0.0.10)  (Experimental)
+
+> [!NOTE]
+> This feature works only on v0.0.19
 
 By storing the state of the flag for hidden resources on each list view, this can restore the state on the list view when opening the list view again.
 
@@ -320,7 +323,7 @@ This feature overrides the default timeout, allowing users to maintain an active
 # Try this
 
 ### From Chrome Web Store
-This extension can be installed from [Chrome Web Store](https://chromewebstore.google.com/detail/azure-portal-plus/khmmpfbdpddloceabielidbdnhaokekn).
+This extension can be installed from [Chrome Web Store](https://chromewebstore.google.com/detail/azure-portal-plus/bdabondjmakfflangegpjbflakdehhoc).
 
 ### From this repository
 If you can try a development version, the following steps are needed.
@@ -339,6 +342,11 @@ If you can try a development version, the following steps are needed.
 
 # Change logs
 
+## [1.0.1](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/1.0.1)
+  - Bug Fix(es)
+    - Fix restoring filter string feature
+    - Fix decorating resouce group feature
+
 ## [1.0.0](https://github.com/horihiro/Azure-portal-plus-ChromeExtension/releases/tag/1.0.0)
   - Rename this extension
 
@@ -347,7 +355,6 @@ If you can try a development version, the following steps are needed.
     - Add a feature to keep Azure Cloud Shell session more then 20 minutes
   - Bug Fix(es)
     - Fix handling access token
-    - Fix
   - Remove feature(s)
     - Remove a feature to restore the flag for hidden resources on each list view.
 
