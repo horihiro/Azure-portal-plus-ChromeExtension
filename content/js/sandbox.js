@@ -72,7 +72,7 @@ class ResourceGroupDecorator extends Watcher {
     this.timeout && clearTimeout(this.timeout);
 
     const rgRows = [...document.querySelectorAll('.ms-List-cell')].filter((rgRow) => {
-      const [_, subscriptionId, resourceGroup] = rgRow.querySelector('a')?.href?.toLowerCase()?.match(/([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\/resourcegroups\/([^\\]+)$/) || [];
+      const [_, subscriptionId, resourceGroup] = rgRow.querySelector('a')?.href?.toLowerCase()?.match(/([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\/resourcegroups\/([^\/]+)$/) || [];
       return subscriptionId && resourceGroup;
     });
     console.debug(`Found ${rgRows.length} resource groups.`);
@@ -108,7 +108,7 @@ class ResourceGroupDecorator extends Watcher {
     try {
       const json = await response.json();
       rgRows.forEach((rgRow) => {
-        const [_, subscriptionId, resourceGroup] = rgRow.querySelector('a')?.href?.toLowerCase()?.match(/([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\/resourcegroups\/([^\\]+)$/) || [];
+        const [_, subscriptionId, resourceGroup] = rgRow.querySelector('a')?.href?.toLowerCase()?.match(/([\da-f]{8}(?:-[\da-f]{4}){4}[\da-f]{8})\/resourcegroups\/([^\/]+)$/) || [];
         if (subscriptionId && resourceGroup) {
           const count = json.data.find((item) => item.subscriptionId === subscriptionId && item.resourceGroup === resourceGroup)?.count_ || 0;
           rgRow.classList.value = `appls-resource-count-${String(count).padStart(3, '0')} ${rgRow.classList.value.replace(/appls-resource-count-\d{3}/g, '').trim()}`;
