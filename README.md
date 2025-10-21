@@ -1,8 +1,8 @@
 # Chrome Extension for Azure portal
-![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/khmmpfbdpddloceabielidbdnhaokekn)
-![Chrome Web Store Last Updated](https://img.shields.io/chrome-web-store/last-updated/khmmpfbdpddloceabielidbdnhaokekn)
-![Chrome Web Store Stars](https://img.shields.io/chrome-web-store/stars/khmmpfbdpddloceabielidbdnhaokekn)
-![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/khmmpfbdpddloceabielidbdnhaokekn)
+![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/bdabondjmakfflangegpjbflakdehhoc)
+![Chrome Web Store Last Updated](https://img.shields.io/chrome-web-store/last-updated/bdabondjmakfflangegpjbflakdehhoc)
+![Chrome Web Store Stars](https://img.shields.io/chrome-web-store/stars/bdabondjmakfflangegpjbflakdehhoc)
+![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/bdabondjmakfflangegpjbflakdehhoc)
 
 This extension can add features to [Azure portal](https://portal.azure.com).  
 
@@ -320,7 +320,7 @@ This feature overrides the default timeout, allowing users to maintain an active
 # Try this
 
 ### From Chrome Web Store
-This extension can be installed from [Chrome Web Store](https://chromewebstore.google.com/detail/azure-portal-plus/khmmpfbdpddloceabielidbdnhaokekn).
+This extension can be installed from [Chrome Web Store](https://chromewebstore.google.com/detail/azure-portal-plus/bdabondjmakfflangegpjbflakdehhoc).
 
 ### From this repository
 If you can try a development version, the following steps are needed.
