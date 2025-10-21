@@ -25,14 +25,19 @@ class FilterRestorer extends Watcher {
     this.propName = 'filterString';
     this.SELECTOR_TARGET_ELEMENT = 'input[role="searchbox"]';
   }
-  async updateFileterString(inputEvent) {
-    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+  findKey() {
+    const href = document.querySelector('a:has(i[data-icon-name="OpenSource"])')?.href;
+    if (!href) return null;
+    return decodeURIComponent(href).replace(/[\s\S]*resource(?:container)?s\n?\|where ?([^\|\n]+)[\s\S]*/,'$1');
+  }
+  updateFileterString(inputEvent) {
+    const view = this.findKey();
     if (!view) return;
 
     if (inputEvent.target.value) this.options[this.propName][view] = inputEvent.target.value;
     else delete this.options[this.propName][view];
 
-    await chrome.storage.local.set({
+    chrome.storage.local.set({
       "filterRestorer": {
         status: true,
         options: this.options
@@ -41,7 +46,8 @@ class FilterRestorer extends Watcher {
   }
   detectFilterInput() {
     const filterInputs = [...document.querySelectorAll(this.SELECTOR_TARGET_ELEMENT)];
-    const view = document.location.hash.replace(/^[\S\s]*\/subscriptions/, '/subscriptions') || '';
+    const view = this.findKey();
+    if (!view) return;
     if (filterInputs.length === 0 || !view || this.inputMap[view] == filterInputs[0]) return;
     this.inputMap[view] = filterInputs[0];
     this.inputMap[view].value = this.options[this.propName][view] || '';
