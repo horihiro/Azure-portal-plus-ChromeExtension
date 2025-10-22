@@ -205,7 +205,7 @@ When your resource is opened in `portal.azure.com`, you can open it in `preview.
 ## 8. Restore the flag for hidden resources on each list view (only v0.0.10)  (Experimental)
 
 > [!NOTE]
-> This feature works only on v0.0.19
+> This feature works only on v0.0.10 because Azure portal doesn't support the flag for hidden flag currently.
 
 By storing the state of the flag for hidden resources on each list view, this can restore the state on the list view when opening the list view again.
 
