@@ -1,4 +1,9 @@
 # Release History
+## [1.0.2](https://github.com/horihiro/TweakIt-for-Azure-ChromeExtension/releases/tag/1.0.2)
+### New feature(s)
+### Bug Fix(es)
+### Remove feature(s)
+
 ## [1.0.1](https://github.com/horihiro/TweakIt-for-Azure-ChromeExtension/releases/tag/1.0.1)
 ### Bug Fix(es)
   - Fix restoring filter string feature
