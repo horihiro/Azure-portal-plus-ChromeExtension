@@ -24,25 +24,27 @@
   },
   "content_scripts": [
     {
+      "world": "ISOLATED",
       "matches": [
         "https://preview.portal.azure.com/*",
         "https://ms.portal.azure.com/*",
         "https://portal.azure.com/*"
       ],
       "js": [
-        "content/js/main.js"
+        "content/js/portal/isolated.js"
       ]
     },
     {
       "all_frames": true,
+      "world": "ISOLATED",
       "matches": [
         "https://*.reactblade.portal.azure.net/*"
       ],
       "js": [
-        "content/js/sandbox.js"
+        "content/js/sandbox/isolated.js"
       ],
       "css": [
-        "content/css/sandbox.css"
+        "content/css/sandbox/isolated.css"
       ]
     },
     {
@@ -57,6 +59,7 @@
     },
     {
       "all_frames": true,
+      "world": "ISOLATED",
       "matches": [
         "https://ux.console.azure.com/*"
       ],
