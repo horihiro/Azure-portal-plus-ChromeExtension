@@ -53,6 +53,7 @@
       "matches": [
         "https://ux.console.azure.com/*"
       ],
+      "run_at": "document_start",
       "js": [
         "content/js/cloudshell/main.js"
       ]
