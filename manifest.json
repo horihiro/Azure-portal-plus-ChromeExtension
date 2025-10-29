@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "TweakIt for Microsoft Azure Portal",
-  "version": "1.0.2",
-  "version_name": "1.0.2-mutsugoro",
+  "version": "1.0.3",
+  "version_name": "1.0.3-nishin",
   "description": "Add features to Azure Portal",
   "permissions": [
     "storage",
