@@ -39,18 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Example: simple option save/restore
   // Options inputs mapping
   const inputs = {
-    visual_favicon: document.getElementById('visual_favicon'),
-    visual_blink: document.getElementById('visual_blink'),
-    visual_rg_decoration: document.getElementById('visual_rg_decoration'),
+    replaceFavicon: document.getElementById('visual_favicon'),
+    blinkFavicon: document.getElementById('visual_blink'),
+    resourceGroupDecorator: document.getElementById('visual_rg_decoration'),
 
-    notify_desktop: document.getElementById('notify_desktop'),
-    notify_activate_tab: document.getElementById('notify_activate_tab'),
+    desktopNotification: document.getElementById('notify_desktop'),
+    activateTab: document.getElementById('notify_activate_tab'),
 
-    resource_copy: document.getElementById('resource_copy'),
-    resource_save_filter: document.getElementById('resource_save_filter'),
-    resource_auto_format: document.getElementById('resource_auto_format'),
+    advancedCopy: document.getElementById('resource_copy'),
+    filterRestorer: document.getElementById('resource_save_filter'),
 
-    cloudshell_extend_session: document.getElementById('cloudshell_extend_session'),
+    keepCloudShellSession: document.getElementById('cloudshell_extend_session'),
     cloudshell_enable_startup: document.getElementById('cloudshell_enable_startup'),
     cloudshell_startup_script: document.getElementById('cloudshell_startup_script')
   };
@@ -62,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = inputs[k];
         if (!el) return;
         if (el.tagName === 'INPUT' && el.type === 'checkbox') {
-          el.checked = !!items[k];
+          el.checked = !!items[k]?.status || false;
         } else if (el.tagName === 'TEXTAREA') {
           el.value = items[k] || '';
         }
@@ -75,9 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!el) return;
       if (el.tagName === 'INPUT' && el.type === 'checkbox') {
         el.addEventListener('change', () => {
-          const obj = {};
-          obj[k] = el.checked;
-          chrome.storage.local.set(obj);
+          chrome.storage.local.get([k], (items) => {
+            // some options may depend on others; handle them here if needed
+            const obj = {}
+            obj[k] = items[k] || {status: false};
+            obj[k].status = el.checked;
+            chrome.storage.local.set(obj);
+          });
         });
       } else if (el.tagName === 'TEXTAREA') {
         // save on blur

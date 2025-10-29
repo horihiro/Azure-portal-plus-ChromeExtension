@@ -9,13 +9,18 @@
 </head>
 
 <body>
-  <h1><img src="../img/icon128.png" alt="TweakIt for Microsoft Azure Portal" /><span>TweakIt for Microsoft Azure Portal</span></h1>
+  <h1><img src="../img/icon128.png" alt="TweakIt for Microsoft Azure Portal" /><span>TweakIt for Microsoft Azure
+      Portal</span></h1>
 
   <nav class="tabs" role="tablist" aria-label="Options Tabs">
-    <button role="tab" aria-selected="true" id="tab-visual" aria-controls="panel-visual"><img src="./img/svg/tab_appearance.svg" alt="Appearance" />Appearance</button>
-    <button role="tab" aria-selected="false" id="tab-notify" aria-controls="panel-notify"><img src="./img/svg/tab_notification.svg" alt="Notifications / Tab Actions" />Notifications</button>
-    <button role="tab" aria-selected="false" id="tab-resource" aria-controls="panel-resource"><img src="./img/svg/tab_resource.svg" alt="Resource Operations" />Resource Operations</button>
-    <button role="tab" aria-selected="false" id="tab-cloudshell" aria-controls="panel-cloudshell"><img src="./img/svg/tab_shell.svg" alt="CloudShell" />Cloud Shell</button>
+    <button role="tab" aria-selected="true" id="tab-visual" aria-controls="panel-visual"><img
+        src="./img/svg/tab_appearance.svg" alt="Appearance" />Appearance</button>
+    <button role="tab" aria-selected="false" id="tab-notify" aria-controls="panel-notify"><img
+        src="./img/svg/tab_notification.svg" alt="Notifications / Tab Actions" />Notifications</button>
+    <button role="tab" aria-selected="false" id="tab-resource" aria-controls="panel-resource"><img
+        src="./img/svg/tab_resource.svg" alt="Resource Operations" />Resource Operations</button>
+    <button role="tab" aria-selected="false" id="tab-cloudshell" aria-controls="panel-cloudshell"><img
+        src="./img/svg/tab_shell.svg" alt="CloudShell" />Cloud Shell</button>
   </nav>
 
   <!-- Visual / State Indicators -->
@@ -24,8 +29,8 @@
     <table>
       <tr>
         <td>
-          <label class="switch"><input type="checkbox" id="visual_favicon" /><span
-              class="slider"></span><span>Replace favicon to Azure resource's icon</span></label>
+          <label class="switch"><input type="checkbox" id="visual_favicon" /><span class="slider"></span><span>Replace
+              favicon to Azure resource's icon</span></label>
         </td>
         <td><img src="./img/replace-favicon.png" alt="Replace favicon to Azure resource's icon" /></td>
       </tr>
@@ -37,7 +42,7 @@
           <label class="switch"><input type="checkbox" id="visual_rg_decoration" /><span
               class="slider"></span><span>Decorate resource group list</span></label>
         </td>
-        <td>＜画像＞</td>
+        <td><img src="./img/rg-decoration.png" style="width: 50%"></td>
       </tr>
     </table>
   </div>
@@ -48,17 +53,17 @@
     <table>
       <tr>
         <td>
-          <label class="switch"><input type="checkbox" id="visual_blink" /><span
-              class="slider"></span><span>Blink favicon during configuration</span></label>
+          <label class="switch"><input type="checkbox" id="visual_blink" /><span class="slider"></span><span>Blink
+              favicon during configuration</span></label>
         </td>
-        <td><img src="./img/blink-favicon.png"/></td>
+        <td><img src="./img/blink-favicon.png" /></td>
       </tr>
-      <tr>  
+      <tr>
         <td>
-          <label class="switch"><input type="checkbox" id="notify_desktop" /><span
-              class="slider"></span><span>Notify to desktop when finishing configuration</span></label>
+          <label class="switch"><input type="checkbox" id="notify_desktop" /><span class="slider"></span><span>Notify to
+              desktop when finishing configuration</span></label>
         </td>
-        <td><img src="./img/desktop-notfication.png"/></td>
+        <td><img src="./img/desktop-notfication.png" /></td>
       </tr>
     </table>
     <h2>Experimental features</h2>
@@ -68,7 +73,7 @@
           <label class="switch"><input type="checkbox" id="notify_activate_tab" /><span
               class="slider"></span><span>Bring the window to the front when finishing configuration</span></label>
         </td>
-        <td>＜画像＞</td>
+        <td></td>
       </tr>
     </table>
   </div>
@@ -79,10 +84,68 @@
     <table>
       <tr>
         <td>
-          <label class="switch"><input type="checkbox" id="resource_copy" /><span
-              class="slider"></span><span>Copy resource information</span></label>
+          <label class="switch"><input type="checkbox" id="resource_copy" /><span class="slider"></span><span>Copy
+              resource information</span></label>
+          <div>
+            <label class="switch"><input type="checkbox" id="resource_copy" /><span class="slider"></span><span>Resource name</span></label>
+          </div>
+          <div>
+            <label class="switch"><input type="checkbox" id="resource_copy" /><span class="slider"></span><span>Resource Id</span></label>
+          </div>
+          <div>
+            <label class="switch"><input type="checkbox" id="resource_copy" /><span class="slider"></span><span>Resource name and group as Azure CLI option</span></label>
+          </div>
+          <div>
+            <label class="switch"><input type="checkbox" id="resource_copy" /><span class="slider"></span><span>Resource name and group as Azure PowerShell option</span></label>
+          </div>
+          <div>
+            <label class="switch"><input type="checkbox" id="resource_copy" /><span class="slider"></span><span>ARM template (JSON)</span></label>
+          </div>
+          <div>
+            <label class="switch"><input type="checkbox" id="resource_copy" /><span class="slider"></span><span>ARM template (Bicep)</span></label>
+          </div>
+          <div>
+            <label class="switch"><input type="checkbox" id="resource_copy" /><span class="slider"></span><span>Terraform (AzApi)</span></label>
+          </div>
+          <div>
+            <label class="switch"><input type="checkbox" id="resource_copy" /><span class="slider"></span><span>Terraform (AzureRM)</span></label>
+          </div>
+          <div>
+            <label class="switch"><input type="checkbox" id="resource_copy" /><span class="slider"></span><span>VM and Bastion Ids as `az network bastion` option</span></label>
+          </div>
         </td>
-        <td>＜画像＞</td>
+        <td>
+          <p>
+          <img src="./img/copy-resource-info-root.png" />
+          </p>
+          <p>
+          <img src="./img/copy-resource-info-resource-name.png" />
+          </p>
+          <p>
+          <img src="./img/copy-resource-info-resource-id.png" />
+          </p>
+          <p>
+          <img src="./img/copy-resource-info-azcli.png" />
+          </p>
+          <p>
+          <img src="./img/copy-resource-info-azpwsh.png" />
+          </p>
+          <p>
+          <img src="./img/copy-resource-info-arm-json.png" />
+          </p>
+          <p>
+          <img src="./img/copy-resource-info-arm-bicep.png" />
+          </p>
+          <p>
+          <img src="./img/copy-resource-info-terraform-azapi.png" />
+          </p>
+          <p>
+          <img src="./img/copy-resource-info-terraform-azurerm.png" />
+          </p>
+          <p>
+          <img src="./img/copy-resource-info-vmbastion.png" />
+          </p>
+        </td>
       </tr>
     </table>
     <h2>Experimental features</h2>
@@ -92,7 +155,7 @@
           <label class="switch"><input type="checkbox" id="resource_save_filter" /><span
               class="slider"></span><span>Restore filter string on each list view</span></label>
         </td>
-        <td>＜画像＞</td>
+        <td><img src="./img/restore-filter-string.png" alt="Restore filter string on each list view" /></td>
       </tr>
     </table>
   </div>
@@ -106,7 +169,7 @@
           <label class="switch"><input type="checkbox" id="cloudshell_extend_session" /><span
               class="slider"></span><span>Keep Cloud Shell session alive more than 20 minutes</span></label>
         </td>
-        <td>＜画像＞</td>
+        <td></td>
       </tr>
     </table>
     <h2>Experimental features</h2>
@@ -115,10 +178,10 @@
         <td>
           <label class="switch"><input type="checkbox" id="cloudshell_enable_startup" /><span
               class="slider"></span><span>Execute custom startup script</span></label>
-          
+
         </td>
         <td><textarea id="cloudshell_startup_script" rows="6" style="width:100%;"
-              placeholder="# Input script here"></textarea></td>
+            placeholder="# Input script here"></textarea></td>
       </tr>
     </table>
   </div>

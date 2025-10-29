@@ -20,6 +20,7 @@
   --border-width: 2px;
   /* use this to control overlap amount */
   --font-size-page-title: 24px;
+  --slider-width: 40px;
 }
 
 body {
@@ -150,7 +151,7 @@ h3 {
 .slider {
   position: relative;
   display: inline-block;
-  width: 40px;
+  width: var(--slider-width);
   height: 20px;
   background-color: rgba(var(--text-rgb), 0.12);
   border-radius: 20px;
@@ -192,7 +193,6 @@ tr:has(input) {
 
 tr:has(input) img {
   filter: brightness(60%);
-  width: 80%;
 }
 tr:has(input) textarea {
   filter: brightness(60%);
@@ -222,6 +222,23 @@ table {
 }
 
 table td {
-  width: 50%;
   vertical-align: top;
+}
+
+table td:nth-child(1) {
+  width: 30%;
+  vertical-align: top;
+}
+
+table td:nth-child(2) {
+  width: 70%;
+  vertical-align: top;
+}
+
+td div {
+  margin-left: var(--slider-width);
+}
+
+td p {
+  margin: -4px 0;
 }
