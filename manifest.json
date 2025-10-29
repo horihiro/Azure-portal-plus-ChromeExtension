@@ -16,8 +16,11 @@
     "service_worker": "background/service-worker.js"
   },
   "action": {
-    "default_icon": "img/icon128.png",
-    "default_popup": "popup/main.html"
+    "default_icon": "img/icon128.png"
+  },
+  "options_ui": {
+    "page": "options/main.html",
+    "open_in_tab": true
   },
   "icons": {
     "128": "img/icon128.png"
