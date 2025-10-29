@@ -1058,17 +1058,15 @@ const storeAccessToken = async () => {
         if (watcherStatus[w].status) _watchers[w].startWatching(watcherStatus[w].options);
         else _watchers[w].stopWatching();
       });
-
-      setInterval(async () => {
-        await storeAccessToken();
-      }, 10000);
     }
-
     chrome.storage.onChanged.addListener(async (changes, area) => {
-      if (area !== 'local') return;
+      if (area !== 'local' || (Object.keys(changes).length === 1 && changes['accessToken'])) return;
       init(changes);
     });
     init();
+    setInterval(async () => {
+      await storeAccessToken();
+    }, 10000);
   } catch (e) {
     console.error(e)
   }
