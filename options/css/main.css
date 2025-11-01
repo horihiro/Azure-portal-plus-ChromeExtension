@@ -15,12 +15,13 @@
   --text: #E6F7FF; /* light text */
   /* text rgb for rgba usage (r,g,b without alpha) */
   --text-rgb: 230,247,255;
-  --muted: #9FC9FF; /* lighter muted text for secondary content */
+  --muted: #9FC9FF77; /* lighter muted text for secondary content */
   --border: rgba(230,247,255,0.6); /* subtle border on dark surface */
   --border-width: 2px;
   /* use this to control overlap amount */
   --font-size-page-title: 24px;
   --slider-width: 40px;
+  --slider-margin-right: 10px;
 }
 
 body {
@@ -158,7 +159,7 @@ h3 {
   transition: background-color 0.3s;
   margin-bottom: 7px;
   margin-top: 3px;
-  margin-right: 10px;
+  margin-right: var(--slider-margin-right);
   vertical-align: middle;
 }
 
@@ -173,38 +174,53 @@ h3 {
   left: 1px;
 }
 
-input:checked+.slider {
+input:checked:not(:disabled)+.slider {
   background-color: var(--accent-cta);
   box-shadow: 0 0 0 2px rgba(10,36,60,0.25) inset;
 }
 
 input~* {
   color: var(--muted);
+  font-weight: 700;
 }
 
-input:checked~* {
+input:checked:not(:disabled)~* {
   color: var(--text);
-  font-weight: 700;
+  /* font-weight: 700; */
 }
 
 tr:has(input) {
   color: var(--muted);
 }
 
-tr:has(input) img {
-  filter: brightness(60%);
-}
-tr:has(input) textarea {
+tr:has(input.level_0) img {
   filter: brightness(60%);
 }
 
-tr:has(input:checked) {
+tr:has(input.level_0) textarea {
+  filter: brightness(60%);
+  cursor: not-allowed;
+}
+
+tr:has(input.level_0) div>label {
+  cursor: not-allowed;
+}
+
+tr:has(input.level_0:checked) {
   color: var(--text);
 }
 
-tr:has(input:checked) img,
-tr:has(input:checked) textarea {
+tr:has(input.level_0:checked) img {
   filter: brightness(100%);
+}
+
+tr:has(input.level_0:checked) textarea {
+  filter: brightness(100%);
+  cursor: text;
+}
+
+tr:has(input.level_0:checked) div>label {
+  cursor: pointer;
 }
 
 input:checked+.slider::before {
@@ -235,10 +251,11 @@ table td:nth-child(2) {
   vertical-align: top;
 }
 
-td div {
-  margin-left: var(--slider-width);
-}
-
 td p {
   margin: -4px 0;
+}
+
+label > p,
+td div {
+  margin-left: calc(var(--slider-width) + var(--slider-margin-right));
 }

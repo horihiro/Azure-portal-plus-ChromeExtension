@@ -1,38 +1,37 @@
+const ASCII = {
+  ESC: '',
+  DEL: '',
+  ETX: '',
+}
+
 class KeepCloudShellSession {
   constructor() {
-    this.enabled = false;
     this.timeout = 0;
-    this.pingTimeout = 10000; // 10 seconds
-    this.pingString = ' '; // space + backspace
+    this.pingTimeout = 10000; // 10 minutes
+    this.pingString = ` ${ASCII.DEL}`; // space + backspace
   }
-  get status() {
-    return this.enabled;
+  onMessageHandler() {
+    this.timeout && clearTimeout(this.timeout);
+    this.timeout = setTimeout(() => {
+      this.socket.send(this.pingString);
+    }, this.pingTimeout);
   }
-  start(terminal) {
-    this.terminal = terminal;
-    const textInput = (string) => {
-      this.timeout = setTimeout(() => {
-        this.terminal.input(string);
-        textInput(string);
-      }, this.pingTimeout);
-    };
-    textInput(this.pingString);
-    this.enabled = true;
-    this.terminal.attachCustomKeyEventHandler(ev => {
-      if (!this.enabled || ev.type !== 'keydown') return;
-      this.stop();
-      this.start(this.terminal);
-    });
+  start(socket) {
+    this.socket = socket;
+    this.socket.addEventListener('message', this.onMessageHandler.bind(this));
+    this.socket.send(this.pingString);
   }
   stop() {
-    clearTimeout(this.timeout);
-    this.terminal && this.terminal.attachCustomKeyEventHandler(undefined);
-    this.enabled = false;
+    this.timeout && clearTimeout(this.timeout);
+    this.timeout = 0;
+    this.socket && this.socket.removeEventListener('message', this.onMessageHandler.bind(this));
   }
 }
 
 class CommandExecutor {
-  execute(command, options = { background: true, history: true }) {
+  execute(command, termination, options = { background: true, history: true }) {
+    if (!command || !termination) return Promise.reject(new Error('Invalid command or termination string.'));
+
     return new Promise((resolve, reject) => {
       const socket = sockets.find(s => !s.url.endsWith('/control'));
       const terminal = window.term;
@@ -44,18 +43,33 @@ class CommandExecutor {
         reject(new Error('WebSocket is not open.'));
         return;
       }
-      const commandWithNewline = `${history ? '' : ' '}${command.trim() + '\n'}`;
+      const commandWithNewline = `${history ? '' : ' '}${command.trim() + (globalSettings.shellType === 'bash' ? '\n' : '\r')}`;
+      let response = '';
+      let timeout = null;
       terminal.write = (data) => {
+        timeout && clearTimeout(timeout);
         const str = typeof data === 'string' ? data : new TextDecoder().decode(data);
+        response += str;
+        const finishCommand = () => {
+          timeout = null;
+          response = (
+            response.endsWith(termination)
+              ? response.slice(0, response.lastIndexOf(termination))
+              : response
+          )
+            .replaceAll(/\[\??[\d;]*[a-zA-Z]/g, '')
+            .replaceAll(/[\r\n]+/g, '\n');
+          resolve(response.startsWith(commandWithNewline) ? response.slice(commandWithNewline.length) : response);
+        };
         if (!background) {
           terminal.write = originalTerminalWrite;
           terminal.write(str);
-          resolve();
+          timeout = setTimeout(finishCommand, 100);
           return;
         }
-        if (!str.endsWith(globalSettings.shellPrompt)) return;
+        if (!response.endsWith(termination)) return;
         terminal.write = originalTerminalWrite;
-        resolve();
+        timeout = setTimeout(finishCommand, 100);
       };
       socket.send(commandWithNewline);
     });
@@ -66,9 +80,11 @@ const keepCloudShellSession = new KeepCloudShellSession();
 const commandExecutor = new CommandExecutor();
 
 const sockets = [];
-const startupCommands = [
+const defaultStartupCommands = [
   // Default startup commands
-  { command: 'export TWEAKIT_INJECTED=1', background: true, history: false },
+  { command: { bash: 'export TWEAKIT_INJECTED=1', pwsh: '$Env:TWEAKIT_INJECTED=1' }, background: true, history: false },
+  // { command: 'alias ll="ls -la"', background: true, history: false },
+  // { command: `function tree() { cd $1 && pwd;find . | sort | sed '1d;s/^\\.//;s/\\/\\([^/]*\\)$/|--\\1/;s/\\/[^/|]*/|  /g' && cd - > /dev/null; }`, background: true, history: false },
 ];
 
 const originalWebSocket = window.WebSocket;
@@ -84,13 +100,20 @@ window.WebSocket.OPEN = 1;
 window.WebSocket.CLOSING = 2;
 window.WebSocket.CLOSED = 3;
 
-const PROMPT_LEADING_PATTERN = '\\[\\?2004h';
+
+const PROMPT_LEADING_PATTERN = {
+  bash: `${ASCII.ESC}\\[\\?2004h`,
+  pwsh: `PS [\\s\\S]*> `,
+};
+
 const globalSettings = {
   shellPrompt: '',
+  user: '',
   endpoint: {
     host: '',
     path: '',
   },
+  tweakitOptions: {}
 };
 
 const init = () => {
@@ -120,11 +143,15 @@ const socketCloseHandler = (e) => {
 const socketOpenHandler = (e) => {
   const socket = e.target;
   socket.removeEventListener('open', socketOpenHandler);
-  if (!socket.url.endsWith('/control')) {
-    socket.addEventListener('message', socketMessageHandler);
-    const [_, host, path] = socket.url.match(/wss:\/\/([^\/]+)\/\$hc\/([^\/]+)\/.*/);
-    globalSettings.endpoint = { host, path };
+  if (socket.url.endsWith('/control')) {
+    init();
+    return;
   }
+
+  socket.addEventListener('message', socketMessageHandler);
+  const [_, host, path] = socket.url.match(/wss:\/\/([^\/]+)\/\$hc\/([^\/]+)\/.*/);
+  globalSettings.endpoint = { host, path };
+
   init();
 };
 
@@ -137,9 +164,16 @@ const socketMessageHandler = (e) => {
   let promptDetecting = false;
   let currentPrompt = '';
   let promptTimeout = null;
+
+  globalSettings.shellType = document.querySelector('i[data-icon-name="Swap"]~span')?.innerText.includes('PowerShell') ? 'bash' : 'pwsh';
+  console.debug('Shell type: ', globalSettings.shellType);
+
+  // if (globalSettings.shellType !== 'bash') return;
   window.term.write = (data) => {
     const str = typeof data === 'string' ? data : new TextDecoder().decode(data);
     originalTerminalWrite(data);
+
+    if (!['bash', 'pwsh'].includes(globalSettings.shellType)) return;
     const notifyPromptUpdated = () => {
       return setTimeout(() => {
         promptTimeout = null;
@@ -149,12 +183,12 @@ const socketMessageHandler = (e) => {
         window.dispatchEvent(new CustomEvent('shellPromptUpdated', { detail: { shellPrompt: globalSettings.shellPrompt } }));
       }, 10);
     };
-    if (str.match(new RegExp(PROMPT_LEADING_PATTERN))) {
+    if (str.match(new RegExp(PROMPT_LEADING_PATTERN[globalSettings.shellType]))) {
       currentPrompt = str.replace(
-        new RegExp(`[\\s\\S]*(${PROMPT_LEADING_PATTERN}[^\\n\\r]*)[\\s\\S]*$`),
+        new RegExp(`[\\s\\S]*(${PROMPT_LEADING_PATTERN[globalSettings.shellType]}[^\\n\\r]*)[\\s\\S]*$`),
         '$1'
       );
-      promptDetecting = true;
+      promptDetecting = globalSettings.shellType === 'bash';
       promptTimeout = notifyPromptUpdated();
       return;
     }
@@ -174,38 +208,81 @@ window.addEventListener('shellPromptUpdated', async (e) => {
 window.addEventListener('startupFeatureStatus', async (e) => {
   console.debug('startupFeatureStatus event received:', e.detail);
   window.dispatchEvent(new CustomEvent('updateFeatureStatus', { detail: e.detail }));
+  globalSettings.tweakitOptions = { ...e.detail };
+  const startupCommands = defaultStartupCommands.map(options => {
+    return {
+      command: options.command[globalSettings.shellType],
+      background: options.background,
+      history: options.history,
+    };
+  });
 
-  // Execute startup commands
+  if (globalSettings.shellType !== 'bash') return;
 
-  //// Other samples
-  startupCommands.push({ command: 'alias ll="ls -la"', background: true, history: false });
-  startupCommands.push({ command: `function tree() { cd $1 && pwd;find . | sort | sed '1d;s/^\\.//;s/\\/\\([^/]*\\)$/|--\\1/;s/\\/[^/|]*/|  /g' && cd - > /dev/null; }`, background: true, history: false });
+  try {
+    globalSettings.shellType === 'bash' && e.detail.replaceCodeCommand?.status &&
+    startupCommands.push({
+      command: `function code () {
+  dirname="$(cd -- "$(dirname -- "$1")" && pwd)" || exit $?
+  abspath="\${dirname%/}/$(basename -- "$1")"
+  vscode tunnel --random-name --server-data-dir \${HOME}/code | sed -r "s|(https:\/\/insiders.vscode.dev\/[^ ]+)|\\1\${abspath}|"
+}`,
+      background: true,
+      history: false,
+    });
+    globalSettings.shellType === 'bash' && e.detail.executeStartupScript?.status &&
+      e.detail.executeStartupScript.options?.script &&
+      startupCommands.push({
+        command: e.detail.executeStartupScript.options.script[globalSettings.shellType],
+        background: e.detail.executeStartupScript.options.disabledOptions?.includes('cloudshell_enable_startup_visible'),
+        history: !e.detail.executeStartupScript.options.disabledOptions?.includes('cloudshell_enable_startup_history'),
+      });
 
-  // Execute all startup commands
-  await startupCommands.reduce(async (p, options) => {
-    await p;
-    return commandExecutor.execute(
-      options.command,
-      {
-        background: options.background,
-        history: options.history
-      }
-    );
-  }, Promise.resolve());
+    globalSettings.shellType === 'bash' && e.detail.executeDockerDaemon?.status &&
+      startupCommands.push({
+        command: `test -z "$DOCKER_HOST" || ps aux | grep [r]ootlesskit > /dev/null || curl -L https://gist.githubusercontent.com/surajssd/e1bf909d48ab64517257188553e26f83/raw/6f3071ec0a4d831547263bb0e5edf9c3ef2f83bc/docker-build-fix.sh | bash && curl -s "https://${globalSettings.endpoint.host}/${globalSettings.endpoint.path}/tunnel" -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $(az account get-access-token --query "accessToken" --output tsv)" -d "{\\"token\\": \\"$(az account get-access-token --query "accessToken" --output tsv --scope 46da2f7e-b5ef-422a-88d4-2a7f9de6a0b2/all)\\", \\"folderPath\\": \\"\\", \\"tunnelName\\": \\"tweakit\\", \\"extensions\\": []}" > /dev/null;`,
+        background: true,
+        history: false,
+      });
+
+    // Execute all startup commands
+    await startupCommands.reduce(async (p, options) => {
+      await p;
+      return commandExecutor.execute(
+        options.command,
+        globalSettings.shellPrompt,
+        {
+          background: options.background,
+          history: options.history
+        }
+      );
+    }, Promise.resolve());
+    globalSettings.user = (await commandExecutor.execute('whoami', globalSettings.shellPrompt, { background: true, history: false })).trim();
+  }
+  catch (err) {
+    console.error('Error executing startup commands:', err);
+  }
 });
 
 window.addEventListener('updateFeatureStatus', async (e) => {
   console.debug('updateFeatureStatus event received:', e.detail);
+  Object.keys(e.detail).forEach(k => {
+    if (!e.detail[k]?.newValue) return
+    globalSettings.tweakitOptions[k] = e.detail[k].newValue;
+  });
+
+  if (globalSettings.tweakitOptions.accessToken) {
+    const response = await fetch('https://management.azure.com/providers/Microsoft.Portal/userSettings/cloudconsole?api-version=2023-02-01-preview', {
+      headers: {
+        Authorization: `Bearer ${globalSettings.tweakitOptions.accessToken}`
+      }
+    });
+    if (response.ok) {
+      globalSettings.shellSettings = await response.json();
+    }
+  }
 
   keepCloudShellSession.stop();
-  e.detail.keepCloudShellSession?.status && keepCloudShellSession.start(window.term);
-  console.debug('KeepCloudShellSession status:', keepCloudShellSession.status);
+  e.detail.keepCloudShellSession?.status && keepCloudShellSession.start(sockets.find(s => !s.url.endsWith('/control')));
+
 });
-
-// sockets[0].send(`curl -s "https://${globalSettings.endpoint.host}/${globalSettings.endpoint.path}/tunnel" -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $(az account get-access-token --query "accessToken" --output tsv)" -d "{\\"token\\": \\"$(az account get-access-token --query "accessToken" --output tsv --scope 46da2f7e-b5ef-422a-88d4-2a7f9de6a0b2/all)\\", \\"folderPath\\": \\"\\", \\"tunnelName\\": \\"shell\\", \\"extensions\\": []}" > /dev/null && kill $(ps aux | grep "[v]scode tunnel" | awk '{print $2}')\n`)
-// `function tree() { cd $1 && pwd;find . | sort | sed '1d;s/^\\.//;s/\\/\\([^/]*\\)$/|--\\1/;s/\\/[^/|]*/|  /g' && cd - > /dev/null; }`
-
-// TOKEN=$(az account get-access-token --query "accessToken" --output tsv)
-// TUNNEL_TOKEN=$(az account get-access-token --query "accessToken" --output tsv --scope 46da2f7e-b5ef-422a-88d4-2a7f9de6a0b2/all)
-// curl "https://${ACC_CLUSTER}.servicebus.windows.net/cc-JDWT-8F8ACC7E/tunnel" -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${TOKEN}" -d "{\"token\": \"${TUNNEL_TOKEN}\", \"folderPath\": \"\", \"tunnelName\": \"shell\", \"extensions\": []}"
-// kill $(ps aux | grep "[v]scode tunnel" | awk '{print $2}')
